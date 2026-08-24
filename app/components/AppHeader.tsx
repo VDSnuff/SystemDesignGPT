@@ -8,9 +8,10 @@ export function AppHeader() {
           <span className="grid h-9 w-9 place-items-center rounded-full bg-ink text-accent">SD</span>
           <span>System Design Studio</span>
         </Link>
-        <Link className="rounded-full border border-ink/20 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white" href="/workshop">
-          Open workshop
-        </Link>
+        <nav className="flex items-center gap-2" aria-label="Primary navigation">
+          <Link className="hidden rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white sm:block" href="/chapter/requirements">Quick guide</Link>
+          <Link className="rounded-full border border-ink/20 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white" href="/workshop">Open workshop</Link>
+        </nav>
       </div>
     </header>
   );

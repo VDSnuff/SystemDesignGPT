@@ -1,6 +1,6 @@
 # System Design Studio
 
-An interactive edition of the System Design Checklist Book. Every handbook page includes a contextual design copilot that knows the current chapter and the complete site map. The diagram workshop lets readers place components, connect dependencies, and reason about boundaries and failure paths.
+An interactive edition of the System Design Checklist Book. All 31 top-level sections are generated directly from the canonical Markdown, including tables, checklists, code, Mermaid diagrams, evidence references, and source links. Every handbook page includes a contextual design copilot that knows the current section and complete site map. The diagram workshop lets readers place components, connect dependencies, and reason about boundaries and failure paths.
 
 ## Run locally
 

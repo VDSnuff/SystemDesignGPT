@@ -1,6 +1,6 @@
-import { ChapterView } from "./components/ChapterView";
-import { guidePages } from "./content";
+import { bookSections } from "./book-content.generated";
+import { BookPageView } from "./components/BookPageView";
 
 export default function Home() {
-  return <ChapterView page={guidePages[0]} />;
+  return <BookPageView section={bookSections[0]} />;
 }
