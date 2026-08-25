@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { isChatAnswerBody, isChatErrorBody, isChatStatusBody, type ChatErrorCode } from "../chat-contract";
 import { canRecheck, statusForError, statusPresentation, type CopilotStatus } from "../copilot-status";
 import { CopilotFallbacks } from "./CopilotFallbacks";
+import { ResponsiveChatShell } from "./ResponsiveChatShell";
 
 interface ChatMessage { readonly role: "user" | "assistant"; readonly content: string }
 
@@ -110,8 +111,8 @@ export function ChatPanel(props: ChatPanelProps) {
   const isAiDisabled = status !== "ready";
   const hasOutage = status === "usage-limited" || status === "unconfigured" || status === "temporarily-unavailable";
   return (
-    <aside className="border-t border-ink/15 bg-[#faf8f3] p-4 lg:border-l lg:border-t-0 lg:p-5">
-      <div className="sticky top-5 flex h-[calc(100vh-40px)] min-h-[560px] flex-col rounded-3xl border border-ink/15 bg-white p-5 shadow-soft">
+    <ResponsiveChatShell pageLabel={props.pageLabel} status={status}>
+      <div className="responsive-chat-content flex min-h-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-3 border-b border-ink/10 pb-4">
           <div>
             <p className="font-semibold">Design copilot</p>
@@ -176,6 +177,6 @@ export function ChatPanel(props: ChatPanelProps) {
           </div>
         </form>
       </div>
-    </aside>
+    </ResponsiveChatShell>
   );
 }

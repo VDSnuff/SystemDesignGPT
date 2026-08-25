@@ -22,6 +22,14 @@ function errorResponse(code: string, message: string, status: number) {
   return Response.json({ error: { code, message } }, { status });
 }
 
+function useMobileViewport() {
+  vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+}
+
 async function sendQuestion() {
   const user = userEvent.setup();
   await user.type(await screen.findByRole("textbox", { name: "Ask about Introduction" }), "Review this");
@@ -125,5 +133,51 @@ describe("ChatPanel service states", () => {
 
     expect((await screen.findByRole("alert")).textContent).toContain("could not be reached");
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("ChatPanel mobile drawer", () => {
+  it("keeps one chat form and preserves its draft across open and close", async () => {
+    useMobileViewport();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(statusResponse("ready")));
+    const user = userEvent.setup();
+    render(<ChatPanel {...panelProps} />);
+
+    const launcher = await screen.findByRole("button", { name: /Open design copilot.*Ready to ask/ });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await user.click(launcher);
+
+    expect(screen.getAllByRole("textbox")).toHaveLength(1);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Close design copilot" }));
+    const textbox = screen.getByRole("textbox", { name: "Ask about Introduction" });
+    await user.type(textbox, "Keep this draft");
+    await user.click(screen.getByRole("button", { name: "Close design copilot" }));
+
+    expect(document.activeElement).toBe(launcher);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await user.click(launcher);
+    expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: "Ask about Introduction" }).value).toBe("Keep this draft");
+  });
+
+  it("traps focus, closes with Escape, restores focus, and unlocks scrolling", async () => {
+    useMobileViewport();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(statusResponse("ready")));
+    const user = userEvent.setup();
+    render(<ChatPanel {...panelProps} />);
+
+    const launcher = await screen.findByRole("button", { name: /Open design copilot/ });
+    await user.click(launcher);
+    const close = screen.getByRole("button", { name: "Close design copilot" });
+    expect(document.body.style.overflow).toBe("hidden");
+
+    await user.keyboard("{Shift>}{Tab}{/Shift}");
+    expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "Ask about Introduction" }));
+    await user.keyboard("{Tab}");
+    expect(document.activeElement).toBe(close);
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(launcher);
+    expect(document.body.style.overflow).toBe("");
   });
 });
