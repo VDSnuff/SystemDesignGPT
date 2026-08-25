@@ -124,6 +124,23 @@ test("a mobile reader can open and use the contextual copilot without page clipp
   await expect(page).toHaveURL(/\/book\/9-security$/);
 });
 
+test("the Requirements guide article renders at desktop and mobile widths", async ({ page }) => {
+  await mockReaderBoundaries(page);
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const response = await page.goto("/chapter/requirements");
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1, name: "Design from requirements, not from patterns." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Worked example: order cancellation" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "1. Requirements: FRs, NFRs, Constraints, and Assumptions" })).toHaveAttribute(
+      "href",
+      "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+});
+
 test("unknown handbook routes return not found", async ({ page }) => {
   const response = await page.goto("/book/not-a-real-section");
 

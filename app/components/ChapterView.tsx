@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { findGuideArticle } from "../articles";
 import type { GuidePage } from "../content";
 import { AppHeader } from "./AppHeader";
+import { BookMarkdown } from "./BookMarkdown";
 import { ChapterNav } from "./ChapterNav";
 import { ChatPanel } from "./ChatPanel";
 import { Checklist } from "./Checklist";
 
 export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
+  const article = findGuideArticle(page.slug);
   return (
     <>
       <AppHeader />
@@ -32,6 +35,12 @@ export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
               <span className="font-semibold group-hover:translate-x-1">Open canvas →</span>
             </Link>
           </section>
+
+          {article ? (
+            <section aria-label={`${page.label} article`} className="mt-14">
+              <BookMarkdown checklistItems={[]} headings={article.headings} markdown={article.markdown} />
+            </section>
+          ) : null}
 
           <Checklist items={page.checkpoints} />
           <footer className="mt-14 border-t border-ink/15 pt-6 text-sm text-muted">
