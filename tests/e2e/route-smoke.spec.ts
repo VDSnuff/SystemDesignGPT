@@ -110,7 +110,7 @@ test("a mobile reader can open and use the contextual copilot without page clipp
   await expect(dialog).toBeVisible();
   await textbox.fill("Review my design");
   await page.getByRole("button", { name: "Send question" }).click();
-  await expect(page.getByText("Review requirements first.")).toBeVisible();
+  await expect(page.getByText("Review requirements first.", { exact: true })).toBeVisible();
 
   const hasPageOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasPageOverflow).toBe(false);

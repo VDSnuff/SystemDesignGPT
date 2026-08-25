@@ -54,7 +54,7 @@ describe("authored quiz interaction", () => {
     render(<LearningLab pageSlug="sample" quizPolicy={policy} />);
 
     expect(await screen.findByText("Saved work loaded.")).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Quiz" }));
+    await user.click(screen.getByRole("tab", { name: "Quiz" }));
     await user.click(screen.getByRole("button", { name: "Retry quiz" }));
     await user.click(screen.getByRole("button", { name: "Save learning work" }));
 
