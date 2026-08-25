@@ -1,7 +1,8 @@
 "use client";
 
-import { KeyboardEvent, ReactNode, useEffect, useId, useRef, useState } from "react";
+import { KeyboardEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { statusPresentation, type CopilotStatus } from "../copilot-status";
+import { stableDomId } from "../dom-id";
 
 interface ResponsiveChatShellProps {
   readonly children: ReactNode;
@@ -39,7 +40,7 @@ function focusableElements(container: HTMLElement) {
 export function ResponsiveChatShell({ children, pageLabel, status }: ResponsiveChatShellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isDesktop = useDesktopViewport();
-  const dialogId = useId();
+  const dialogId = stableDomId("copilot", pageLabel);
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);

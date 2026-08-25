@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { stableDomId } from "../dom-id";
+import { describeMermaid } from "../mermaid-description";
 
 export function MermaidDiagram({ chart }: Readonly<{ chart: string }>) {
-  const diagramId = `diagram-${useId().replace(/:/g, "")}`;
+  const diagramId = stableDomId("diagram", chart);
+  const titleId = `${diagramId}-title`;
+  const descriptionId = `${diagramId}-description`;
   const containerRef = useRef<HTMLDivElement>(null);
   const [isNearViewport, setIsNearViewport] = useState(false);
   const [svg, setSvg] = useState("");
   const [error, setError] = useState(false);
+  const description = describeMermaid(chart);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -39,7 +44,23 @@ export function MermaidDiagram({ chart }: Readonly<{ chart: string }>) {
     return () => { isActive = false; };
   }, [chart, diagramId, isNearViewport]);
 
-  if (error) return <pre className="book-code mermaid-fallback">{chart}</pre>;
-  if (!svg) return <div className="mermaid-loading" ref={containerRef}>{isNearViewport ? "Rendering diagram…" : "Diagram loads as you approach it."}</div>;
-  return <div aria-label="Architecture diagram" className="mermaid-diagram" dangerouslySetInnerHTML={{ __html: svg }} role="img" />;
+  if (error) return <DiagramFigure chart={chart} description={description} hasError />;
+  if (!svg) return <div className="mermaid-loading" ref={containerRef} role="status">{isNearViewport ? "Rendering diagram…" : "Diagram loads as you approach it."}</div>;
+  return (
+    <figure>
+      <div aria-describedby={descriptionId} aria-labelledby={titleId} className="mermaid-diagram" dangerouslySetInnerHTML={{ __html: svg }} role="img" tabIndex={0} />
+      <figcaption>
+        <span className="sr-only" id={titleId}>Architecture diagram</span>
+        <DiagramAlternative description={description} id={descriptionId} />
+      </figcaption>
+    </figure>
+  );
+}
+
+function DiagramAlternative({ description, id }: Readonly<{ description: string; id?: string }>) {
+  return <details className="mermaid-alternative"><summary>Read diagram description</summary><p id={id}>{description}</p></details>;
+}
+
+function DiagramFigure({ chart, description, hasError }: Readonly<{ chart: string; description: string; hasError: boolean }>) {
+  return <figure><pre className={hasError ? "book-code mermaid-fallback" : "book-code"}>{chart}</pre><figcaption><DiagramAlternative description={description} /></figcaption></figure>;
 }
