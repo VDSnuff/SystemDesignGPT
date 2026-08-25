@@ -100,6 +100,21 @@ input[type="search"] { border-color: #58645d; }
   margin: 0;
 }
 
+.mermaid-alternative {
+  margin: -1rem 0 1.7rem;
+  border: 1px solid rgb(23 32 28 / 15%);
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem;
+  background: rgb(255 255 255 / 70%);
+}
+
+.mermaid-alternative summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.mermaid-alternative p { margin: 0.7rem 0 0; line-height: 1.6; }
+
 @media (max-width: 1023px) {
   body { padding-bottom: 5rem; }
 }
