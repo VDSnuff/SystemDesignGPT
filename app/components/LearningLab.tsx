@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { initialDiagram, learningPayloadSchema, type DiagramState, type LearningPayload } from "../learning-types";
 import { loadLearningState, saveLearningState } from "../learning-state-client";
-import type { QuizQuestion } from "../section-quiz";
+import type { QuizPolicy } from "../section-quiz";
 import { DiagramEditor } from "./DiagramEditor";
 import { LearningNotes } from "./LearningNotes";
 import { SectionQuiz } from "./SectionQuiz";
@@ -12,7 +12,7 @@ type Tab = "diagram" | "quiz" | "notes";
 
 interface LearningLabProps {
   readonly pageSlug: string;
-  readonly questions: readonly QuizQuestion[];
+  readonly quizPolicy: QuizPolicy;
 }
 
 const emptyPayload: LearningPayload = { note: "", diagram: initialDiagram, quizAnswers: [] };
@@ -22,7 +22,7 @@ function TabButton({ active, children, onClick }: Readonly<{ active: boolean; ch
   return <button aria-pressed={active} className={className} onClick={onClick} type="button">{children}</button>;
 }
 
-export function LearningLab({ pageSlug, questions }: LearningLabProps) {
+export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
   const [tab, setTab] = useState<Tab>("diagram");
   const [payload, setPayload] = useState<LearningPayload>(emptyPayload);
   const [status, setStatus] = useState("Loading saved work…");
@@ -45,10 +45,15 @@ export function LearningLab({ pageSlug, questions }: LearningLabProps) {
   }
 
   function updateAnswer(questionIndex: number, optionIndex: number) {
+    if (quizPolicy.kind !== "quiz") return;
     setPayload((current) => {
-      const quizAnswers = questions.map((_, index) => index === questionIndex ? optionIndex : current.quizAnswers[index] ?? -1);
+      const quizAnswers = quizPolicy.questions.map((_, index) => index === questionIndex ? optionIndex : current.quizAnswers[index] ?? -1);
       return { ...current, quizAnswers };
     });
+  }
+
+  function retryQuiz() {
+    setPayload((current) => ({ ...current, quizAnswers: [] }));
   }
 
   async function save() {
@@ -78,7 +83,7 @@ export function LearningLab({ pageSlug, questions }: LearningLabProps) {
       </div>
       <div className="mt-6 rounded-3xl border border-ink/15 bg-[#eef1e8] p-4 sm:p-6">
         {tab === "diagram" ? <DiagramEditor label="Section diagram canvas" onChange={updateDiagram} value={payload.diagram} /> : null}
-        {tab === "quiz" ? <SectionQuiz answers={payload.quizAnswers} onAnswer={updateAnswer} questions={questions} /> : null}
+        {tab === "quiz" ? <SectionQuiz answers={payload.quizAnswers} onAnswer={updateAnswer} onRetry={retryQuiz} policy={quizPolicy} /> : null}
         {tab === "notes" ? <LearningNotes note={payload.note} onNoteChange={(note) => setPayload((current) => ({ ...current, note }))} pageSlug={pageSlug} /> : null}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">

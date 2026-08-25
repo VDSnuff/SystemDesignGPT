@@ -3,6 +3,7 @@ import { getDb } from "../db";
 import { learningPageState } from "../db/schema";
 import { serializeDiagram } from "./diagram-model";
 import type { LearningStateRepository, LearningStateWrite } from "./learning-state-contract";
+import { serializeQuizAnswers } from "./quiz-persistence";
 
 async function find(userId: string, pageSlug: string) {
   const [row] = await getDb().select().from(learningPageState).where(and(
@@ -18,7 +19,7 @@ async function save(value: LearningStateWrite) {
     pageSlug: value.pageSlug,
     note: value.note,
     diagramPayload: serializeDiagram(value.diagram),
-    quizPayload: JSON.stringify(value.quizAnswers),
+    quizPayload: serializeQuizAnswers(value.quizAnswers),
     updatedAt: value.updatedAt,
   };
   await getDb().insert(learningPageState).values(row).onConflictDoUpdate({

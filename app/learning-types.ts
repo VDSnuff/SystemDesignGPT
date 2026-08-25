@@ -10,7 +10,7 @@ export {
   type NodeKind,
 } from "./diagram-model";
 
-export const quizAnswersSchema = z.array(z.number().int().min(-1).max(5)).max(8);
+export const quizAnswersSchema = z.array(z.number().int().min(-1).max(3)).max(4);
 
 export const learningPayloadSchema = z.object({
   note: z.string().max(10_000),

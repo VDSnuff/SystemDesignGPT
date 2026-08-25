@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { bookSections, type BookSection } from "../book-content.generated";
-import { buildSectionQuiz } from "../section-quiz";
+import { getSectionQuizPolicy } from "../section-quiz";
 import { AppHeader } from "./AppHeader";
 import { BookMarkdown } from "./BookMarkdown";
 import { BookNav } from "./BookNav";
@@ -34,8 +34,8 @@ export function BookPageView({ section }: Readonly<{ section: BookSection }>) {
         <article className="min-w-0 px-5 py-10 sm:px-10 lg:px-12 lg:py-14">
           <p className="kicker">Complete handbook · Section {sectionIndex} of {bookSections.length}</p>
           <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl">{section.title}</h1>
-          <div className="mt-10"><BookMarkdown markdown={section.markdown} /></div>
-          <LearningLab pageSlug={section.slug} questions={buildSectionQuiz(section)} />
+          <div className="mt-10" id="section-content"><BookMarkdown markdown={section.markdown} /></div>
+          <LearningLab pageSlug={section.slug} quizPolicy={getSectionQuizPolicy(section)} />
           <ReaderPager section={section} />
         </article>
         <ChatPanel
