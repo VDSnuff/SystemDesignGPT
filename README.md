@@ -23,4 +23,11 @@ npm run build
 
 Tests mock the OpenAI boundary and never require a real API key or paid provider call.
 
+The diagram workshop also has real-browser coverage at mobile, tablet, and desktop widths:
+
+```bash
+npx playwright install chromium
+npm run test:e2e:diagram
+```
+
 The source handbook is preserved in `docs/System_Design_Checklist_Book.md`.

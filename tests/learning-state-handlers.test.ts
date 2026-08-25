@@ -1,0 +1,109 @@
+import { describe, expect, it } from "vitest";
+import { initialDiagram } from "../app/diagram-model";
+import {
+  decodeStoredState,
+  handleLearningStateGet,
+  handleLearningStatePut,
+} from "../app/learning-state-handlers";
+import type {
+  LearningStateRecord,
+  LearningStateRepository,
+  LearningStateWrite,
+} from "../app/learning-state-contract";
+
+function record(userId: string, label: string): LearningStateRecord {
+  return {
+    userId,
+    pageSlug: "diagram-workshop",
+    note: "private note",
+    diagramPayload: JSON.stringify({
+      ...initialDiagram,
+      nodes: initialDiagram.nodes.map((node, index) => index === 0 ? { ...node, label } : node),
+    }),
+    quizPayload: "[]",
+    updatedAt: "2026-08-25T12:00:00.000Z",
+  };
+}
+
+function request(method: "GET" | "PUT", userId: string, body?: unknown) {
+  const url = "http://localhost/api/learning-state?page=diagram-workshop";
+  return new Request(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      "oai-authenticated-user-email": `${userId}@example.com`,
+      "oai-authenticated-user-id": userId,
+      origin: "http://localhost",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
+
+async function body(response: Response) {
+  return await response.json() as { state?: { diagram: typeof initialDiagram }; warning?: string };
+}
+
+describe("learning-state persistence handlers", () => {
+  it("rejects unauthenticated reads and cross-origin writes before repository access", async () => {
+    let wasAccessed = false;
+    const repository: LearningStateRepository = {
+      find: async () => { wasAccessed = true; return null; },
+      save: async () => { wasAccessed = true; },
+    };
+    const read = new Request("http://localhost/api/learning-state?page=diagram-workshop");
+    const write = new Request("http://localhost/api/learning-state", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "oai-authenticated-user-email": "user-a@example.com",
+        "oai-authenticated-user-id": "user-a",
+      },
+      body: JSON.stringify({ pageSlug: "diagram-workshop", note: "", diagram: initialDiagram, quizAnswers: [] }),
+    });
+
+    expect((await handleLearningStateGet(read, repository)).status).toBe(401);
+    expect((await handleLearningStatePut(write, repository)).status).toBe(403);
+    expect(wasAccessed).toBe(false);
+  });
+
+  it("reads and writes state only through the authenticated user's key", async () => {
+    const rows = new Map([["user-a:diagram-workshop", record("user-a", "A private diagram")], ["user-b:diagram-workshop", record("user-b", "B private diagram")]]);
+    const writes: LearningStateWrite[] = [];
+    const repository: LearningStateRepository = {
+      find: async (userId, pageSlug) => rows.get(`${userId}:${pageSlug}`) ?? null,
+      save: async (value) => { writes.push(value); },
+    };
+
+    const responseA = await handleLearningStateGet(request("GET", "user-a"), repository);
+    const responseB = await handleLearningStateGet(request("GET", "user-b"), repository);
+    expect((await body(responseA)).state?.diagram.nodes[0].label).toBe("A private diagram");
+    expect((await body(responseB)).state?.diagram.nodes[0].label).toBe("B private diagram");
+
+    const payload = { pageSlug: "diagram-workshop", note: "", diagram: initialDiagram, quizAnswers: [] };
+    expect((await handleLearningStatePut(request("PUT", "user-a", payload), repository)).status).toBe(200);
+    expect(writes).toHaveLength(1);
+    expect(writes[0]).toMatchObject({ userId: "user-a", pageSlug: "diagram-workshop" });
+  });
+
+  it("migrates valid legacy diagrams without discarding learning work", () => {
+    const decoded = decodeStoredState({
+      ...record("user-a", "unused"),
+      diagramPayload: JSON.stringify({
+        nodes: [{ id: 1, kind: "Client", label: "Legacy", x: 700, y: 500 }],
+        connections: [],
+      }),
+    });
+
+    expect(decoded.state.note).toBe("private note");
+    expect(decoded.state.diagram).toMatchObject({ version: 1, nodes: [{ label: "Legacy", x: 544, y: 358 }] });
+    expect(decoded.warning).toBeUndefined();
+  });
+
+  it("recovers an invalid stored diagram explicitly while preserving the note", () => {
+    const decoded = decodeStoredState({ ...record("user-a", "unused"), diagramPayload: "not-json" });
+
+    expect(decoded.state.note).toBe("private note");
+    expect(decoded.state.diagram).toEqual(initialDiagram);
+    expect(decoded.warning).toContain("invalid and has been reset");
+  });
+});
