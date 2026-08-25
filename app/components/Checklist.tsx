@@ -15,7 +15,7 @@ export function Checklist({ items }: Readonly<{ items: readonly string[] }>) {
   }
 
   return (
-    <section className="mt-12" aria-labelledby="review-heading">
+    <section className="mt-12" aria-labelledby="review-heading" id="review-checklist">
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
           <p className="kicker">Interactive review</p>

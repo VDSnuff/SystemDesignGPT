@@ -77,7 +77,7 @@ export function LearningLab({ pageSlug, questions }: LearningLabProps) {
   }
 
   return (
-    <section aria-labelledby="learning-lab-heading" className="mt-14 border-t border-ink/15 pt-10">
+    <section aria-labelledby="learning-lab-heading" className="mt-14 border-t border-ink/15 pt-10" id="learning-lab">
       <p className="kicker">Practice after learning</p>
       <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
         <div>

@@ -38,7 +38,13 @@ export function BookPageView({ section }: Readonly<{ section: BookSection }>) {
           <LearningLab pageSlug={section.slug} questions={buildSectionQuiz(section)} />
           <ReaderPager section={section} />
         </article>
-        <ChatPanel pageId={`book:${section.slug}`} pageLabel={section.title} prompts={prompts} />
+        <ChatPanel
+          fallbackHref="#learning-lab"
+          fallbackLabel="Open section learning lab"
+          pageId={`book:${section.slug}`}
+          pageLabel={section.title}
+          prompts={prompts}
+        />
       </div>
     </main>
   );

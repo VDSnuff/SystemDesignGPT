@@ -38,7 +38,13 @@ export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
             Based on the System Design Checklist Book, canonical edition 5.0.
           </footer>
         </article>
-        <ChatPanel pageId={page.slug} pageLabel={page.label} prompts={page.prompts} />
+        <ChatPanel
+          fallbackHref="#review-checklist"
+          fallbackLabel="Open chapter checklist"
+          pageId={page.slug}
+          pageLabel={page.label}
+          prompts={page.prompts}
+        />
       </div>
     </main>
   );

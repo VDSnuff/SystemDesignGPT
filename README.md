@@ -16,8 +16,11 @@ The OpenAI key is read only by the server route. It is never sent to the browser
 ## Verify
 
 ```bash
+npm test
 npm run lint
 npm run build
 ```
+
+Tests mock the OpenAI boundary and never require a real API key or paid provider call.
 
 The source handbook is preserved in `docs/System_Design_Checklist_Book.md`.
