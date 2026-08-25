@@ -23,11 +23,14 @@ npm run build
 
 Tests mock the OpenAI boundary and never require a real API key or paid provider call.
 
+The quiz suite validates all 31 canonical section policies, authored answer contracts, handbook anchors, deterministic scoring, retry behavior, and the versioned invalidation of legacy generated answers. Quiz content lives outside the generated handbook module in `app/quiz-content*.ts`.
+
 The diagram workshop also has real-browser coverage at mobile, tablet, and desktop widths:
 
 ```bash
 npx playwright install chromium
 npm run test:e2e:diagram
+npm run test:e2e:quiz
 ```
 
 The source handbook is preserved in `docs/System_Design_Checklist_Book.md`.

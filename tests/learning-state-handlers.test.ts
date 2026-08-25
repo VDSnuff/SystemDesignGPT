@@ -10,6 +10,7 @@ import type {
   LearningStateRepository,
   LearningStateWrite,
 } from "../app/learning-state-contract";
+import { serializeQuizAnswers } from "../app/quiz-persistence";
 
 function record(userId: string, label: string): LearningStateRecord {
   return {
@@ -20,7 +21,7 @@ function record(userId: string, label: string): LearningStateRecord {
       ...initialDiagram,
       nodes: initialDiagram.nodes.map((node, index) => index === 0 ? { ...node, label } : node),
     }),
-    quizPayload: "[]",
+    quizPayload: serializeQuizAnswers([]),
     updatedAt: "2026-08-25T12:00:00.000Z",
   };
 }
@@ -105,5 +106,12 @@ describe("learning-state persistence handlers", () => {
     expect(decoded.state.note).toBe("private note");
     expect(decoded.state.diagram).toEqual(initialDiagram);
     expect(decoded.warning).toContain("invalid and has been reset");
+  });
+
+  it("invalidates legacy generated answers with an explicit migration warning", () => {
+    const decoded = decodeStoredState({ ...record("user-a", "unused"), quizPayload: "[1,0]" });
+
+    expect(decoded.state.quizAnswers).toEqual([]);
+    expect(decoded.warning).toContain("retired generated quiz format");
   });
 });

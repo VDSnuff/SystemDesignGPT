@@ -3,7 +3,8 @@ import { findBookSection } from "./book-content.generated";
 import { workshopPage } from "./content";
 import { diagramStateSchema, initialDiagram } from "./diagram-model";
 import type { LearningStateRecord, LearningStateRepository } from "./learning-state-contract";
-import { learningStateInputSchema, quizAnswersSchema } from "./learning-types";
+import { learningStateInputSchema } from "./learning-types";
+import { decodeQuizAnswers } from "./quiz-persistence";
 
 function json(body: Record<string, unknown>, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -23,15 +24,15 @@ function isLearningPage(pageSlug: string) {
 
 export function decodeStoredState(row: LearningStateRecord) {
   const diagram = diagramStateSchema.safeParse(parseJson(row.diagramPayload));
-  const quizAnswers = quizAnswersSchema.safeParse(parseJson(row.quizPayload));
+  const quiz = decodeQuizAnswers(row.quizPayload);
   const warnings: string[] = [];
   if (!diagram.success) warnings.push("The saved diagram was invalid and has been reset so you can recover it.");
-  if (!quizAnswers.success) warnings.push("The saved quiz answers were invalid and have been cleared.");
+  if (quiz.warning) warnings.push(quiz.warning);
   return {
     state: {
       note: row.note.slice(0, 10_000),
       diagram: diagram.success ? diagram.data : initialDiagram,
-      quizAnswers: quizAnswers.success ? quizAnswers.data : [],
+      quizAnswers: quiz.answers,
     },
     warning: warnings.join(" ") || undefined,
   };

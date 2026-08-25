@@ -1,37 +1,37 @@
 import { bookSections, type BookSection } from "./book-content.generated";
+import { quizPolicies } from "./quiz-content";
+import { quizPolicySchema, type QuizPolicy } from "./quiz-contract";
 
-export interface QuizQuestion {
-  readonly id: string;
-  readonly prompt: string;
-  readonly options: readonly string[];
-  readonly correctIndex: number;
+export { type QuizPolicy, type QuizQuestion } from "./quiz-contract";
+export { correctOptionIndex, scoreQuiz } from "./quiz-scoring";
+
+export function validateQuizPolicies(
+  policies: readonly unknown[],
+  sectionSlugs: readonly string[],
+): ReadonlyMap<string, QuizPolicy> {
+  const parsed = policies.map((policy) => quizPolicySchema.parse(policy));
+  const policySlugs = parsed.map((policy) => policy.slug);
+  const duplicate = policySlugs.find((slug, index) => policySlugs.indexOf(slug) !== index);
+  if (duplicate) throw new Error(`Duplicate quiz policy for section: ${duplicate}`);
+  const missing = sectionSlugs.filter((slug) => !policySlugs.includes(slug));
+  const stale = policySlugs.filter((slug) => !sectionSlugs.includes(slug));
+  if (missing.length || stale.length) {
+    throw new Error(`Quiz policy mismatch. Missing: ${missing.join(", ") || "none"}. Stale: ${stale.join(", ") || "none"}.`);
+  }
+  for (const policy of parsed) {
+    if (policy.kind !== "quiz") continue;
+    const questionIds = policy.questions.map((question) => question.id);
+    if (new Set(questionIds).size !== questionIds.length) {
+      throw new Error(`Duplicate question ID in quiz policy: ${policy.slug}`);
+    }
+  }
+  return new Map(parsed.map((policy) => [policy.slug, policy]));
 }
 
-function otherSections(index: number) {
-  const offsets = [7, 13, 19];
-  return offsets.map((offset) => bookSections[(index + offset) % bookSections.length]);
-}
+const policiesBySlug = validateQuizPolicies(quizPolicies, bookSections.map((section) => section.slug));
 
-function rotateOptions(options: readonly string[], rotation: number) {
-  const shift = rotation % options.length;
-  return [...options.slice(shift), ...options.slice(0, shift)];
-}
-
-function question(id: string, prompt: string, correct: string, distractors: readonly string[], rotation: number): QuizQuestion {
-  const unrotated = [correct, ...distractors];
-  const options = rotateOptions(unrotated, rotation);
-  return { id, prompt, options, correctIndex: options.indexOf(correct) };
-}
-
-function firstTopic(section: BookSection) {
-  return section.markdown.match(/^## (.+)$/m)?.[1]?.trim() ?? section.title;
-}
-
-export function buildSectionQuiz(section: BookSection): readonly QuizQuestion[] {
-  const index = bookSections.findIndex((item) => item.slug === section.slug);
-  const others = otherSections(index);
-  return [
-    question("focus", "Which statement best matches this section?", section.summary, others.map((item) => item.summary), index),
-    question("topic", "Which topic is explicitly covered here?", firstTopic(section), others.map(firstTopic), index + 1),
-  ];
+export function getSectionQuizPolicy(section: BookSection): QuizPolicy {
+  const policy = policiesBySlug.get(section.slug);
+  if (!policy) throw new Error(`No quiz policy for section: ${section.slug}`);
+  return policy;
 }
