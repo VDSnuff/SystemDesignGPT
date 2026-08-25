@@ -26,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <a className="skip-link" href="#main-content">Skip to main content</a>
         <HandbookProgressProvider>{children}</HandbookProgressProvider>
       </body>
     </html>

@@ -24,6 +24,15 @@ interface BookMarkdownProps {
   readonly markdown: string;
 }
 
+function ScrollableTable({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <div aria-label="Scrollable handbook table" className="table-scroll-region" role="region" tabIndex={0}>
+      <p className="table-scroll-help">Table · scroll horizontally when needed</p>
+      <table>{children}</table>
+    </div>
+  );
+}
+
 export function BookMarkdown({ checklistItems, headings, markdown }: BookMarkdownProps) {
   let headingIndex = 0;
   let checklistIndex = 0;
@@ -39,6 +48,7 @@ export function BookMarkdown({ checklistItems, headings, markdown }: BookMarkdow
             h2: ({ children }) => <h2 id={nextHeadingId()}>{children}</h2>,
             h3: ({ children }) => <h3 id={nextHeadingId()}>{children}</h3>,
             h4: ({ children }) => <h4 id={nextHeadingId()}>{children}</h4>,
+            table: ({ children }) => <ScrollableTable>{children}</ScrollableTable>,
             input: () => {
               const item = checklistItems[checklistIndex++];
               if (!item) return <input disabled type="checkbox" />;

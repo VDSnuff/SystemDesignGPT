@@ -7,13 +7,13 @@ import { Checklist } from "./Checklist";
 
 export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
   return (
-    <main className="min-h-screen bg-paper text-ink">
+    <>
       <AppHeader />
-      <div className="mx-auto grid max-w-[1600px] xl:grid-cols-[230px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]">
+      <main className="mx-auto grid min-h-screen max-w-[1600px] bg-paper text-ink xl:grid-cols-[230px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]" id="main-content" tabIndex={-1}>
         <ChapterNav activeSlug={page.slug} />
         <article className="min-w-0 px-5 py-10 sm:px-10 lg:px-12 lg:py-14">
           <p className="kicker">Chapter {page.number} · {page.label}</p>
-          <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl 2xl:text-7xl">
+          <h1 className="page-title mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl 2xl:text-7xl">
             {page.title}
           </h1>
           <p className="mt-7 max-w-3xl text-lg leading-8 text-muted">{page.lead}</p>
@@ -45,7 +45,7 @@ export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
           pageLabel={page.label}
           prompts={page.prompts}
         />
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

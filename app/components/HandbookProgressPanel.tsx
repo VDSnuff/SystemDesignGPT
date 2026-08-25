@@ -53,7 +53,7 @@ export function HandbookProgressPanel({ instanceId = "standalone" }: Readonly<{ 
   const isComplete = completed.size === bookProgressSections.length;
   const headingId = `handbook-progress-${instanceId}`;
   return <section aria-labelledby={headingId} className="mb-5 rounded-2xl border border-ink/15 bg-white/60 p-3">
-    <h2 className="text-sm font-bold" id={headingId}>Your handbook progress</h2>
+    <p className="text-sm font-bold" id={headingId}>Your handbook progress</p>
     <p className="mt-1 text-xs leading-5 text-muted">{isComplete ? "All handbook sections are complete. Your choices remain editable." : `${completed.size} of ${bookProgressSections.length} sections complete.`}</p>
     <progress aria-label="Overall handbook completion" className="mt-2 w-full accent-[#688e19]" max={bookProgressSections.length} value={completed.size} />
     {resumeSection ? <Link className="tool-button-dark mt-3 inline-flex" href={sectionHref(resumeSection.slug, lastRead?.headingId)}>Resume reading · {resumeSection.title}</Link> : null}

@@ -1,0 +1,132 @@
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  min-height: 2.75rem;
+  transform: translateY(-160%);
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  background: #17201c;
+  color: #fff;
+  font-weight: 750;
+}
+
+.skip-link:focus { transform: translateY(0); }
+#main-content:focus { outline: none; }
+
+button,
+a { transition: transform 150ms ease, background-color 150ms ease; }
+
+button:hover { transform: translateY(-1px); }
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #17201c;
+}
+
+button,
+input,
+textarea,
+[tabindex] { scroll-margin-block: 1rem 5rem; }
+
+.nav-target,
+.compact-action,
+.tool-button,
+.tool-button-dark {
+  display: inline-flex;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.compact-action,
+.tool-button,
+.tool-button-dark,
+.mobile-copilot-close,
+.search-control,
+textarea,
+input[type="text"],
+input[type="search"] { border-color: #58645d; }
+
+.responsive-chat-content form { border-color: #58645d; }
+
+.search-control { min-height: 2.75rem; }
+.page-title { overflow-wrap: anywhere; text-wrap: balance; }
+
+.book-prose,
+.book-prose pre,
+.reader-page-link { overflow-wrap: anywhere; }
+
+.book-prose .task-list-item { min-height: 2.75rem; }
+
+.book-prose input[type="checkbox"] {
+  width: 1.5rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
+}
+
+.table-scroll-region {
+  max-width: 100%;
+  margin: 1.7rem 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border: 1px solid rgb(23 32 28 / 20%);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 55%);
+  scrollbar-color: rgb(23 32 28 / 35%) transparent;
+}
+
+.table-scroll-help {
+  position: sticky;
+  left: 0;
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid rgb(23 32 28 / 15%);
+  color: #58645d;
+  font-size: 0.75rem;
+}
+
+.book-prose .table-scroll-region table {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+}
+
+@media (max-width: 1023px) {
+  body { padding-bottom: 5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  button:hover { transform: none; }
+}
+
+@media (forced-colors: active) {
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid Highlight;
+    box-shadow: none;
+  }
+}

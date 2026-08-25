@@ -75,7 +75,7 @@ function SearchBox({ isHydrated, isOpen, onKeyDown, onQueryChange, onFocus, quer
   return <>
     <label className="sr-only" htmlFor={`${SEARCH_RESULTS_ID}-input`}>Search the complete handbook</label>
     <input aria-controls={SEARCH_RESULTS_ID} aria-expanded={isOpen && Boolean(query.trim())} aria-haspopup="listbox"
-      autoComplete="off" className="w-full rounded-full border border-ink/20 bg-white/75 px-4 py-2 text-sm"
+      autoComplete="off" className="search-control w-full rounded-full border border-ink/20 bg-white/75 px-4 py-2 text-sm"
       disabled={!isHydrated} id={`${SEARCH_RESULTS_ID}-input`} onFocus={onFocus} onInput={(event) => onQueryChange(event.currentTarget.value)}
       onKeyDown={onKeyDown} placeholder={isHydrated ? "Search handbook" : "Loading search…"} role="combobox" type="search" value={query} />
     <span aria-live="polite" className="sr-only">{status}</span>
