@@ -307,6 +307,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 .mermaid-diagram,
 .mermaid-loading {
+  min-height: 18rem;
   margin: 1.7rem 0;
   overflow-x: auto;
   border: 1px solid rgb(23 32 28 / 14%);
@@ -316,7 +317,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 .mermaid-diagram svg { display: block; width: 100%; min-width: 560px; height: auto; margin: 0 auto; }
-.mermaid-loading { color: #58645d; font-size: 0.85rem; }
+.mermaid-loading { display: grid; place-items: center; color: #58645d; font-size: 0.85rem; }
 
 .reader-page-link {
   display: flex;
