@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { initialDiagram, learningPayloadSchema, type DiagramState, type LearningPayload } from "../learning-types";
+import { loadLearningState, saveLearningState } from "../learning-state-client";
 import type { QuizQuestion } from "../section-quiz";
+import { DiagramEditor } from "./DiagramEditor";
 import { LearningNotes } from "./LearningNotes";
-import { SectionDiagram } from "./SectionDiagram";
 import { SectionQuiz } from "./SectionQuiz";
 
 type Tab = "diagram" | "quiz" | "notes";
@@ -15,16 +16,6 @@ interface LearningLabProps {
 }
 
 const emptyPayload: LearningPayload = { note: "", diagram: initialDiagram, quizAnswers: [] };
-
-async function loadPayload(pageSlug: string, signal: AbortSignal) {
-  const response = await fetch(`/api/learning-state?page=${encodeURIComponent(pageSlug)}`, { signal });
-  const body = await response.json() as { state?: unknown; message?: string };
-  if (!response.ok) throw new Error(body.message ?? "Learning work could not be loaded.");
-  if (body.state === null) return null;
-  const parsed = learningPayloadSchema.safeParse(body.state);
-  if (!parsed.success) throw new Error("Saved learning work is not valid.");
-  return parsed.data;
-}
 
 function TabButton({ active, children, onClick }: Readonly<{ active: boolean; children: React.ReactNode; onClick: () => void }>) {
   const className = active ? "tool-button-dark" : "tool-button";
@@ -38,10 +29,10 @@ export function LearningLab({ pageSlug, questions }: LearningLabProps) {
 
   useEffect(() => {
     const controller = new AbortController();
-    loadPayload(pageSlug, controller.signal)
-      .then((saved) => {
-        if (saved) setPayload(saved);
-        setStatus(saved ? "Saved work loaded." : "Ready for your first save.");
+    loadLearningState(pageSlug, controller.signal)
+      .then(({ state, warning }) => {
+        if (state) setPayload(state);
+        setStatus(warning ?? (state ? "Saved work loaded." : "Ready for your first save."));
       })
       .catch((error: Error) => {
         if (error.name !== "AbortError") setStatus(error.message);
@@ -63,13 +54,8 @@ export function LearningLab({ pageSlug, questions }: LearningLabProps) {
   async function save() {
     setStatus("Saving…");
     try {
-      const response = await fetch("/api/learning-state", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pageSlug, ...payload }),
-      });
-      const body = await response.json() as { message?: string };
-      if (!response.ok) throw new Error(body.message ?? "Learning work could not be saved.");
+      const parsedPayload = learningPayloadSchema.parse(payload);
+      await saveLearningState(pageSlug, parsedPayload);
       setStatus("All learning work for this page is saved.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Learning work could not be saved.");
@@ -91,7 +77,7 @@ export function LearningLab({ pageSlug, questions }: LearningLabProps) {
         </div>
       </div>
       <div className="mt-6 rounded-3xl border border-ink/15 bg-[#eef1e8] p-4 sm:p-6">
-        {tab === "diagram" ? <SectionDiagram onChange={updateDiagram} value={payload.diagram} /> : null}
+        {tab === "diagram" ? <DiagramEditor label="Section diagram canvas" onChange={updateDiagram} value={payload.diagram} /> : null}
         {tab === "quiz" ? <SectionQuiz answers={payload.quizAnswers} onAnswer={updateAnswer} questions={questions} /> : null}
         {tab === "notes" ? <LearningNotes note={payload.note} onNoteChange={(note) => setPayload((current) => ({ ...current, note }))} pageSlug={pageSlug} /> : null}
       </div>
