@@ -206,9 +206,58 @@ Trust boundaries: every transition across a security boundary needs explicit aut
 
 *Evidence: S3, S27, S54, S58*
 
+## C4 diagrams: zoom from context to code
+
+The C4 model provides a small set of architecture views at increasing levels of detail. Treat the levels like a map: start wide, then zoom in only where another view helps a specific audience or decision. C4 is notation- and tooling-independent; consistent scope, names, responsibilities, and relationships matter more than shapes or colours.
+
+| Level | Scope | Show | Use it for |
+|---|---|---|---|
+| 1. System context | One software system and its environment | People, the system in scope, and directly connected external systems | Business and technical alignment on scope, users, and external dependencies |
+| 2. Container | One software system | Its applications and data stores, responsibilities, technology choices, and communication | The high-level technical design; in C4, a container is an application or data store, not necessarily a Docker container |
+| 3. Component | One container | Major components, responsibilities, interfaces, and dependencies | Explaining a complex container when the extra detail changes understanding or a decision |
+| 4. Code | One component | Important classes, interfaces, functions, tables, or other code elements | A difficult implementation area; prefer generating this detail when possible |
+
+Most teams need only system context and container diagrams. Add component or code diagrams when they answer a real question; do not document every level by default. Use separate dynamic diagrams for important runtime interactions and deployment diagrams for environment-specific infrastructure, replicas, and failover.
+
+*A C4-style system context example. Key: blue is the system in scope; grey boxes are people or external systems.*
+
+```mermaid
+flowchart LR
+Customer["Customer<br/>[Person]<br/>Places and tracks orders"]
+Support["Support agent<br/>[Person]<br/>Resolves customer issues"]
+Ordering["Order Platform<br/>[Software System]<br/>Accepts orders and reports status"]
+Payments["Payment Provider<br/>[External Software System]<br/>Authorizes payments"]
+Notifications["Notification Provider<br/>[External Software System]<br/>Sends email and SMS"]
+
+Customer -->|"Places orders and views status [HTTPS]"| Ordering
+Support -->|"Reviews and updates orders [HTTPS]"| Ordering
+Ordering -->|"Requests payment authorization [HTTPS]"| Payments
+Ordering -->|"Requests customer notifications [HTTPS]"| Notifications
+
+classDef focus fill:#2563eb,color:#ffffff,stroke:#1d4ed8
+classDef external fill:#f3f4f6,color:#111827,stroke:#6b7280
+class Ordering focus
+class Customer,Support,Payments,Notifications external
+```
+
+### C4 diagram checklist
+
+- [ ] The title states the diagram type and scope.
+- [ ] One diagram uses one abstraction level; it does not mix systems, containers, components, and code without a clear reason.
+- [ ] Every element has a type, meaningful name, and short responsibility description.
+- [ ] Containers and components identify their main technology where it helps the audience.
+- [ ] Every relationship is directional and labelled with its purpose; container relationships also name the protocol or technology.
+- [ ] A legend explains shapes, colours, line styles, acronyms, and any additional notation.
+- [ ] Names and relationships remain consistent when zooming between diagrams.
+- [ ] The diagram has an owner or generation path and is updated when the architecture changes.
+
+*Evidence: S93*
+
 ## Checklist
 
-- [ ] A context/container diagram shows clients, services, data stores, and external systems.
+- [ ] A system context diagram shows people, the system in scope, and directly connected external systems.
+
+- [ ] A container diagram shows the system's applications, data stores, responsibilities, technologies, and communication paths.
 
 - [ ] Each important data set has a clear owner/source of truth.
 
@@ -2046,7 +2095,7 @@ Use this together with Chapter 13. Mark each item PASS, RISK, N/A, or DECISION R
 
 # About the diagrams
 
-The eight architecture figures are native Mermaid blocks. They can be rendered directly in GitHub and other Mermaid-compatible tools, or copied and edited as source.
+The nine architecture figures are native Mermaid blocks. They can be rendered directly in GitHub and other Mermaid-compatible tools, or copied and edited as source.
 
 # References and verification register
 
@@ -2153,6 +2202,7 @@ All resources used by the handbook are linked below. Verification on **24 August
 | S90 | [OpenAI Agents SDK: Tracing](https://openai.github.io/openai-agents-python/tracing/) | Official tracing documentation | PASS / PASS |
 | S91 | [Anthropic: Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) | Official long-running-agent engineering guidance | PASS / PASS |
 | S92 | [Anthropic: Building and evaluating trustworthy agents](https://www.anthropic.com/research/trustworthy-agents) | Official research on control, transparency, privacy, and security | PASS / PASS |
+| S93 | [C4 model: diagrams and notation](https://c4model.com/diagrams) | Official documentation from the model's creator; hierarchical views, supporting diagrams, and notation guidance | PASS / PASS |
 
 ## Practitioner cross-check sources
 
