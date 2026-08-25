@@ -68,6 +68,18 @@ describe("ChatPanel service states", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it("announces only the new chat state instead of replaying the transcript", async () => {
+    vi.stubGlobal("fetch", vi.fn()
+      .mockResolvedValueOnce(statusResponse("ready"))
+      .mockResolvedValueOnce(Response.json({ answer: "Use a bounded retry budget.", status: "ready" })));
+    render(<ChatPanel {...panelProps} />);
+
+    await sendQuestion();
+
+    expect(document.querySelector(".chat-scroll")?.getAttribute("aria-live")).toBeNull();
+    expect(screen.getAllByRole("status").some((node) => node.textContent === "Copilot response: Use a bounded retry budget.")).toBe(true);
+  });
+
   it("keeps a provider usage limit as a persistent notice with non-AI actions", async () => {
     vi.stubGlobal("fetch", vi.fn()
       .mockResolvedValueOnce(statusResponse("ready"))

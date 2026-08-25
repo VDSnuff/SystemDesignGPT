@@ -22,8 +22,8 @@ function NoQuiz({ reason }: Readonly<{ reason: string }>) {
 function QuizFeedback({ answerIndex, question }: Readonly<{ answerIndex: number; question: QuizQuestion }>) {
   const isCorrect = answerIndex === correctOptionIndex(question);
   return (
-    <div className="mt-3 text-sm leading-6">
-      <p className={`font-bold ${isCorrect ? "text-[#517700]" : "text-muted"}`}>{isCorrect ? "Correct." : "Not quite."}</p>
+    <div aria-atomic="true" className="mt-3 text-sm leading-6" role="status">
+      <p className={`font-bold ${isCorrect ? "text-[#517700]" : "text-muted"}`}><span aria-hidden="true">{isCorrect ? "✓ " : "○ "}</span>{isCorrect ? "Correct." : "Not quite."}</p>
       <p>{question.options[answerIndex]?.feedback}</p>
       <a className="font-bold underline decoration-ink/30 underline-offset-4" href={question.reference.href}>{question.reference.label}</a>
     </div>
@@ -36,7 +36,7 @@ function QuestionCard({ answerIndex, index, onAnswer, question }: Readonly<{ ans
       <legend className="px-1 font-serif text-xl font-bold">{index + 1}. {question.prompt}</legend>
       <div className="mt-3 space-y-2">
         {question.options.map((option, optionIndex) => (
-          <label className="flex cursor-pointer gap-3 rounded-xl border border-transparent p-3 text-sm leading-6 hover:border-ink/15 hover:bg-white" key={option.label}>
+          <label className="flex min-h-11 cursor-pointer gap-3 rounded-xl border border-transparent p-3 text-sm leading-6 hover:border-ink/15 hover:bg-white" key={option.label}>
             <input checked={answerIndex === optionIndex} name={`${question.id}-${index}`} onChange={() => onAnswer(optionIndex)} type="radio" />
             <span>{option.label}</span>
           </label>
@@ -56,7 +56,7 @@ export function SectionQuiz({ policy, answers, onAnswer, onRetry }: SectionQuizP
         <QuestionCard answerIndex={answers[index] ?? -1} index={index} key={question.id} onAnswer={(option) => onAnswer(index, option)} question={question} />
       ))}
       <div className="flex flex-wrap items-center gap-3">
-        <p className="text-sm font-bold">{isComplete ? `${scoreQuiz(policy.questions, answers)} of ${policy.questions.length} correct` : "Answer every question to see your score."}</p>
+        <p aria-atomic="true" className="text-sm font-bold" role="status">{isComplete ? `${scoreQuiz(policy.questions, answers)} of ${policy.questions.length} correct` : "Answer every question to see your score."}</p>
         {answers.length ? <button className="tool-button" onClick={onRetry} type="button">Retry quiz</button> : null}
       </div>
     </div>

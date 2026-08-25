@@ -25,50 +25,57 @@ async function readJson(response: Response) {
   try { return await response.json() as unknown; } catch { return null; }
 }
 
+async function requestChatStatus(signal?: AbortSignal) {
+  const response = await fetch("/api/chat", { method: "GET", signal });
+  const result = await readJson(response);
+  if (!isChatStatusBody(result)) throw new Error("Invalid status response");
+  return result.status;
+}
+
+function keepInputVisible(input: HTMLTextAreaElement) {
+  input.scrollIntoView?.({ block: "nearest" });
+}
+
 export function ChatPanel(props: ChatPanelProps) {
   const [messages, setMessages] = useState<readonly ChatMessage[]>([]);
   const [question, setQuestion] = useState("");
   const [status, setStatus] = useState<CopilotStatus>("checking");
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [announcement, setAnnouncement] = useState("Checking copilot availability.");
+
+  function applyStatus(nextStatus: CopilotStatus) {
+    setStatus(nextStatus);
+    setAnnouncement(`Copilot status: ${statusPresentation[nextStatus].label}.`);
+    setNotice(nextStatus === "unconfigured"
+      ? { canCheckAgain: true, message: "The copilot has not been configured. Reading tools remain available." }
+      : null);
+  }
+
+  function applyStatusFailure(error: unknown) {
+    if (error instanceof Error && error.name === "AbortError") return;
+    setStatus("temporarily-unavailable");
+    setAnnouncement("Copilot status could not be checked.");
+    setNotice({ canCheckAgain: true, message: "The copilot status could not be checked. Reading tools remain available." });
+  }
 
   async function loadStatus(signal?: AbortSignal) {
     try {
-      const response = await fetch("/api/chat", { method: "GET", signal });
-      const result = await readJson(response);
-      if (!isChatStatusBody(result)) throw new Error("Invalid status response");
-      setStatus(result.status);
-      setNotice(result.status === "unconfigured"
-        ? { canCheckAgain: true, message: "The copilot has not been configured. Reading tools remain available." }
-        : null);
+      applyStatus(await requestChatStatus(signal));
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") return;
-      setStatus("temporarily-unavailable");
-      setNotice({ canCheckAgain: true, message: "The copilot status could not be checked. Reading tools remain available." });
+      applyStatusFailure(error);
     }
   }
 
   function checkStatus() {
     setStatus("checking");
     setNotice(null);
+    setAnnouncement("Checking copilot availability.");
     void loadStatus();
   }
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch("/api/chat", { method: "GET", signal: controller.signal })
-      .then(readJson)
-      .then((result) => {
-        if (!isChatStatusBody(result)) throw new Error("Invalid status response");
-        setStatus(result.status);
-        setNotice(result.status === "unconfigured"
-          ? { canCheckAgain: true, message: "The copilot has not been configured. Reading tools remain available." }
-          : null);
-      })
-      .catch((error: Error) => {
-        if (error.name === "AbortError") return;
-        setStatus("temporarily-unavailable");
-        setNotice({ canCheckAgain: true, message: "The copilot status could not be checked. Reading tools remain available." });
-      });
+    void requestChatStatus(controller.signal).then(applyStatus).catch(applyStatusFailure);
     return () => controller.abort();
   }, []);
 
@@ -85,6 +92,7 @@ export function ChatPanel(props: ChatPanelProps) {
     setQuestion("");
     setNotice(null);
     setStatus("sending");
+    setAnnouncement("Sending question to the design copilot.");
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -96,6 +104,7 @@ export function ChatPanel(props: ChatPanelProps) {
       if (!isChatAnswerBody(result)) return showFailure("malformed_response", "The copilot returned an invalid response.");
       setMessages((current) => [...current, { role: "assistant", content: result.answer }]);
       setStatus("ready");
+      setAnnouncement(`Copilot response: ${result.answer}`);
     } catch {
       setStatus("temporarily-unavailable");
       setNotice({ canCheckAgain: true, message: "The copilot could not be reached. Your handbook and learning tools remain available." });
@@ -118,19 +127,20 @@ export function ChatPanel(props: ChatPanelProps) {
             <p className="font-semibold">Design copilot</p>
             <p className="mt-1 text-xs text-muted">Knows {props.pageLabel} + the site map</p>
           </div>
-          <div aria-label={`Copilot status: ${presentation.label}`} className="max-w-36 text-right" role="status">
+          <div aria-label={`Copilot status: ${presentation.label}`} className="max-w-36 text-right">
             <p className="text-xs font-semibold"><span aria-hidden="true">{presentation.icon} </span>{presentation.label}</p>
             <p className="mt-1 text-[10px] leading-4 text-muted">{presentation.detail}</p>
           </div>
         </div>
 
         {notice ? (
-          <div className="mt-4 rounded-2xl border border-ink/20 bg-[#fff5cf] p-3 text-xs leading-5" role="alert">
+          <div aria-atomic="true" className="mt-4 rounded-2xl border border-ink/20 bg-[#fff5cf] p-3 text-xs leading-5" role="alert">
             <strong>{presentation.label}.</strong> {notice.message}
           </div>
         ) : null}
 
-        <div aria-live="polite" className="chat-scroll flex-1 space-y-3 overflow-y-auto py-5">
+        <p aria-atomic="true" className="sr-only" role="status">{announcement}</p>
+        <div aria-busy={status === "sending"} className="chat-scroll flex-1 space-y-3 overflow-y-auto py-5">
           <div className="message-assistant">I’m reading <strong>{props.pageLabel}</strong>. Ask me to test a decision, expose a risk, or guide you to the right chapter.</div>
           {messages.map((message, index) => (
             <div className={message.role === "user" ? "message-user" : "message-assistant"} key={`${message.role}-${index}`}>
@@ -153,7 +163,7 @@ export function ChatPanel(props: ChatPanelProps) {
         {messages.length === 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
             {props.prompts.map((prompt) => (
-              <button className="rounded-full border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-paper disabled:cursor-not-allowed disabled:opacity-40" disabled={isAiDisabled} key={prompt} onClick={() => void ask(prompt)} type="button">
+              <button className="compact-action rounded-full border border-ink/15 px-3 py-1.5 text-xs font-semibold hover:bg-paper disabled:cursor-not-allowed disabled:opacity-40" disabled={isAiDisabled} key={prompt} onClick={() => void ask(prompt)} type="button">
                 {prompt}
               </button>
             ))}
@@ -163,17 +173,19 @@ export function ChatPanel(props: ChatPanelProps) {
         <form className="rounded-2xl border border-ink/15 bg-paper p-2 focus-within:border-ink/40" onSubmit={submit}>
           <label className="sr-only" htmlFor={`question-${props.pageId}`}>Ask about {props.pageLabel}</label>
           <textarea
+            aria-describedby={`question-help-${props.pageId}`}
             className="min-h-20 w-full resize-none bg-transparent p-2 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-55"
             disabled={isAiDisabled}
             id={`question-${props.pageId}`}
             maxLength={2000}
             onChange={(event) => setQuestion(event.target.value)}
+            onFocus={(event) => keepInputVisible(event.currentTarget)}
             placeholder={isAiDisabled ? "AI questions are paused. Use the tools above." : "Ask about this design…"}
             value={question}
           />
           <div className="flex items-center justify-between px-2 pb-1">
-            <span className="text-[11px] text-muted">Page context attached · responses are not stored by the provider</span>
-            <button aria-label="Send question" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink font-bold text-accent disabled:opacity-40" disabled={!question.trim() || isAiDisabled} type="submit">↑</button>
+            <span className="text-[11px] text-muted" id={`question-help-${props.pageId}`}>Page context attached · up to 2,000 characters · {question.length}/2,000</span>
+            <button aria-label="Send question" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink font-bold text-accent disabled:opacity-40" disabled={!question.trim() || isAiDisabled} type="submit">↑</button>
           </div>
         </form>
       </div>

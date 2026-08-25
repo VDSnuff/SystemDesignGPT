@@ -5,10 +5,10 @@ import { initialDiagram, learningPayloadSchema, type DiagramState, type Learning
 import { loadLearningState, saveLearningState } from "../learning-state-client";
 import type { QuizPolicy } from "../section-quiz";
 import { DiagramEditor } from "./DiagramEditor";
+import { AsyncStatus } from "./AsyncStatus";
+import { LearningLabTabs, type LearningTab } from "./LearningLabTabs";
 import { LearningNotes } from "./LearningNotes";
 import { SectionQuiz } from "./SectionQuiz";
-
-type Tab = "diagram" | "quiz" | "notes";
 
 interface LearningLabProps {
   readonly pageSlug: string;
@@ -17,25 +17,27 @@ interface LearningLabProps {
 
 const emptyPayload: LearningPayload = { note: "", diagram: initialDiagram, quizAnswers: [] };
 
-function TabButton({ active, children, onClick }: Readonly<{ active: boolean; children: React.ReactNode; onClick: () => void }>) {
-  const className = active ? "tool-button-dark" : "tool-button";
-  return <button aria-pressed={active} className={className} onClick={onClick} type="button">{children}</button>;
-}
-
 export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
-  const [tab, setTab] = useState<Tab>("diagram");
+  const [tab, setTab] = useState<LearningTab>("diagram");
   const [payload, setPayload] = useState<LearningPayload>(emptyPayload);
   const [status, setStatus] = useState("Loading saved work…");
+  const [hasError, setHasError] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const baseId = `learning-lab-${pageSlug}`;
 
   useEffect(() => {
     const controller = new AbortController();
     loadLearningState(pageSlug, controller.signal)
       .then(({ state, warning }) => {
         if (state) setPayload(state);
+        setHasError(false);
         setStatus(warning ?? (state ? "Saved work loaded." : "Ready for your first save."));
       })
       .catch((error: Error) => {
-        if (error.name !== "AbortError") setStatus(error.message);
+        if (error.name !== "AbortError") {
+          setHasError(true);
+          setStatus(`${error.message} Your work remains available; edit it and try saving again.`);
+        }
       });
     return () => controller.abort();
   }, [pageSlug]);
@@ -57,13 +59,19 @@ export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
   }
 
   async function save() {
+    setHasError(false);
+    setIsSaving(true);
     setStatus("Saving…");
     try {
       const parsedPayload = learningPayloadSchema.parse(payload);
       await saveLearningState(pageSlug, parsedPayload);
       setStatus("All learning work for this page is saved.");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Learning work could not be saved.");
+      setHasError(true);
+      const message = error instanceof Error ? error.message : "Learning work could not be saved.";
+      setStatus(`${message} Your work is still here; edit it and try again.`);
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -75,20 +83,20 @@ export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
           <h2 className="font-serif text-4xl tracking-[-0.03em]" id="learning-lab-heading">Section learning lab</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Build the idea, test your recall, and keep page-specific notes.</p>
         </div>
-        <div className="flex flex-wrap gap-2" role="tablist">
-          <TabButton active={tab === "diagram"} onClick={() => setTab("diagram")}>Diagram</TabButton>
-          <TabButton active={tab === "quiz"} onClick={() => setTab("quiz")}>Quiz</TabButton>
-          <TabButton active={tab === "notes"} onClick={() => setTab("notes")}>Notes & feedback</TabButton>
-        </div>
+        <LearningLabTabs activeTab={tab} baseId={baseId} onChange={setTab} />
       </div>
-      <div className="mt-6 rounded-3xl border border-ink/15 bg-[#eef1e8] p-4 sm:p-6">
-        {tab === "diagram" ? <DiagramEditor label="Section diagram canvas" onChange={updateDiagram} value={payload.diagram} /> : null}
-        {tab === "quiz" ? <SectionQuiz answers={payload.quizAnswers} onAnswer={updateAnswer} onRetry={retryQuiz} policy={quizPolicy} /> : null}
-        {tab === "notes" ? <LearningNotes note={payload.note} onNoteChange={(note) => setPayload((current) => ({ ...current, note }))} pageSlug={pageSlug} /> : null}
+      <div aria-labelledby={`${baseId}-tab-diagram`} className="mt-6 rounded-3xl border border-ink/15 bg-[#eef1e8] p-4 sm:p-6" hidden={tab !== "diagram"} id={`${baseId}-panel-diagram`} role="tabpanel" tabIndex={0}>
+        <DiagramEditor label="Section diagram canvas" onChange={updateDiagram} value={payload.diagram} />
+      </div>
+      <div aria-labelledby={`${baseId}-tab-quiz`} className="mt-6 rounded-3xl border border-ink/15 bg-[#eef1e8] p-4 sm:p-6" hidden={tab !== "quiz"} id={`${baseId}-panel-quiz`} role="tabpanel" tabIndex={0}>
+        <SectionQuiz answers={payload.quizAnswers} onAnswer={updateAnswer} onRetry={retryQuiz} policy={quizPolicy} />
+      </div>
+      <div aria-labelledby={`${baseId}-tab-notes`} className="mt-6 rounded-3xl border border-ink/15 bg-[#eef1e8] p-4 sm:p-6" hidden={tab !== "notes"} id={`${baseId}-panel-notes`} role="tabpanel" tabIndex={0}>
+        <LearningNotes note={payload.note} onNoteChange={(note) => setPayload((current) => ({ ...current, note }))} pageSlug={pageSlug} />
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button className="tool-button-dark" onClick={save} type="button">Save learning work</button>
-        <span aria-live="polite" className="text-xs text-muted">{status}</span>
+        <button className="tool-button-dark" disabled={isSaving} onClick={save} type="button">{isSaving ? "Saving learning work…" : "Save learning work"}</button>
+        <AsyncStatus className="text-xs text-muted" isError={hasError} message={status} />
       </div>
     </section>
   );

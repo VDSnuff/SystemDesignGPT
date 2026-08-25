@@ -8,6 +8,7 @@ import {
   saveLearningState,
 } from "../learning-state-client";
 import { DiagramEditor } from "./DiagramEditor";
+import { AsyncStatus } from "./AsyncStatus";
 
 interface DiagramBuilderProps {
   readonly pageSlug: string;
@@ -24,12 +25,14 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
   const [isReady, setIsReady] = useState(false);
   const [canSave, setCanSave] = useState(false);
   const [status, setStatus] = useState("Loading your workshop diagram…");
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
     loadLearningState(pageSlug, controller.signal)
       .then(({ state, warning }) => {
         if (state) setDiagram(state.diagram);
+        setHasError(false);
         setCanSave(true);
         setIsReady(true);
         setStatus(warning ?? (state ? "Saved workshop diagram loaded." : "Ready for your first workshop save."));
@@ -37,6 +40,7 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
       .catch((error: Error) => {
         if (error.name === "AbortError") return;
         const isSignedOut = error instanceof LearningStateRequestError && error.status === 401;
+        setHasError(!isSignedOut);
         setCanSave(!isSignedOut);
         setIsReady(true);
         setStatus(isSignedOut ? "You can edit this diagram now. Sign in to save it for your next visit." : error.message);
@@ -45,12 +49,15 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
   }, [pageSlug]);
 
   async function save() {
+    setHasError(false);
     setStatus("Saving workshop diagram…");
     try {
       await saveLearningState(pageSlug, { ...emptyWorkshopPayload, diagram });
       setStatus("Workshop diagram saved for your next visit.");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Workshop diagram could not be saved.");
+      setHasError(true);
+      const message = error instanceof Error ? error.message : "Workshop diagram could not be saved.";
+      setStatus(`${message} Your diagram remains available; edit it and try again.`);
     }
   }
 
@@ -63,7 +70,7 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
       {isReady ? <DiagramEditor label="Workshop diagram canvas" onChange={setDiagram} value={diagram} /> : null}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button className="tool-button-dark" disabled={!canSave || !isReady} onClick={save} type="button">Save workshop diagram</button>
-        <span aria-live="polite" className="text-xs text-muted">{status}</span>
+        <AsyncStatus className="text-xs text-muted" isError={hasError} message={status} />
       </div>
     </section>
   );
