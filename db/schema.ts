@@ -9,6 +9,15 @@ export const learningPageState = sqliteTable("learning_page_state", {
   updatedAt: text("updated_at").notNull(),
 }, (table) => [primaryKey({ columns: [table.userId, table.pageSlug] })]);
 
+export const handbookProgress = sqliteTable("handbook_progress", {
+  userId: text("user_id").primaryKey(),
+  lastPageSlug: text("last_page_slug"),
+  lastHeadingId: text("last_heading_id"),
+  completedSectionsPayload: text("completed_sections_payload").notNull().default("[]"),
+  checkedItemsPayload: text("checked_items_payload").notNull().default("[]"),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const learningComments = sqliteTable("learning_comments", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),
