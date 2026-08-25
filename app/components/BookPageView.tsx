@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { bookSections, type BookSection } from "../book-content.generated";
+import { buildSectionQuiz } from "../section-quiz";
 import { AppHeader } from "./AppHeader";
 import { BookMarkdown } from "./BookMarkdown";
 import { BookNav } from "./BookNav";
 import { ChatPanel } from "./ChatPanel";
+import { LearningLab } from "./LearningLab";
 
 function sectionHref(section: BookSection) {
   return section.slug === "introduction" ? "/" : `/book/${section.slug}`;
@@ -33,6 +35,7 @@ export function BookPageView({ section }: Readonly<{ section: BookSection }>) {
           <p className="kicker">Complete handbook · Section {sectionIndex} of {bookSections.length}</p>
           <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl">{section.title}</h1>
           <div className="mt-10"><BookMarkdown markdown={section.markdown} /></div>
+          <LearningLab pageSlug={section.slug} questions={buildSectionQuiz(section)} />
           <ReaderPager section={section} />
         </article>
         <ChatPanel pageId={`book:${section.slug}`} pageLabel={section.title} prompts={prompts} />

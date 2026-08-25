@@ -9,6 +9,7 @@ export function AppHeader() {
           <span>System Design Studio</span>
         </Link>
         <nav className="flex items-center gap-2" aria-label="Primary navigation">
+          <Link className="hidden rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white md:block" href="/owner/comments">Owner inbox</Link>
           <Link className="hidden rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white sm:block" href="/chapter/requirements">Quick guide</Link>
           <Link className="rounded-full border border-ink/20 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white" href="/workshop">Open workshop</Link>
         </nav>

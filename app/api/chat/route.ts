@@ -35,9 +35,9 @@ function parseHistory(value: unknown): readonly ChatTurn[] {
   return value.slice(-8).flatMap((turn): ChatTurn[] => {
     if (!turn || typeof turn !== "object") return [];
     const candidate = turn as { role?: unknown; content?: unknown };
-    const hasRole = candidate.role === "user" || candidate.role === "assistant";
-    if (!hasRole || typeof candidate.content !== "string") return [];
-    return [{ role: candidate.role, content: candidate.content.slice(0, 2000) }];
+    const role = candidate.role;
+    if ((role !== "user" && role !== "assistant") || typeof candidate.content !== "string") return [];
+    return [{ role, content: candidate.content.slice(0, 2000) }];
   });
 }
 
