@@ -43,13 +43,13 @@ function isRateLimited(key: string, now = Date.now()) {
 
 function parseHistory(value: unknown): readonly ChatTurn[] {
   if (!Array.isArray(value)) return [];
-  return value.slice(-8).flatMap((turn): ChatTurn[] => {
+  return value.flatMap((turn): ChatTurn[] => {
     if (!turn || typeof turn !== "object") return [];
     const candidate = turn as { role?: unknown; content?: unknown };
     const role = candidate.role;
     if ((role !== "user" && role !== "assistant") || typeof candidate.content !== "string") return [];
     return [{ role, content: candidate.content.slice(0, 2000) }];
-  });
+  }).slice(-8);
 }
 
 function parseRequest(value: unknown): ChatRequest | null {

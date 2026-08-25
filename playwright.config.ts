@@ -6,9 +6,10 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
   retries: process.env.CI ? 2 : 0,
-  reporter: "line",
+  reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "line",
   use: {
     baseURL: `http://localhost:${port}`,
+    screenshot: "only-on-failure",
     trace: "on-first-retry",
   },
   webServer: {

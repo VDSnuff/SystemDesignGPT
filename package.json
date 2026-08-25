@@ -12,8 +12,10 @@
     "dev": "vinext dev",
     "prebuild": "npm run generate:book",
     "build": "vinext build",
+    "check:generated": "npm run generate:book && git diff --exit-code -- app/book-content.generated.ts",
     "start": "vinext start",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:e2e:diagram": "playwright test tests/e2e/diagram-workshop.spec.ts",
     "test:e2e:quiz": "playwright test tests/e2e/authored-quiz.spec.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
