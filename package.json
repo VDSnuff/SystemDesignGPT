@@ -12,7 +12,7 @@
     "dev": "vinext dev",
     "prebuild": "npm run generate:book",
     "build": "vinext build",
-    "check:generated": "npm run generate:book && git diff --exit-code -- app/book-content.generated.ts",
+    "check:generated": "npm run generate:book && git diff --exit-code -- app/book-content.generated.ts app/book-learning.generated.ts app/book-progress.generated.ts app/book-search.generated.ts",
     "start": "vinext start",
     "test": "vitest run",
     "test:e2e": "playwright test",
