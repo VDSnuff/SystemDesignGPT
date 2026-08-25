@@ -33,7 +33,7 @@ function BookArticle({ learningSection, section }: Readonly<{ learningSection: B
       <p className="kicker">Complete handbook · Section {sectionIndex} of {bookSections.length}</p>
       <SectionProgressControls sectionSlug={section.slug} />
     </div>
-    <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl">{section.title}</h1>
+    <h1 className="page-title mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl">{section.title}</h1>
     <div className="mt-10" id="section-content">
       <BookMarkdown checklistItems={learningSection.checklistItems} headings={learningSection.headings} markdown={section.markdown} />
     </div>
@@ -48,9 +48,9 @@ export function BookPageView({ section }: Readonly<{ section: BookSection }>) {
   if (!learningSection) throw new Error(`Learning metadata is missing for handbook section ${section.slug}`);
   const prompts = ["Summarize this section", "Challenge the key assumptions", "Turn this into a review checklist"];
   return (
-    <main className="min-h-screen bg-paper text-ink">
+    <>
       <AppHeader />
-      <div className="mx-auto grid max-w-[1700px] xl:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]">
+      <main className="mx-auto grid min-h-screen max-w-[1700px] bg-paper text-ink xl:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]" id="main-content" tabIndex={-1}>
         <BookNav activeSlug={section.slug} />
         <BookArticle learningSection={learningSection} section={section} />
         <ChatPanel
@@ -60,7 +60,7 @@ export function BookPageView({ section }: Readonly<{ section: BookSection }>) {
           pageLabel={section.title}
           prompts={prompts}
         />
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

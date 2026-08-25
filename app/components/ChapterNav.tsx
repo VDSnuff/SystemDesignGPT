@@ -14,7 +14,7 @@ export function ChapterNav({ activeSlug }: Readonly<{ activeSlug: string }>) {
               href={`/chapter/${page.slug}`}
               key={page.slug}
             >
-              <span className="w-7 shrink-0 font-mono text-[11px] opacity-55">{page.number}</span>
+              <span className={`w-7 shrink-0 font-mono text-[11px] ${activeSlug === page.slug ? "text-accent" : "text-muted"}`}>{page.number}</span>
               <span>{page.label}</span>
             </Link>
           ))}

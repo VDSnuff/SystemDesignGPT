@@ -32,7 +32,7 @@ function BookLinks({ activeSlug }: Readonly<{ activeSlug: string }>) {
       href={section.slug === "introduction" ? "/" : `/book/${section.slug}`}
       key={section.slug}
     >
-      <span className="w-7 shrink-0 font-mono text-[10px] opacity-55">{section.number}</span>
+      <span className={`w-7 shrink-0 font-mono text-[10px] ${activeSlug === section.slug ? "text-accent" : "text-muted"}`}>{section.number}</span>
       <span>{section.title}</span>
     </Link>
   ));
