@@ -1,4 +1,5 @@
 import { bookSiteMap, findBookSection } from "../../book-content.generated";
+import { chatErrors, type ChatAnswerBody, type ChatErrorCode, type ChatStatusBody } from "../../chat-contract";
 import { findGuidePage, siteMap } from "../../content";
 
 const providerUrl = "https://api.openai.com/v1/responses";
@@ -11,6 +12,16 @@ interface ChatRequest { readonly pageId: string; readonly question: string; read
 
 function json(body: Record<string, unknown>, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
+}
+
+function errorJson(code: ChatErrorCode) {
+  const error = chatErrors[code];
+  return json({ error: { code, message: error.message } }, error.status);
+}
+
+export async function GET() {
+  const body: ChatStatusBody = { status: process.env.OPENAI_API_KEY ? "ready" : "unconfigured" };
+  return json(body);
 }
 
 function clientKey(request: Request) {
@@ -117,12 +128,12 @@ function providerPayload(chat: ChatRequest, pageInstructions: string) {
 
 export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return json({ message: "The copilot is not configured yet." }, 503);
+  if (!apiKey) return errorJson("unconfigured");
   const chat = parseRequest(await requestBody(request));
-  if (!chat) return json({ message: "Send a page and a question of up to 2,000 characters." }, 400);
+  if (!chat) return errorJson("invalid_request");
   const pageInstructions = instructions(chat.pageId);
-  if (!pageInstructions) return json({ message: "That handbook page does not exist." }, 400);
-  if (isRateLimited(clientKey(request))) return json({ message: "Copilot limit reached. Try again in a few minutes." }, 429);
+  if (!pageInstructions) return errorJson("page_not_found");
+  if (isRateLimited(clientKey(request))) return errorJson("rate_limited");
 
   try {
     const response = await fetch(providerUrl, {
@@ -131,13 +142,12 @@ export async function POST(request: Request) {
       body: JSON.stringify(providerPayload(chat, pageInstructions)),
     });
     if (!response.ok) {
-      const status = response.status === 429 ? 429 : 502;
-      const message = status === 429 ? "The AI project has reached a usage limit." : "The copilot is temporarily unavailable.";
-      return json({ message }, status);
+      return errorJson(response.status === 429 ? "usage_limited" : "provider_unavailable");
     }
     const answer = responseText(await response.json());
-    return answer ? json({ answer }) : json({ message: "The copilot returned no answer." }, 502);
+    const body: ChatAnswerBody = { answer, status: "ready" };
+    return answer ? json(body) : errorJson("malformed_response");
   } catch {
-    return json({ message: "The copilot is temporarily unavailable." }, 502);
+    return errorJson("provider_unavailable");
   }
 }
