@@ -2,12 +2,50 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState, useSyncExternalStore, type RefObject } from "react";
-import { rankBookSearch, type BookSearchResult } from "../book-search";
+import type { BookSearchResult } from "../book-search";
 
 const SEARCH_RESULTS_ID = "handbook-search-results";
 const hydrationSubscription = () => () => undefined;
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
+let searchModulePromise: Promise<typeof import("../book-search")> | undefined;
+
+type SearchLoadStatus = "idle" | "loading" | "ready" | "error";
+
+function loadSearchModule() {
+  searchModulePromise ??= import("../book-search").catch((error) => {
+    searchModulePromise = undefined;
+    throw error;
+  });
+  return searchModulePromise;
+}
+
+function useLazySearch(query: string) {
+  const [rankSearch, setRankSearch] = useState<typeof import("../book-search")["rankBookSearch"] | null>(null);
+  const [loadStatus, setLoadStatus] = useState<SearchLoadStatus>("idle");
+  const results = useMemo(() => rankSearch?.(query) ?? [], [query, rankSearch]);
+  function prepareSearch() {
+    if (loadStatus === "loading" || loadStatus === "ready") return;
+    setLoadStatus("loading");
+    void loadSearchModule()
+      .then((module) => {
+        setRankSearch(() => module.rankBookSearch);
+        setLoadStatus("ready");
+      })
+      .catch(() => setLoadStatus("error"));
+  }
+  return { loadStatus, prepareSearch, results };
+}
+
+function resultMessage(loadStatus: SearchLoadStatus) {
+  if (loadStatus === "loading") return "Preparing complete handbook search…";
+  if (loadStatus === "error") return "Search is unavailable. Use the chapter navigation.";
+}
+
+function searchStatus(query: string, loadStatus: SearchLoadStatus, resultCount: number) {
+  if (!query.trim() || loadStatus !== "ready") return "Search section titles, headings, and handbook text";
+  return resultCount ? `${resultCount} handbook results` : "No handbook matches";
+}
 
 function escaped(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -44,10 +82,10 @@ function SearchBox({ isHydrated, isOpen, onKeyDown, onQueryChange, onFocus, quer
   </>;
 }
 
-function SearchResults({ isOpen, onSelect, query, resultListRef, results }: Readonly<{ isOpen: boolean; onSelect: () => void; query: string; resultListRef: RefObject<HTMLUListElement | null>; results: readonly BookSearchResult[] }>) {
+function SearchResults({ isOpen, message, onSelect, query, resultListRef, results }: Readonly<{ isOpen: boolean; message?: string; onSelect: () => void; query: string; resultListRef: RefObject<HTMLUListElement | null>; results: readonly BookSearchResult[] }>) {
   if (!isOpen || !query.trim()) return null;
   return <ul className="absolute right-0 z-50 mt-2 max-h-96 w-[min(92vw,32rem)] overflow-y-auto rounded-2xl border border-ink/15 bg-white p-2 shadow-soft" id={SEARCH_RESULTS_ID} ref={resultListRef} role="listbox">
-    {results.length ? results.map((result) => (
+    {message ? <li aria-live="polite" className="px-3 py-4 text-sm text-muted">{message}</li> : results.length ? results.map((result) => (
       <li aria-selected="false" key={result.href} role="option">
         <Link className="block rounded-xl px-3 py-2 hover:bg-paper" href={result.href} onClick={onSelect}>
           <span className="block text-sm font-bold"><HighlightedText query={query} text={result.heading ?? result.sectionTitle} /></span>
@@ -63,7 +101,7 @@ export function HandbookSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const isHydrated = useSyncExternalStore(hydrationSubscription, clientSnapshot, serverSnapshot);
   const resultListRef = useRef<HTMLUListElement>(null);
-  const results = useMemo(() => rankBookSearch(query), [query]);
+  const { loadStatus, prepareSearch, results } = useLazySearch(query);
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Escape") {
@@ -76,12 +114,10 @@ export function HandbookSearch() {
     }
   }
 
-  const status = query.trim()
-    ? (results.length ? `${results.length} handbook results` : "No handbook matches")
-    : "Search section titles, headings, and handbook text";
-  const updateQuery = (value: string) => { setQuery(value); setIsOpen(true); };
+  const updateQuery = (value: string) => { setQuery(value); setIsOpen(true); prepareSearch(); };
+  const openSearch = () => { setIsOpen(true); prepareSearch(); };
   return <div className="relative w-full max-w-md">
-    <SearchBox isHydrated={isHydrated} isOpen={isOpen} onFocus={() => setIsOpen(true)} onKeyDown={handleKeyDown} onQueryChange={updateQuery} query={query} status={status} />
-    <SearchResults isOpen={isOpen} onSelect={() => setIsOpen(false)} query={query} resultListRef={resultListRef} results={results} />
+    <SearchBox isHydrated={isHydrated} isOpen={isOpen} onFocus={openSearch} onKeyDown={handleKeyDown} onQueryChange={updateQuery} query={query} status={searchStatus(query, loadStatus, results.length)} />
+    <SearchResults isOpen={isOpen} message={resultMessage(loadStatus)} onSelect={() => setIsOpen(false)} query={query} resultListRef={resultListRef} results={results} />
   </div>;
 }

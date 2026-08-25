@@ -7,6 +7,18 @@ const handbookRoutes = [
   { path: "/book/practical-system-design-workflow", title: "Practical system-design workflow" },
 ] as const;
 
+const mermaidRoutes = [
+  "/book/practical-system-design-workflow",
+  "/book/2-boundaries-state-and-data",
+  "/book/2b-data-modeling-indexing-and-partitioning",
+  "/book/4-transactions-and-consistency",
+  "/book/6a-real-time-and-long-running-work",
+  "/book/7-failure-handling-and-resilience",
+  "/book/14-requirements-to-delivery-lifecycle-fr-nfr-constraints-adr-and-tip",
+  "/book/15-llm-and-agentic-systems",
+  "/book/16-spec-driven-development-for-agentic-systems",
+] as const;
+
 interface ProgressStore { state: HandbookProgress | null }
 
 async function mockReaderBoundaries(page: Page, progressStore: ProgressStore = { state: null }) {
@@ -60,6 +72,15 @@ test("keyboard search opens the exact generated heading anchor", async ({ page }
   await expect.poll(() => progressStore.state?.lastRead?.headingId).toBe("14-2-functional-requirements-fr-full-cycle");
 });
 
+test("search reports a lazy corpus loading failure", async ({ page }) => {
+  await page.route(/\/app\/book-search\.ts(?:\?|$)/, (route) => route.abort("failed"));
+  await mockReaderBoundaries(page);
+  await page.goto("/");
+
+  await page.getByRole("combobox", { name: "Search the complete handbook" }).fill("requirements");
+  await expect(page.getByText("Search is unavailable. Use the chapter navigation.")).toBeVisible();
+});
+
 test("completion and checklist choices survive reload", async ({ page }) => {
   const progressStore: ProgressStore = { state: null };
   await mockReaderBoundaries(page, progressStore);
@@ -107,4 +128,28 @@ test("unknown handbook routes return not found", async ({ page }) => {
   const response = await page.goto("/book/not-a-real-section");
 
   expect(response?.status()).toBe(404);
+});
+
+test("a non-diagram section does not load the Mermaid runtime", async ({ page }) => {
+  const mermaidRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/node_modules\/(?:\.vite\/deps\/)?mermaid/.test(request.url())) mermaidRequests.push(request.url());
+  });
+  await mockReaderBoundaries(page);
+  await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
+  await page.waitForLoadState("networkidle");
+
+  expect(mermaidRequests).toEqual([]);
+});
+
+test("every source-authored Mermaid diagram renders on approach", async ({ page }) => {
+  await mockReaderBoundaries(page);
+  for (const route of mermaidRoutes) {
+    await page.goto(route);
+    const loadingState = page.locator(".mermaid-loading");
+    await expect(loadingState).toHaveCount(1);
+    await loadingState.scrollIntoViewIfNeeded();
+    await expect(page.getByRole("img", { name: "Architecture diagram" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".mermaid-fallback")).toHaveCount(0);
+  }
 });

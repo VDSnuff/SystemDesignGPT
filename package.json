@@ -18,7 +18,8 @@
     "test:e2e": "playwright test",
     "test:e2e:diagram": "playwright test tests/e2e/diagram-workshop.spec.ts",
     "test:e2e:quiz": "playwright test tests/e2e/authored-quiz.spec.ts",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "measure:client-js": "node scripts/measure-client-js.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
