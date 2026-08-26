@@ -196,6 +196,28 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships Real-time & long-running work as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "realtime-work");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_000);
+    expect(article?.wordCount).toBeLessThanOrEqual(1_800);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Start with the interaction promise",
+      "Choose the update channel from the interaction",
+      "Define acknowledgement, progress, and terminal states",
+      "Worked example: generate a large account export",
+      "Bound connections, fan-out, and backpressure",
+      "Failure modes to challenge",
+      "Verify the lifecycle, not only the happy path",
+      "Real-time and long-running work review checklist",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/6a-real-time-and-long-running-work");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("ships LLM & agentic systems as a substantive evidence-linked article", () => {
     const article = guideArticles.find(({ slug }) => slug === "agentic-systems");
 

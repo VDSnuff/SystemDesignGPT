@@ -7,6 +7,7 @@ import { dataModelingArticle } from "./data-modeling";
 import { deliveryLifecycleArticle } from "./delivery-lifecycle";
 import { messagingArticle } from "./messaging";
 import { networkingArticle } from "./networking";
+import { realtimeWorkArticle } from "./realtime-work";
 import { requirementsArticle } from "./requirements";
 import { timeOrderingArticle } from "./time-ordering";
 import { transactionsConsistencyArticle } from "./transactions-consistency";
@@ -21,6 +22,7 @@ const guideArticles: readonly GuideArticle[] = [
   transactionsConsistencyArticle,
   apisIdempotencyArticle,
   messagingArticle,
+  realtimeWorkArticle,
   deliveryLifecycleArticle,
   agenticSystemsArticle,
 ];
