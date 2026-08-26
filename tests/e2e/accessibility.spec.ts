@@ -13,6 +13,7 @@ const representativeRoutes = [
   "/chapter/apis-idempotency",
   "/chapter/messaging",
   "/chapter/realtime-work",
+  "/chapter/resilience",
   "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
   "/book/practical-system-design-workflow",
   "/workshop",
@@ -100,6 +101,7 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
     "/chapter/apis-idempotency",
     "/chapter/messaging",
     "/chapter/realtime-work",
+    "/chapter/resilience",
     "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
     "/workshop",
   ];
