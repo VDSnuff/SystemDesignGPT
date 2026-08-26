@@ -175,6 +175,23 @@ test("the Networking guide article renders at desktop and mobile widths", async 
   }
 });
 
+test("the Data modeling guide article renders at desktop and mobile widths", async ({ page }) => {
+  await mockReaderBoundaries(page);
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const response = await page.goto("/chapter/data-modeling");
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1, name: "Model from access patterns." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Worked example: tenant order history" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "2B. Data Modeling, Indexing, and Partitioning" })).toHaveAttribute(
+      "href",
+      "/book/2b-data-modeling-indexing-and-partitioning",
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+});
+
 test("unknown handbook routes return not found", async ({ page }) => {
   const response = await page.goto("/book/not-a-real-section");
 
