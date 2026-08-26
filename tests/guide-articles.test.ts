@@ -196,6 +196,31 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships LLM & agentic systems as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "agentic-systems");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_800);
+    expect(article?.wordCount).toBeLessThanOrEqual(3_000);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Choose the least autonomy that satisfies the requirement",
+      "Design model, context, tools, and memory as separate boundaries",
+      "Worked example: a bounded order-cancellation agent",
+      "Treat MCP and A2A as contracts, not trust",
+      "Specify behavior before implementation",
+      "Evaluate outcomes, trajectories, and side effects",
+      "Failure modes to challenge",
+      "Agent-system review checklist",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/15-llm-and-agentic-systems");
+    expect(article?.markdown).toContain("/book/16-spec-driven-development-for-agentic-systems");
+    expect(article?.markdown).toContain("/book/17-agent-system-design-review-checklist");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toContain("24 August 2026");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("keeps article handbook links and evidence IDs canonical", () => {
     const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");
