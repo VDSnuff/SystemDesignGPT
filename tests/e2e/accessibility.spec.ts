@@ -7,6 +7,7 @@ const representativeRoutes = [
   "/chapter/boundaries-state-data",
   "/chapter/networking",
   "/chapter/data-modeling",
+  "/chapter/time-ordering",
   "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
   "/book/practical-system-design-workflow",
   "/workshop",
@@ -83,7 +84,7 @@ test("skip link focuses the main landmark", async ({ page }) => {
 test("core pages reflow without page-level horizontal scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 720 });
   await mockAccessibilityBoundaries(page);
-  for (const route of ["/chapter/requirements", "/chapter/boundaries-state-data", "/chapter/networking", "/chapter/data-modeling", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"]) {
+  for (const route of ["/chapter/requirements", "/chapter/boundaries-state-data", "/chapter/networking", "/chapter/data-modeling", "/chapter/time-ordering", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"]) {
     await page.goto(route);
     const hasPageOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasPageOverflow).toBe(false);
