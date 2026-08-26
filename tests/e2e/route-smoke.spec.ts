@@ -241,6 +241,24 @@ test("the Transactions and consistency guide article renders at desktop and mobi
   }
 });
 
+test("the APIs and idempotency guide article renders at desktop and mobile widths", async ({ page }) => {
+  await mockReaderBoundaries(page);
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const response = await page.goto("/chapter/apis-idempotency");
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1, name: "Make retries safe at the contract." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Worked example: create one payment safely" })).toBeVisible();
+    await expect(page.getByRole("table")).toContainText("Cursor pagination");
+    await expect(page.getByRole("link", { name: "5. APIs, Contracts, and Idempotency" }).first()).toHaveAttribute(
+      "href",
+      "/book/5-apis-contracts-and-idempotency",
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+});
+
 test("unknown handbook routes return not found", async ({ page }) => {
   const response = await page.goto("/book/not-a-real-section");
 
