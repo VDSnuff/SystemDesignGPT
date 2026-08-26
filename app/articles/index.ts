@@ -9,6 +9,7 @@ import { messagingArticle } from "./messaging";
 import { networkingArticle } from "./networking";
 import { realtimeWorkArticle } from "./realtime-work";
 import { requirementsArticle } from "./requirements";
+import { resilienceArticle } from "./resilience";
 import { timeOrderingArticle } from "./time-ordering";
 import { transactionsConsistencyArticle } from "./transactions-consistency";
 
@@ -23,6 +24,7 @@ const guideArticles: readonly GuideArticle[] = [
   apisIdempotencyArticle,
   messagingArticle,
   realtimeWorkArticle,
+  resilienceArticle,
   deliveryLifecycleArticle,
   agenticSystemsArticle,
 ];
