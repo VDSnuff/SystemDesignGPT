@@ -1,5 +1,6 @@
 import type { GuideArticle } from "./article";
 import { boundariesStateDataArticle } from "./boundaries-state-data";
+import { concurrencyArticle } from "./concurrency";
 import { dataModelingArticle } from "./data-modeling";
 import { networkingArticle } from "./networking";
 import { requirementsArticle } from "./requirements";
@@ -11,6 +12,7 @@ const guideArticles: readonly GuideArticle[] = [
   networkingArticle,
   dataModelingArticle,
   timeOrderingArticle,
+  concurrencyArticle,
 ];
 
 export function findGuideArticle(slug: string) {
