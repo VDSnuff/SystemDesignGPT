@@ -30,6 +30,24 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships Boundaries, state & data as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "boundaries-state-data");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_000);
+    expect(article?.wordCount).toBeLessThanOrEqual(1_800);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Worked example: an order-status flow",
+      "Choose coupling deliberately",
+      "Failure modes that diagrams often hide",
+      "Review a boundary diagram in seven passes",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/2-boundaries-state-and-data");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("keeps article handbook links and evidence IDs canonical", () => {
     const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");
