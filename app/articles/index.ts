@@ -3,6 +3,7 @@ import { apisIdempotencyArticle } from "./apis-idempotency";
 import { boundariesStateDataArticle } from "./boundaries-state-data";
 import { concurrencyArticle } from "./concurrency";
 import { dataModelingArticle } from "./data-modeling";
+import { messagingArticle } from "./messaging";
 import { networkingArticle } from "./networking";
 import { requirementsArticle } from "./requirements";
 import { timeOrderingArticle } from "./time-ordering";
@@ -17,6 +18,7 @@ const guideArticles: readonly GuideArticle[] = [
   concurrencyArticle,
   transactionsConsistencyArticle,
   apisIdempotencyArticle,
+  messagingArticle,
 ];
 
 export function findGuideArticle(slug: string) {
