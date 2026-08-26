@@ -5,6 +5,7 @@ import { dataModelingArticle } from "./data-modeling";
 import { networkingArticle } from "./networking";
 import { requirementsArticle } from "./requirements";
 import { timeOrderingArticle } from "./time-ordering";
+import { transactionsConsistencyArticle } from "./transactions-consistency";
 
 const guideArticles: readonly GuideArticle[] = [
   requirementsArticle,
@@ -13,6 +14,7 @@ const guideArticles: readonly GuideArticle[] = [
   dataModelingArticle,
   timeOrderingArticle,
   concurrencyArticle,
+  transactionsConsistencyArticle,
 ];
 
 export function findGuideArticle(slug: string) {
