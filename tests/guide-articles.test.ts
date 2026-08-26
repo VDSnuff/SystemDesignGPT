@@ -174,6 +174,28 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships Messaging & async work as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "messaging");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_000);
+    expect(article?.wordCount).toBeLessThanOrEqual(1_800);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Choose the communication contract before the broker",
+      "Define ownership, identity, and the message contract",
+      "Worked example: accept an order and start fulfillment",
+      "Bound retries, poison messages, and replay",
+      "Measure age, throughput, and recovery capacity",
+      "Failure modes to challenge",
+      "Verify delivery, recovery, and the user promise",
+      "Messaging review checklist",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/6-messaging-and-asynchronous-work");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("keeps article handbook links and evidence IDs canonical", () => {
     const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");
