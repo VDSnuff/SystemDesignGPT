@@ -151,6 +151,29 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships APIs & idempotency as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "apis-idempotency");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_000);
+    expect(article?.wordCount).toBeLessThanOrEqual(1_800);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Model resources, actions, and validation boundaries",
+      "Define the complete idempotency contract",
+      "Worked example: create one payment safely",
+      "Design pagination, limits, and long work as contracts",
+      "Evolve contracts through compatible states",
+      "Compare the key design choices",
+      "Secure, observe, and test the boundary",
+      "Failure modes to challenge",
+      "API and idempotency review checklist",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/5-apis-contracts-and-idempotency");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("keeps article handbook links and evidence IDs canonical", () => {
     const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");

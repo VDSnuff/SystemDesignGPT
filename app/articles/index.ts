@@ -1,4 +1,5 @@
 import type { GuideArticle } from "./article";
+import { apisIdempotencyArticle } from "./apis-idempotency";
 import { boundariesStateDataArticle } from "./boundaries-state-data";
 import { concurrencyArticle } from "./concurrency";
 import { dataModelingArticle } from "./data-modeling";
@@ -15,6 +16,7 @@ const guideArticles: readonly GuideArticle[] = [
   timeOrderingArticle,
   concurrencyArticle,
   transactionsConsistencyArticle,
+  apisIdempotencyArticle,
 ];
 
 export function findGuideArticle(slug: string) {
