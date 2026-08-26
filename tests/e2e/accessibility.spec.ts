@@ -8,6 +8,7 @@ const representativeRoutes = [
   "/chapter/networking",
   "/chapter/data-modeling",
   "/chapter/time-ordering",
+  "/chapter/concurrency",
   "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
   "/book/practical-system-design-workflow",
   "/workshop",
@@ -84,7 +85,7 @@ test("skip link focuses the main landmark", async ({ page }) => {
 test("core pages reflow without page-level horizontal scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 720 });
   await mockAccessibilityBoundaries(page);
-  for (const route of ["/chapter/requirements", "/chapter/boundaries-state-data", "/chapter/networking", "/chapter/data-modeling", "/chapter/time-ordering", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"]) {
+  for (const route of ["/chapter/requirements", "/chapter/boundaries-state-data", "/chapter/networking", "/chapter/data-modeling", "/chapter/time-ordering", "/chapter/concurrency", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"]) {
     await page.goto(route);
     const hasPageOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasPageOverflow).toBe(false);
@@ -94,6 +95,7 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
 test("interactive controls retain visible focus and 44 pixel targets", async ({ page }) => {
   await mockAccessibilityBoundaries(page);
   await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
+  await expect(page.getByRole("combobox", { name: "Search the complete handbook" })).toBeEnabled({ timeout: 20_000 });
   const controls = page.locator(".nav-target:visible, .search-control:visible, .tool-button:visible, .tool-button-dark:visible, .compact-action:visible");
   const count = await controls.count();
   for (let index = 0; index < count; index += 1) {
