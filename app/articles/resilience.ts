@@ -7,7 +7,7 @@ Remote work can be slow, unavailable, partially successful, or complete after it
 
 Begin with the user promise: the critical outcome, end-to-end deadline, acceptable degradation, and the point when work has no value. A timeout does not prove that nothing happened; retry only when repetition cannot create an unintended second effect or the operation has an idempotency contract.
 
-Treat timeout, retry, circuit breaking, load shedding, bulkheads, fallback, and recovery as one control system. A retry may survive a short fault but consumes deadline and capacity. A circuit breaker protects a struggling dependency by rejecting work. A fallback is useful only when its data and semantics remain honest.
+Treat timeout, retry, circuit breaking, overload rejection, resource-pool isolation, fallback, and recovery as one control system. A retry may survive a short fault but consumes deadline and capacity. A circuit breaker protects a struggling dependency by rejecting work. A fallback is useful only when its data and semantics remain honest.
 
 *Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html).*
 
