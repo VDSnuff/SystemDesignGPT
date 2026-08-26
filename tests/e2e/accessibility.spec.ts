@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 const representativeRoutes = [
   "/",
   "/chapter/requirements",
+  "/chapter/boundaries-state-data",
   "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
   "/book/practical-system-design-workflow",
   "/workshop",
@@ -27,7 +28,7 @@ async function seriousViolations(page: Page) {
 async function waitForHydratedSurface(page: Page, route: string) {
   if (route === "/owner/comments") return page.getByText("No learning comments yet.").waitFor();
   if (route === "/workshop") return page.getByText("Ready for your first workshop save.").waitFor();
-  if (route === "/chapter/requirements") return page.getByRole("heading", { name: "Review questions" }).waitFor();
+  if (route.startsWith("/chapter/")) return page.getByRole("heading", { name: "Review questions" }).waitFor();
   return page.getByText("Ready for your first save.").waitFor();
 }
 
@@ -80,7 +81,7 @@ test("skip link focuses the main landmark", async ({ page }) => {
 test("core pages reflow without page-level horizontal scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 720 });
   await mockAccessibilityBoundaries(page);
-  for (const route of ["/chapter/requirements", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"]) {
+  for (const route of ["/chapter/requirements", "/chapter/boundaries-state-data", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"]) {
     await page.goto(route);
     const hasPageOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasPageOverflow).toBe(false);
