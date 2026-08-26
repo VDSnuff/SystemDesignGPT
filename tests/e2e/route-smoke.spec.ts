@@ -223,6 +223,24 @@ test("the Concurrency guide article renders at desktop and mobile widths", async
   }
 });
 
+test("the Transactions and consistency guide article renders at desktop and mobile widths", async ({ page }) => {
+  await mockReaderBoundaries(page);
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    const response = await page.goto("/chapter/transactions-consistency");
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1, name: "Choose consistency, do not inherit it." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Worked example: checkout across three owners" })).toBeVisible();
+    await expect(page.getByRole("table")).toContainText("Transactional outbox");
+    await expect(page.getByRole("link", { name: "4. Transactions and Consistency" }).first()).toHaveAttribute(
+      "href",
+      "/book/4-transactions-and-consistency",
+    );
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+});
+
 test("unknown handbook routes return not found", async ({ page }) => {
   const response = await page.goto("/book/not-a-real-section");
 
