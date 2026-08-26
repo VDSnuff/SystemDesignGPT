@@ -87,6 +87,26 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships Time, clocks & ordering as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "time-ordering");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_000);
+    expect(article?.wordCount).toBeLessThanOrEqual(1_800);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Separate the clocks and ordering signals",
+      "Store instants and civil intentions differently",
+      "Worked example: a ticket hold and payment",
+      "Choose the smallest useful ordering guarantee",
+      "Define expiry as a state transition",
+      "Time-and-order review checklist",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/2c-time-clocks-and-ordering");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("keeps article handbook links and evidence IDs canonical", () => {
     const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");
