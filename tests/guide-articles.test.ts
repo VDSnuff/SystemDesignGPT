@@ -48,6 +48,25 @@ describe("authored Quick Guide articles", () => {
     expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
   });
 
+  it("ships Networking & communication as a substantive evidence-linked article", () => {
+    const article = guideArticles.find(({ slug }) => slug === "networking");
+
+    expect(article).toBeDefined();
+    expect(article?.wordCount).toBeGreaterThanOrEqual(1_000);
+    expect(article?.wordCount).toBeLessThanOrEqual(1_800);
+    expect(article?.headings.map(({ title }) => title)).toEqual(expect.arrayContaining([
+      "Match the communication mode to the contract",
+      "Worked example: export progress",
+      "Treat partial failure and backpressure as normal",
+      "Diagnose the path, not only the service",
+      "Network-failure review checklist",
+      "Review questions",
+    ]));
+    expect(article?.markdown).toContain("/book/2a-networking-and-communication");
+    expect(article?.markdown).toContain("evidence and verification register");
+    expect(article?.markdown).toMatch(/Evidence: \[S\d+/);
+  });
+
   it("keeps article handbook links and evidence IDs canonical", () => {
     const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");
