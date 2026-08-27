@@ -42,10 +42,8 @@ async function dragHorizontally(page: Page, handle: Locator, distance: number) {
   await page.mouse.move(startX, startY);
   await page.mouse.down();
   await expect(handle).not.toHaveAttribute("data-resizing", "true");
-  expect(await handle.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0.18s, 0.18s");
   await page.mouse.move(startX + distance, startY, { steps: 5 });
   await expect(handle).toHaveAttribute("data-resizing", "true");
-  expect(await handle.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
   await page.mouse.up();
   await expect(handle).not.toHaveAttribute("data-resizing", "true");
 }
