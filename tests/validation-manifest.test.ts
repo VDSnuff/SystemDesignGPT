@@ -30,7 +30,7 @@ describe("release validation manifest", () => {
       guidePages.map(({ slug }) => `/chapter/${slug}`),
     );
     expect(routeGroup("canonical-handbook").routes).toEqual(
-      bookSections.map(({ slug }) => `/book/${slug}`),
+      bookSections.map(({ slug }) => slug === "introduction" ? "/" : `/book/${slug}`),
     );
     expect(routeGroup("public-static").routes).toEqual(["/", "/workshop", "/owner/comments"]);
     expect(routeGroup("api").routes).toEqual([

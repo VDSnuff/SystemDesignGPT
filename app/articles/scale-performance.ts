@@ -128,7 +128,7 @@ Run the guide itself at wide and narrow widths. Follow links and headings by key
 7. How are simultaneous misses and cache failure prevented from overwhelming the origin?
 8. What test evidence supports the operating envelope and cost estimate?
 
-Continue in the complete handbook at [8. Scale, Capacity, Performance, and Caching](/book/8-scale-capacity-performance-and-caching) and its [capacity review checklist](/book/8-scale-capacity-performance-and-caching#capacity-review-checklist). See the [evidence and verification register](/book/references-and-verification-register#primary-official-government-and-research-sources) for the canonical sources.
+Continue in the complete handbook at [8. Scale, Capacity, Performance, and Caching](/book/8-scale-capacity-performance-and-caching) and its [capacity review checklist](/book/8-scale-capacity-performance-and-caching#checklist). See the [evidence and verification register](/book/references-and-verification-register#primary-official-government-and-research-sources) for the canonical sources.
 
 _Evidence scope: the cited Microsoft and Google guidance was rechecked on 27 August 2026. Service quotas, instance capabilities, cache behavior, pricing, and provider limits vary by region and version; verify them against the deployed environment before making a capacity commitment._
 `;

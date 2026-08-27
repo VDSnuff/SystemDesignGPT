@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { bookSections, findBookSection } from "../../book-content.generated";
 import { BookPageView } from "../../components/BookPageView";
+import { createPageMetadata, notFoundMetadata } from "../../site-metadata";
 
 interface BookPageProps { readonly params: Promise<{ slug: string }> }
 
@@ -11,18 +12,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: BookPageProps): Promise<Metadata> {
   const section = findBookSection((await params).slug);
-  if (!section) return {};
-  const title = `${section.title} · System Design Studio`;
-  return {
-    title,
-    description: section.summary,
-    openGraph: { title, description: section.summary, images: [] },
-    twitter: { title, description: section.summary, images: [] },
-  };
+  if (!section) return notFoundMetadata;
+  const path = section.slug === "introduction" ? "/" : `/book/${section.slug}`;
+  return createPageMetadata({ title: section.title, description: section.summary, path });
 }
 
 export default async function BookPage({ params }: BookPageProps) {
   const section = findBookSection((await params).slug);
-  if (!section || section.slug === "introduction") notFound();
+  if (!section) notFound();
+  if (section.slug === "introduction") redirect("/");
   return <BookPageView section={section} />;
 }

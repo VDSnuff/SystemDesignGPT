@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import { AppHeader } from "../../components/AppHeader";
+import { createPageMetadata } from "../../site-metadata";
 import { OwnerComments } from "./OwnerComments";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Owner comments",
+  description: "Review learning comments submitted from handbook sections.",
+  path: "/owner/comments",
+  isIndexable: false,
+});
 
 export default function OwnerCommentsPage() {
   return (
