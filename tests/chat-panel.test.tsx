@@ -194,3 +194,22 @@ describe("ChatPanel mobile drawer", () => {
     expect(document.body.style.overflow).toBe("");
   });
 });
+
+describe("ChatPanel desktop sidebar", () => {
+  it("collapses without losing the current draft", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(statusResponse("ready")));
+    const user = userEvent.setup();
+    render(<ChatPanel {...panelProps} />);
+
+    const textbox = await screen.findByRole("textbox", { name: "Ask about Introduction" });
+    await user.type(textbox, "Keep this desktop draft");
+    await user.click(screen.getByRole("button", { name: "Collapse design copilot" }));
+
+    expect(screen.queryByRole("textbox", { name: "Ask about Introduction" })).toBeNull();
+    const expand = screen.getByRole("button", { name: "Expand design copilot" });
+    expect(expand.getAttribute("aria-expanded")).toBe("false");
+    await user.click(expand);
+
+    expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: "Ask about Introduction" }).value).toBe("Keep this desktop draft");
+  });
+});

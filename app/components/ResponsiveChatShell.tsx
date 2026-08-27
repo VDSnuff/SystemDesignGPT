@@ -34,28 +34,31 @@ function useDesktopViewport() {
 }
 
 function focusableElements(container: HTMLElement) {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter((element) => !element.closest("[hidden]"));
 }
 
 export function ResponsiveChatShell({ children, pageLabel, status }: ResponsiveChatShellProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isDesktopOpen, setIsDesktopOpen] = useState(true);
   const isDesktop = useDesktopViewport();
   const dialogId = stableDomId("copilot", pageLabel);
+  const contentId = `${dialogId}-content`;
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const presentation = statusPresentation[status];
 
   useEffect(() => {
-    if (isDesktop || !isOpen) return;
+    if (isDesktop || !isMobileOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
     return () => { document.body.style.overflow = previousOverflow; };
-  }, [isDesktop, isOpen]);
+  }, [isDesktop, isMobileOpen]);
 
   function closeChat() {
-    setIsOpen(false);
+    setIsMobileOpen(false);
     launcherRef.current?.focus();
   }
 
@@ -83,12 +86,12 @@ export function ResponsiveChatShell({ children, pageLabel, status }: ResponsiveC
     <>
       <button
         aria-controls={dialogId}
-        aria-expanded={isOpen}
+        aria-expanded={isMobileOpen}
         aria-haspopup="dialog"
         aria-label={`Open design copilot. ${presentation.label}. ${presentation.detail}`}
         className="mobile-copilot-launcher"
         hidden={isDesktop}
-        onClick={() => setIsOpen(true)}
+        onClick={() => setIsMobileOpen(true)}
         ref={launcherRef}
         type="button"
       >
@@ -97,26 +100,41 @@ export function ResponsiveChatShell({ children, pageLabel, status }: ResponsiveC
         <span aria-hidden="true" className="mobile-copilot-status">Status: {presentation.label}</span>
       </button>
       <aside
-        aria-label={isOpen && !isDesktop ? `Design copilot for ${pageLabel}` : undefined}
-        aria-modal={isOpen && !isDesktop ? true : undefined}
-        className={`responsive-chat-surface ${isOpen ? "is-open" : ""}`}
-        hidden={!isDesktop && !isOpen}
+        aria-label={isMobileOpen && !isDesktop ? `Design copilot for ${pageLabel}` : undefined}
+        aria-modal={isMobileOpen && !isDesktop ? true : undefined}
+        className={`responsive-chat-surface ${isMobileOpen ? "is-open" : ""} ${isDesktopOpen ? "" : "is-collapsed"}`}
+        hidden={!isDesktop && !isMobileOpen}
         id={dialogId}
         onKeyDown={handleDialogKeyDown}
         ref={dialogRef}
-        role={isOpen && !isDesktop ? "dialog" : undefined}
+        role={isMobileOpen && !isDesktop ? "dialog" : undefined}
       >
         <div className="responsive-chat-panel">
           <button
+            aria-controls={contentId}
+            aria-expanded={isDesktopOpen}
+            aria-label={isDesktopOpen ? "Collapse design copilot" : "Expand design copilot"}
+            className="desktop-copilot-toggle"
+            hidden={!isDesktop}
+            onClick={() => setIsDesktopOpen((current) => !current)}
+            type="button"
+          >
+            <span aria-hidden="true">{isDesktopOpen ? "›" : "‹"}</span>
+            <span className={isDesktopOpen ? "" : "sr-only"}>{isDesktopOpen ? "Hide chat" : "Show chat"}</span>
+          </button>
+          <button
             aria-label="Close design copilot"
             className="mobile-copilot-close"
+            hidden={isDesktop}
             onClick={closeChat}
             ref={closeRef}
             type="button"
           >
             Close
           </button>
-          {children}
+          <div className="responsive-chat-body" hidden={isDesktop && !isDesktopOpen} id={contentId}>
+            {children}
+          </div>
         </div>
       </aside>
     </>
