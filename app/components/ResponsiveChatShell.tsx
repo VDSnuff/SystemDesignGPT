@@ -3,6 +3,7 @@
 import { KeyboardEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { statusPresentation, type CopilotStatus } from "../copilot-status";
 import { stableDomId } from "../dom-id";
+import { PanelResizeHandle } from "./PanelResizeHandle";
 
 interface ResponsiveChatShellProps {
   readonly children: ReactNode;
@@ -11,6 +12,9 @@ interface ResponsiveChatShellProps {
 }
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
+const DEFAULT_CHAT_WIDTH = 380;
+const MINIMUM_CHAT_WIDTH = 300;
+const MAXIMUM_CHAT_WIDTH = 480;
 const FOCUSABLE_SELECTOR = [
   "a[href]",
   "button:not([disabled])",
@@ -41,6 +45,7 @@ function focusableElements(container: HTMLElement) {
 export function ResponsiveChatShell({ children, pageLabel, status }: ResponsiveChatShellProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
+  const [desktopWidth, setDesktopWidth] = useState(DEFAULT_CHAT_WIDTH);
   const isDesktop = useDesktopViewport();
   const dialogId = stableDomId("copilot", pageLabel);
   const contentId = `${dialogId}-content`;
@@ -108,20 +113,23 @@ export function ResponsiveChatShell({ children, pageLabel, status }: ResponsiveC
         onKeyDown={handleDialogKeyDown}
         ref={dialogRef}
         role={isMobileOpen && !isDesktop ? "dialog" : undefined}
+        style={isDesktop ? { width: isDesktopOpen ? desktopWidth : 0 } : undefined}
       >
+        {isDesktop && (
+          <PanelResizeHandle
+            controlsId={contentId}
+            isOpen={isDesktopOpen}
+            label="design copilot"
+            maxWidth={MAXIMUM_CHAT_WIDTH}
+            minWidth={MINIMUM_CHAT_WIDTH}
+            onOpen={() => setIsDesktopOpen(true)}
+            onResize={setDesktopWidth}
+            onToggle={() => setIsDesktopOpen((current) => !current)}
+            side="right"
+            width={desktopWidth}
+          />
+        )}
         <div className="responsive-chat-panel">
-          <button
-            aria-controls={contentId}
-            aria-expanded={isDesktopOpen}
-            aria-label={isDesktopOpen ? "Collapse design copilot" : "Expand design copilot"}
-            className="desktop-copilot-toggle"
-            hidden={!isDesktop}
-            onClick={() => setIsDesktopOpen((current) => !current)}
-            type="button"
-          >
-            <span aria-hidden="true">{isDesktopOpen ? "›" : "‹"}</span>
-            <span className={isDesktopOpen ? "" : "sr-only"}>{isDesktopOpen ? "Hide chat" : "Show chat"}</span>
-          </button>
           <button
             aria-label="Close design copilot"
             className="mobile-copilot-close"

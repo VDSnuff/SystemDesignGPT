@@ -205,7 +205,7 @@ describe("ChatPanel desktop sidebar", () => {
 
     const textbox = await screen.findByRole("textbox", { name: "Ask about Introduction" });
     await user.type(textbox, "Keep this desktop draft");
-    await user.click(screen.getByRole("button", { name: "Collapse design copilot" }));
+    await user.click(screen.getByRole("button", { name: "Resize or collapse design copilot" }));
 
     expect(screen.queryByRole("textbox", { name: "Ask about Introduction" })).toBeNull();
     const expand = screen.getByRole("button", { name: "Expand design copilot" });
@@ -213,5 +213,18 @@ describe("ChatPanel desktop sidebar", () => {
     await user.click(expand);
 
     expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: "Ask about Introduction" }).value).toBe("Keep this desktop draft");
+  });
+
+  it("resizes inward from the keyboard", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(statusResponse("ready")));
+    const user = userEvent.setup();
+    const { container } = render(<ChatPanel {...panelProps} />);
+    const handle = screen.getByRole("button", { name: "Resize or collapse design copilot" });
+    const surface = container.querySelector<HTMLElement>(".responsive-chat-surface");
+
+    handle.focus();
+    await user.keyboard("{ArrowLeft}");
+    expect(surface?.style.width).toBe("396px");
+    expect(handle.getAttribute("aria-expanded")).toBe("true");
   });
 });

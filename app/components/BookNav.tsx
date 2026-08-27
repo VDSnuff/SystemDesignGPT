@@ -14,7 +14,7 @@ export function BookNav({ activeSlug }: Readonly<{ activeSlug: string }>) {
           <BookLinks activeSlug={activeSlug} />
         </nav>
       </details>
-      <CollapsibleNavigation label="complete book menu">
+      <CollapsibleNavigation defaultWidth={280} label="complete book menu">
         <div className="sticky top-5 max-h-[calc(100vh-40px)] overflow-y-auto pr-1">
           <HandbookProgressPanel instanceId="desktop" />
           <p className="mb-4 px-3 text-xs font-bold uppercase tracking-[0.14em] text-muted">Complete book</p>

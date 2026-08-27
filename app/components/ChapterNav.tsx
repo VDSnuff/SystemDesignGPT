@@ -4,7 +4,7 @@ import { CollapsibleNavigation } from "./CollapsibleNavigation";
 
 export function ChapterNav({ activeSlug }: Readonly<{ activeSlug: string }>) {
   return (
-    <CollapsibleNavigation label="site map menu">
+    <CollapsibleNavigation defaultWidth={230} label="site map menu">
       <div className="sticky top-5 max-h-[calc(100vh-40px)] overflow-y-auto pr-1">
         <p className="mb-4 px-3 text-xs font-bold uppercase tracking-[0.14em] text-muted">Site map</p>
         <nav aria-label="Handbook chapters" className="space-y-0.5">
