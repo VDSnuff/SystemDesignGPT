@@ -5,6 +5,7 @@ import { boundariesStateDataArticle } from "./boundaries-state-data";
 import { concurrencyArticle } from "./concurrency";
 import { costSimplicityArticle } from "./cost-simplicity";
 import { dataModelingArticle } from "./data-modeling";
+import { deploymentEvolutionArticle } from "./deployment-evolution";
 import { deliveryLifecycleArticle } from "./delivery-lifecycle";
 import { messagingArticle } from "./messaging";
 import { networkingArticle } from "./networking";
@@ -32,6 +33,7 @@ const guideArticles: readonly GuideArticle[] = [
   scalePerformanceArticle,
   securityArticle,
   observabilityArticle,
+  deploymentEvolutionArticle,
   costSimplicityArticle,
   deliveryLifecycleArticle,
   agenticSystemsArticle,
