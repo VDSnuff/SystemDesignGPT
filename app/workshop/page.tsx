@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { AppHeader } from "../components/AppHeader";
 import { ChapterNav } from "../components/ChapterNav";
 import { ChatPanel } from "../components/ChatPanel";
 import { DiagramBuilder } from "../components/DiagramBuilder";
 import { workshopPage } from "../content";
+import { createPageMetadata } from "../site-metadata";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Diagram workshop",
+  description: workshopPage.lead,
+  path: "/workshop",
+});
 
 export default function WorkshopPage() {
   return (

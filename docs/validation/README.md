@@ -136,6 +136,7 @@ npm run check:generated
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
 npm run build
+npm run check:links
 npm run test:e2e
 git diff --check
 ```
@@ -145,9 +146,12 @@ manifest records the measurement command separately so server startup and
 shutdown remain observable. Accessibility has a focused Playwright command in
 addition to the full browser suite.
 
-Link-health and production-smoke commands remain `planned` under #67 and #69.
-Until those issues ship executable contracts, their release evidence is
-`UNVERIFIED`.
+Link health is executable under #67. It checks the canonical source URLs,
+route/anchor contracts, server-rendered metadata, robots, sitemap, aliases,
+errors, internal links, and public images. HTTP 401, 403, 429, 5xx responses,
+and network failures remain `UNVERIFIED` instead of being mislabeled as broken;
+other terminal 4xx responses fail the gate. Production smoke remains `planned`
+under #69 and is `UNVERIFIED` until that issue ships its executable contract.
 
 ## Report workflow
 
