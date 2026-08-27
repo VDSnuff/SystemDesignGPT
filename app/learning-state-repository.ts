@@ -33,4 +33,8 @@ async function save(value: LearningStateWrite) {
   });
 }
 
-export const learningStateRepository: LearningStateRepository = { find, save };
+async function deleteForUser(userId: string) {
+  await getDb().delete(learningPageState).where(eq(learningPageState.userId, userId));
+}
+
+export const learningStateRepository: LearningStateRepository = { deleteForUser, find, save };

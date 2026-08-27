@@ -1,4 +1,4 @@
-import { handleHandbookProgressGet, handleHandbookProgressPut } from "../../handbook-progress-handlers";
+import { handleHandbookProgressDelete, handleHandbookProgressGet, handleHandbookProgressPut } from "../../handbook-progress-handlers";
 import { handbookProgressRepository } from "../../handbook-progress-repository";
 
 export function GET(request: Request) {
@@ -7,4 +7,8 @@ export function GET(request: Request) {
 
 export function PUT(request: Request) {
   return handleHandbookProgressPut(request, handbookProgressRepository);
+}
+
+export function DELETE(request: Request) {
+  return handleHandbookProgressDelete(request, handbookProgressRepository);
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { bookChecklistIds } from "../app/book-learning.generated";
 import {
   decodeStoredProgress,
+  handleHandbookProgressDelete,
   handleHandbookProgressGet,
   handleHandbookProgressPut,
 } from "../app/handbook-progress-handlers";
@@ -22,7 +23,7 @@ function record(userId: string, sectionSlug: string): HandbookProgressRecord {
   };
 }
 
-function request(method: "GET" | "PUT", userId?: string, body?: unknown, hasOrigin = true) {
+function request(method: "DELETE" | "GET" | "PUT", userId?: string, body?: unknown, hasOrigin = true) {
   const headers = new Headers({ "Content-Type": "application/json" });
   if (userId) {
     headers.set("oai-authenticated-user-email", `${userId}@example.com`);
@@ -44,6 +45,7 @@ describe("handbook progress persistence handlers", () => {
   it("rejects unauthenticated reads and cross-origin writes before repository access", async () => {
     let wasAccessed = false;
     const repository: HandbookProgressRepository = {
+      deleteForUser: async () => { wasAccessed = true; },
       find: async () => { wasAccessed = true; return null; },
       save: async () => { wasAccessed = true; },
     };
@@ -60,6 +62,7 @@ describe("handbook progress persistence handlers", () => {
     ]);
     const writes: HandbookProgressWrite[] = [];
     const repository: HandbookProgressRepository = {
+      deleteForUser: async () => undefined,
       find: async (userId) => rows.get(userId) ?? null,
       save: async (value) => { writes.push(value); },
     };
@@ -76,7 +79,11 @@ describe("handbook progress persistence handlers", () => {
   });
 
   it("rejects stale generated mappings and removes them from legacy records", async () => {
-    const repository: HandbookProgressRepository = { find: async () => null, save: async () => undefined };
+    const repository: HandbookProgressRepository = {
+      deleteForUser: async () => undefined,
+      find: async () => null,
+      save: async () => undefined,
+    };
     const staleState = { lastRead: null, completedSections: ["removed-section"], checkedItems: ["removed-checklist"] };
 
     expect((await handleHandbookProgressPut(request("PUT", "user-a", staleState), repository)).status).toBe(400);
@@ -88,5 +95,17 @@ describe("handbook progress persistence handlers", () => {
     expect(decoded.state.completedSections).toEqual(["9-security"]);
     expect(decoded.state.checkedItems).toEqual([bookChecklistIds[0]]);
     expect(decoded.warning).toContain("updated safely");
+  });
+
+  it("deletes progress only for the authenticated user", async () => {
+    const deletedUsers: string[] = [];
+    const repository: HandbookProgressRepository = {
+      deleteForUser: async (userId) => { deletedUsers.push(userId); },
+      find: async () => null,
+      save: async () => undefined,
+    };
+
+    expect((await handleHandbookProgressDelete(request("DELETE", "user-a"), repository)).status).toBe(200);
+    expect(deletedUsers).toEqual(["user-a"]);
   });
 });

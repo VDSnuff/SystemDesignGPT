@@ -1,11 +1,17 @@
 import { bookSiteMap, findBookSection } from "../../book-content.generated";
 import { chatErrors, type ChatAnswerBody, type ChatErrorCode, type ChatStatusBody } from "../../chat-contract";
 import { findGuidePage, siteMap } from "../../content";
+import { readJsonRequest } from "../../json-request";
+import { rateLimitRepository, rateLimitScopes } from "../../rate-limit-repository";
+import { authenticatedUser, isSameOrigin } from "../../authenticated-user";
 
 const providerUrl = "https://api.openai.com/v1/responses";
 const requestWindowMs = 10 * 60 * 1_000;
 const maxRequestsPerWindow = 14;
-const rateBuckets = new Map<string, { readonly startedAt: number; count: number }>();
+const maxGlobalRequestsPerWindow = 240;
+const maximumRequestBytes = 32 * 1_024;
+const maximumHistoryCandidates = 16;
+const globalRateKey = "all-users";
 
 interface ChatTurn { readonly role: "user" | "assistant"; readonly content: string }
 interface ChatRequest { readonly pageId: string; readonly question: string; readonly history: readonly ChatTurn[] }
@@ -19,31 +25,26 @@ function errorJson(code: ChatErrorCode) {
   return json({ error: { code, message: error.message } }, error.status);
 }
 
-export async function GET() {
-  const body: ChatStatusBody = { status: process.env.OPENAI_API_KEY ? "ready" : "unconfigured" };
+export async function GET(request: Request) {
+  const user = authenticatedUser(request);
+  const status = !user
+    ? "authentication-required"
+    : process.env.OPENAI_API_KEY ? "ready" : "unconfigured";
+  const body: ChatStatusBody = { status };
   return json(body);
 }
 
-function clientKey(request: Request) {
-  return request.headers.get("oai-authenticated-user-id")
-    ?? request.headers.get("cf-connecting-ip")
-    ?? "anonymous";
-}
-
-function isRateLimited(key: string, now = Date.now()) {
-  const bucket = rateBuckets.get(key);
-  if (!bucket || now - bucket.startedAt >= requestWindowMs) {
-    rateBuckets.set(key, { startedAt: now, count: 1 });
-    return false;
-  }
-  if (bucket.count >= maxRequestsPerWindow) return true;
-  bucket.count += 1;
-  return false;
+async function isRateLimited(userId: string) {
+  const [userCount, globalCount] = await Promise.all([
+    rateLimitRepository.consume(rateLimitScopes.chatUser, userId, requestWindowMs),
+    rateLimitRepository.consume(rateLimitScopes.chatGlobal, globalRateKey, requestWindowMs),
+  ]);
+  return userCount > maxRequestsPerWindow || globalCount > maxGlobalRequestsPerWindow;
 }
 
 function parseHistory(value: unknown): readonly ChatTurn[] {
   if (!Array.isArray(value)) return [];
-  return value.flatMap((turn): ChatTurn[] => {
+  return value.slice(-maximumHistoryCandidates).flatMap((turn): ChatTurn[] => {
     if (!turn || typeof turn !== "object") return [];
     const candidate = turn as { role?: unknown; content?: unknown };
     const role = candidate.role;
@@ -61,8 +62,10 @@ function parseRequest(value: unknown): ChatRequest | null {
   return { pageId: body.pageId, question, history: parseHistory(body.history) };
 }
 
-async function requestBody(request: Request) {
-  try { return await request.json(); } catch { return null; }
+function requestError(status: 400 | 413 | 415) {
+  if (status === 413) return errorJson("payload_too_large");
+  if (status === 415) return errorJson("unsupported_media_type");
+  return errorJson("invalid_request");
 }
 
 function responseText(value: unknown) {
@@ -126,28 +129,38 @@ function providerPayload(chat: ChatRequest, pageInstructions: string) {
   };
 }
 
-export async function POST(request: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return errorJson("unconfigured");
-  const chat = parseRequest(await requestBody(request));
-  if (!chat) return errorJson("invalid_request");
-  const pageInstructions = instructions(chat.pageId);
-  if (!pageInstructions) return errorJson("page_not_found");
-  if (isRateLimited(clientKey(request))) return errorJson("rate_limited");
-
+async function providerAnswer(apiKey: string, chat: ChatRequest, pageInstructions: string) {
   try {
     const response = await fetch(providerUrl, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify(providerPayload(chat, pageInstructions)),
     });
-    if (!response.ok) {
-      return errorJson(response.status === 429 ? "usage_limited" : "provider_unavailable");
-    }
+    if (!response.ok) return errorJson(response.status === 429 ? "usage_limited" : "provider_unavailable");
     const answer = responseText(await response.json());
     const body: ChatAnswerBody = { answer, status: "ready" };
     return answer ? json(body) : errorJson("malformed_response");
   } catch {
     return errorJson("provider_unavailable");
   }
+}
+
+export async function POST(request: Request) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return errorJson("unconfigured");
+  if (!isSameOrigin(request)) return errorJson("invalid_origin");
+  const user = authenticatedUser(request);
+  if (!user) return errorJson("authentication_required");
+  try {
+    if (await isRateLimited(user.id)) return errorJson("rate_limited");
+  } catch {
+    return errorJson("provider_unavailable");
+  }
+  const body = await readJsonRequest(request, maximumRequestBytes);
+  if (!body.ok) return requestError(body.status);
+  const chat = parseRequest(body.value);
+  if (!chat) return errorJson("invalid_request");
+  const pageInstructions = instructions(chat.pageId);
+  if (!pageInstructions) return errorJson("page_not_found");
+  return providerAnswer(apiKey, chat, pageInstructions);
 }

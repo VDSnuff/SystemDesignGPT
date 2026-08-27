@@ -15,6 +15,7 @@ export interface HandbookProgressWrite extends HandbookProgress {
 }
 
 export interface HandbookProgressRepository {
+  readonly deleteForUser: (userId: string) => Promise<void>;
   readonly find: (userId: string) => Promise<HandbookProgressRecord | null>;
   readonly save: (value: HandbookProgressWrite) => Promise<void>;
 }

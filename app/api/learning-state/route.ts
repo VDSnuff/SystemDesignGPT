@@ -1,4 +1,4 @@
-import { handleLearningStateGet, handleLearningStatePut } from "../../learning-state-handlers";
+import { handleLearningStateDelete, handleLearningStateGet, handleLearningStatePut } from "../../learning-state-handlers";
 import { learningStateRepository } from "../../learning-state-repository";
 
 export function GET(request: Request) {
@@ -7,4 +7,8 @@ export function GET(request: Request) {
 
 export function PUT(request: Request) {
   return handleLearningStatePut(request, learningStateRepository);
+}
+
+export function DELETE(request: Request) {
+  return handleLearningStateDelete(request, learningStateRepository);
 }

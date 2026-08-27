@@ -43,8 +43,9 @@ afterEach(() => {
 });
 
 describe("ChatPanel service states", () => {
-  it("defines the six explicit client states", () => {
+  it("defines the seven explicit client states", () => {
     expect(Object.keys(statusPresentation)).toEqual([
+      "authentication-required",
       "checking",
       "ready",
       "sending",
