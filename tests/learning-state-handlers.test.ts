@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { initialDiagram } from "../app/diagram-model";
 import {
   decodeStoredState,
+  handleLearningStateDelete,
   handleLearningStateGet,
   handleLearningStatePut,
 } from "../app/learning-state-handlers";
@@ -26,7 +27,7 @@ function record(userId: string, label: string): LearningStateRecord {
   };
 }
 
-function request(method: "GET" | "PUT", userId: string, body?: unknown) {
+function request(method: "DELETE" | "GET" | "PUT", userId: string, body?: unknown) {
   const url = "http://localhost/api/learning-state?page=diagram-workshop";
   return new Request(url, {
     method,
@@ -48,6 +49,7 @@ describe("learning-state persistence handlers", () => {
   it("rejects unauthenticated reads and cross-origin writes before repository access", async () => {
     let wasAccessed = false;
     const repository: LearningStateRepository = {
+      deleteForUser: async () => { wasAccessed = true; },
       find: async () => { wasAccessed = true; return null; },
       save: async () => { wasAccessed = true; },
     };
@@ -71,6 +73,7 @@ describe("learning-state persistence handlers", () => {
     const rows = new Map([["user-a:diagram-workshop", record("user-a", "A private diagram")], ["user-b:diagram-workshop", record("user-b", "B private diagram")]]);
     const writes: LearningStateWrite[] = [];
     const repository: LearningStateRepository = {
+      deleteForUser: async () => undefined,
       find: async (userId, pageSlug) => rows.get(`${userId}:${pageSlug}`) ?? null,
       save: async (value) => { writes.push(value); },
     };
@@ -84,6 +87,18 @@ describe("learning-state persistence handlers", () => {
     expect((await handleLearningStatePut(request("PUT", "user-a", payload), repository)).status).toBe(200);
     expect(writes).toHaveLength(1);
     expect(writes[0]).toMatchObject({ userId: "user-a", pageSlug: "diagram-workshop" });
+  });
+
+  it("deletes every learning-state row only for the authenticated user", async () => {
+    const deletedUsers: string[] = [];
+    const repository: LearningStateRepository = {
+      deleteForUser: async (userId) => { deletedUsers.push(userId); },
+      find: async () => null,
+      save: async () => undefined,
+    };
+
+    expect((await handleLearningStateDelete(request("DELETE", "user-a"), repository)).status).toBe(200);
+    expect(deletedUsers).toEqual(["user-a"]);
   });
 
   it("migrates valid legacy diagrams without discarding learning work", () => {

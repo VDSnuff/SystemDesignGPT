@@ -30,4 +30,8 @@ async function save(value: HandbookProgressWrite) {
   });
 }
 
-export const handbookProgressRepository: HandbookProgressRepository = { find, save };
+async function deleteForUser(userId: string) {
+  await getDb().delete(handbookProgress).where(eq(handbookProgress.userId, userId));
+}
+
+export const handbookProgressRepository: HandbookProgressRepository = { deleteForUser, find, save };

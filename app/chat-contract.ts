@@ -1,13 +1,17 @@
 export type ChatErrorCode =
+  | "authentication_required"
+  | "invalid_origin"
   | "invalid_request"
+  | "payload_too_large"
   | "page_not_found"
   | "rate_limited"
   | "usage_limited"
   | "unconfigured"
   | "provider_unavailable"
+  | "unsupported_media_type"
   | "malformed_response";
 
-export type ChatServiceStatus = "ready" | "unconfigured";
+export type ChatServiceStatus = "authentication-required" | "ready" | "unconfigured";
 
 interface ChatErrorDefinition {
   readonly message: string;
@@ -15,12 +19,16 @@ interface ChatErrorDefinition {
 }
 
 export const chatErrors: Readonly<Record<ChatErrorCode, ChatErrorDefinition>> = {
+  authentication_required: { message: "Sign in to use the design copilot.", status: 401 },
+  invalid_origin: { message: "The copilot request origin is not allowed.", status: 403 },
   invalid_request: { message: "Send a page and a question of up to 2,000 characters.", status: 400 },
+  payload_too_large: { message: "The copilot request is too large.", status: 413 },
   page_not_found: { message: "That handbook page does not exist.", status: 400 },
   rate_limited: { message: "Copilot request limit reached. Try again in a few minutes.", status: 429 },
   usage_limited: { message: "The AI project has reached a usage limit.", status: 429 },
   unconfigured: { message: "The copilot is not configured yet.", status: 503 },
   provider_unavailable: { message: "The copilot provider is temporarily unavailable.", status: 503 },
+  unsupported_media_type: { message: "Send copilot requests as JSON.", status: 415 },
   malformed_response: { message: "The copilot returned an invalid response.", status: 502 },
 };
 
@@ -59,5 +67,5 @@ export function isChatErrorBody(value: unknown): value is ChatErrorBody {
 export function isChatStatusBody(value: unknown): value is ChatStatusBody {
   if (!value || typeof value !== "object") return false;
   const status = (value as { status?: unknown }).status;
-  return status === "ready" || status === "unconfigured";
+  return status === "authentication-required" || status === "ready" || status === "unconfigured";
 }

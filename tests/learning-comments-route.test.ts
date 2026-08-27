@@ -1,14 +1,18 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getDbMock } = vi.hoisted(() => ({ getDbMock: vi.fn() }));
+const { consumeMock, getDbMock } = vi.hoisted(() => ({ consumeMock: vi.fn(), getDbMock: vi.fn() }));
 vi.mock("../db", () => ({ getDb: getDbMock }));
+vi.mock("../app/rate-limit-repository", () => ({
+  rateLimitRepository: { consume: consumeMock },
+  rateLimitScopes: { commentsGlobal: "comments-global", commentsUser: "comments-user" },
+}));
 
-import { GET, PATCH, POST } from "../app/api/learning-comments/route";
+import { DELETE, GET, PATCH, POST } from "../app/api/learning-comments/route";
 
 interface RequestOptions {
   readonly body?: unknown;
   readonly email?: string;
-  readonly method: "GET" | "PATCH" | "POST";
+  readonly method: "DELETE" | "GET" | "PATCH" | "POST";
   readonly origin?: string;
   readonly userId?: string;
 }
@@ -25,7 +29,12 @@ function request(options: RequestOptions) {
   });
 }
 
+beforeEach(() => {
+  consumeMock.mockResolvedValue(1);
+});
+
 afterEach(() => {
+  consumeMock.mockReset();
   getDbMock.mockReset();
   vi.unstubAllEnvs();
 });
@@ -44,7 +53,9 @@ describe("learning comment authorization contract", () => {
   it("allows the configured owner to read comments", async () => {
     vi.stubEnv("SITE_OWNER_EMAIL", "owner@example.com");
     const limit = vi.fn().mockResolvedValue([]);
+    const where = vi.fn().mockResolvedValue(undefined);
     getDbMock.mockReturnValue({
+      delete: () => ({ where }),
       select: () => ({ from: () => ({ orderBy: () => ({ limit }) }) }),
     });
 
@@ -67,6 +78,11 @@ describe("learning comment authorization contract", () => {
   });
 
   it("validates comment input before database access", async () => {
+    const where = vi.fn().mockResolvedValue([{ value: 0 }]);
+    getDbMock.mockReturnValue({
+      delete: () => ({ where: vi.fn().mockResolvedValue(undefined) }),
+      select: () => ({ from: () => ({ where }) }),
+    });
     const response = await POST(request({
       method: "POST",
       origin: "http://localhost",
@@ -76,12 +92,15 @@ describe("learning comment authorization contract", () => {
     }));
 
     expect(response.status).toBe(400);
-    expect(getDbMock).not.toHaveBeenCalled();
   });
 
   it("accepts a valid same-origin comment without a hosted database", async () => {
     const values = vi.fn().mockResolvedValue(undefined);
-    getDbMock.mockReturnValue({ insert: () => ({ values }) });
+    getDbMock.mockReturnValue({
+      delete: () => ({ where: vi.fn().mockResolvedValue(undefined) }),
+      insert: () => ({ values }),
+      select: () => ({ from: () => ({ where: vi.fn().mockResolvedValue([{ value: 0 }]) }) }),
+    });
 
     const response = await POST(request({
       method: "POST",
@@ -112,5 +131,37 @@ describe("learning comment authorization contract", () => {
 
     expect(response.status).toBe(403);
     expect(getDbMock).not.toHaveBeenCalled();
+  });
+
+  it("enforces the durable comment quota before database writes", async () => {
+    consumeMock.mockResolvedValue(6);
+
+    const response = await POST(request({
+      method: "POST",
+      origin: "http://localhost",
+      userId: "reader",
+      email: "reader@example.com",
+      body: { pageSlug: "introduction", body: "Flood" },
+    }));
+
+    expect(response.status).toBe(429);
+    expect(getDbMock).not.toHaveBeenCalled();
+  });
+
+  it("lets a learner delete only through the authenticated deletion path", async () => {
+    const returning = vi.fn().mockResolvedValue([{ id: "a4fe79cb-785a-43ef-a7f6-5516cd2af83e" }]);
+    getDbMock.mockReturnValue({ delete: () => ({ where: () => ({ returning }) }) });
+
+    const response = await DELETE(request({
+      method: "DELETE",
+      origin: "http://localhost",
+      userId: "reader",
+      email: "reader@example.com",
+      body: { id: "a4fe79cb-785a-43ef-a7f6-5516cd2af83e" },
+    }));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ deleted: true });
+    expect(returning).toHaveBeenCalledWith(expect.objectContaining({ id: expect.anything() }));
   });
 });

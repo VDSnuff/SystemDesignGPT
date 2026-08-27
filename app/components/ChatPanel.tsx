@@ -48,7 +48,9 @@ export function ChatPanel(props: ChatPanelProps) {
     setAnnouncement(`Copilot status: ${statusPresentation[nextStatus].label}.`);
     setNotice(nextStatus === "unconfigured"
       ? { canCheckAgain: true, message: "The copilot has not been configured. Reading tools remain available." }
-      : null);
+      : nextStatus === "authentication-required"
+        ? { canCheckAgain: true, message: "Sign in to use AI questions. Reading tools remain available." }
+        : null);
   }
 
   function applyStatusFailure(error: unknown) {
@@ -118,7 +120,7 @@ export function ChatPanel(props: ChatPanelProps) {
 
   const presentation = statusPresentation[status];
   const isAiDisabled = status !== "ready";
-  const hasOutage = status === "usage-limited" || status === "unconfigured" || status === "temporarily-unavailable";
+  const hasOutage = status === "authentication-required" || status === "usage-limited" || status === "unconfigured" || status === "temporarily-unavailable";
   return (
     <ResponsiveChatShell pageLabel={props.pageLabel} status={status}>
       <div className="responsive-chat-content flex min-h-0 flex-1 flex-col">

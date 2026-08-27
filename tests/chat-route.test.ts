@@ -1,4 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+const { consumeMock } = vi.hoisted(() => ({ consumeMock: vi.fn() }));
+vi.mock("../app/rate-limit-repository", () => ({
+  rateLimitRepository: { consume: consumeMock },
+  rateLimitScopes: { chatGlobal: "chat-global", chatUser: "chat-user" },
+}));
+
 import { GET, POST } from "../app/api/chat/route";
 
 interface ChatRequestOverrides {
@@ -10,7 +17,12 @@ interface ChatRequestOverrides {
 function chatRequest(userId: string, overrides: ChatRequestOverrides = {}) {
   return new Request("http://localhost/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "oai-authenticated-user-id": userId },
+    headers: {
+      "Content-Type": "application/json",
+      "oai-authenticated-user-email": `${userId}@example.com`,
+      "oai-authenticated-user-id": userId,
+      origin: "http://localhost",
+    },
     body: JSON.stringify({ pageId: "requirements", question: "Review this design", history: [], ...overrides }),
   });
 }
@@ -24,9 +36,12 @@ async function responseBody(response: Response) {
 }
 
 afterEach(() => {
+  consumeMock.mockReset();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });
+
+consumeMock.mockResolvedValue(1);
 
 describe("chat route service contract", () => {
   it("checks configuration without calling the provider", async () => {
@@ -34,11 +49,21 @@ describe("chat route service contract", () => {
     const providerFetch = vi.fn();
     vi.stubGlobal("fetch", providerFetch);
 
-    const response = await GET();
+    const response = await GET(chatRequest("status-user"));
 
     expect(response.status).toBe(200);
     expect(await responseBody(response)).toEqual({ status: "ready" });
     expect(providerFetch).not.toHaveBeenCalled();
+  });
+
+  it("reports sign-in-required status without exposing provider configuration details", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-key");
+    const configured = await GET(new Request("http://localhost/api/chat"));
+    vi.stubEnv("OPENAI_API_KEY", "");
+    const unconfigured = await GET(new Request("http://localhost/api/chat"));
+
+    expect(await responseBody(configured)).toEqual({ status: "authentication-required" });
+    expect(await responseBody(unconfigured)).toEqual({ status: "authentication-required" });
   });
 
   it("returns a typed unconfigured error when the key is missing", async () => {
@@ -52,10 +77,32 @@ describe("chat route service contract", () => {
     });
   });
 
+  it("rejects signed-out, cross-origin, and non-JSON requests before provider access", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-key");
+    consumeMock.mockResolvedValue(1);
+    const providerFetch = vi.fn();
+    vi.stubGlobal("fetch", providerFetch);
+    const signedOut = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", origin: "http://localhost" },
+      body: JSON.stringify({ pageId: "requirements", question: "Review", history: [] }),
+    });
+    const crossOrigin = chatRequest("cross-origin");
+    crossOrigin.headers.set("origin", "https://attacker.example");
+    const wrongType = chatRequest("wrong-type");
+    wrongType.headers.set("Content-Type", "text/plain");
+
+    expect((await POST(signedOut)).status).toBe(401);
+    expect((await POST(crossOrigin)).status).toBe(403);
+    expect((await POST(wrongType)).status).toBe(415);
+    expect(providerFetch).not.toHaveBeenCalled();
+  });
+
   it("returns an answer while preserving the provider no-storage setting", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     const providerFetch = vi.fn().mockResolvedValue(providerAnswer());
     vi.stubGlobal("fetch", providerFetch);
+    consumeMock.mockResolvedValue(1);
 
     const response = await POST(chatRequest("success"));
     const requestInit = providerFetch.mock.calls[0]?.[1] as RequestInit;
@@ -70,6 +117,7 @@ describe("chat route service contract", () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     const providerFetch = vi.fn().mockResolvedValue(providerAnswer());
     vi.stubGlobal("fetch", providerFetch);
+    consumeMock.mockResolvedValue(1);
     const history = Array.from({ length: 10 }, (_, index) => ({
       role: index % 2 ? "assistant" : "user",
       content: `turn-${index}-${"x".repeat(2_100)}`,
@@ -95,16 +143,28 @@ describe("chat route service contract", () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     const providerFetch = vi.fn();
     vi.stubGlobal("fetch", providerFetch);
-    const malformed = new Request("http://localhost/api/chat", { method: "POST", body: "{" });
+    consumeMock.mockResolvedValue(1);
+    const malformed = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "oai-authenticated-user-email": "malformed@example.com",
+        "oai-authenticated-user-id": "malformed",
+        origin: "http://localhost",
+      },
+      body: "{",
+    });
+    const oversized = chatRequest("oversized-body", { history: [{ role: "user", content: "x".repeat(33_000) }] });
 
     const responses = await Promise.all([
       POST(malformed),
       POST(chatRequest("empty-question", { question: "   " })),
       POST(chatRequest("long-question", { question: "x".repeat(2_001) })),
       POST(chatRequest("missing-page", { pageId: "book:not-real" })),
+      POST(oversized),
     ]);
 
-    expect(responses.map((response) => response.status)).toEqual([400, 400, 400, 400]);
+    expect(responses.map((response) => response.status)).toEqual([400, 400, 400, 400, 413]);
     expect(await responseBody(responses[3])).toEqual({
       error: { code: "page_not_found", message: "That handbook page does not exist." },
     });
@@ -115,6 +175,8 @@ describe("chat route service contract", () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     const providerFetch = vi.fn().mockImplementation(async () => providerAnswer());
     vi.stubGlobal("fetch", providerFetch);
+    let userCount = 0;
+    consumeMock.mockImplementation(async (scope: string) => scope === "chat-user" ? ++userCount : 1);
     const responses: Response[] = [];
 
     for (let index = 0; index < 15; index += 1) {
@@ -132,6 +194,7 @@ describe("chat route service contract", () => {
   it("maps provider 429 responses to usage-limited without leaking the provider body", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ secret: "provider detail" }, { status: 429 })));
+    consumeMock.mockResolvedValue(1);
 
     const response = await POST(chatRequest("usage-limit"));
     const body = await responseBody(response);
@@ -144,6 +207,7 @@ describe("chat route service contract", () => {
   it("maps provider 5xx responses to a temporary service error", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("upstream failure", { status: 500 })));
+    consumeMock.mockResolvedValue(1);
 
     const response = await POST(chatRequest("provider-error"));
 
@@ -156,6 +220,7 @@ describe("chat route service contract", () => {
   it("maps a successful provider response without answer text to malformed-response", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ output: [] })));
+    consumeMock.mockResolvedValue(1);
 
     const response = await POST(chatRequest("malformed"));
 

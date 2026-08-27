@@ -32,4 +32,6 @@ export const commentStatusSchema = z.object({
   status: z.enum(["new", "read"]),
 });
 
+export const commentDeleteSchema = z.object({ id: z.string().uuid() });
+
 export type LearningPayload = z.infer<typeof learningPayloadSchema>;

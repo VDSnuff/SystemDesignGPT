@@ -1,6 +1,7 @@
 import type { ChatErrorCode } from "./chat-contract";
 
 export type CopilotStatus =
+  | "authentication-required"
   | "checking"
   | "ready"
   | "sending"
@@ -15,6 +16,7 @@ interface StatusPresentation {
 }
 
 export const statusPresentation: Readonly<Record<CopilotStatus, StatusPresentation>> = {
+  "authentication-required": { icon: "—", label: "Sign in required", detail: "AI requests require your signed-in account." },
   checking: { icon: "◌", label: "Checking setup", detail: "No model request is being made." },
   ready: { icon: "✓", label: "Ready to ask", detail: "The live provider is checked when you send." },
   sending: { icon: "…", label: "Sending", detail: "Using this page as context." },
@@ -24,6 +26,7 @@ export const statusPresentation: Readonly<Record<CopilotStatus, StatusPresentati
 };
 
 export function statusForError(code: ChatErrorCode): CopilotStatus {
+  if (code === "authentication_required") return "authentication-required";
   if (code === "usage_limited") return "usage-limited";
   if (code === "unconfigured") return "unconfigured";
   if (code === "rate_limited" || code === "provider_unavailable" || code === "malformed_response") {
@@ -33,7 +36,8 @@ export function statusForError(code: ChatErrorCode): CopilotStatus {
 }
 
 export function canRecheck(code: ChatErrorCode) {
-  return code === "rate_limited"
+  return code === "authentication_required"
+    || code === "rate_limited"
     || code === "unconfigured"
     || code === "provider_unavailable"
     || code === "malformed_response";

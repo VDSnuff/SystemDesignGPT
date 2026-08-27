@@ -1,4 +1,4 @@
-import { index, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const learningPageState = sqliteTable("learning_page_state", {
   userId: text("user_id").notNull(),
@@ -28,3 +28,13 @@ export const learningComments = sqliteTable("learning_comments", {
   status: text("status", { enum: ["new", "read"] }).notNull().default("new"),
   createdAt: text("created_at").notNull(),
 }, (table) => [index("learning_comments_status_created_idx").on(table.status, table.createdAt)]);
+
+export const apiRateLimits = sqliteTable("api_rate_limits", {
+  scope: text("scope").notNull(),
+  clientKey: text("client_key").notNull(),
+  windowStartedAt: integer("window_started_at").notNull(),
+  requestCount: integer("request_count").notNull(),
+}, (table) => [
+  primaryKey({ columns: [table.scope, table.clientKey] }),
+  index("api_rate_limits_window_idx").on(table.windowStartedAt),
+]);

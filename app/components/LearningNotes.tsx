@@ -14,6 +14,7 @@ export function LearningNotes({ pageSlug, note, onNoteChange }: LearningNotesPro
   const [status, setStatus] = useState("");
   const [hasError, setHasError] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [lastSentCommentId, setLastSentCommentId] = useState<string | null>(null);
 
   async function sendComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,9 +27,10 @@ export function LearningNotes({ pageSlug, note, onNoteChange }: LearningNotesPro
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pageSlug, body: comment }),
       });
-      const body = await response.json() as { message?: string };
+      const body = await response.json() as { id?: string; message?: string };
       if (!response.ok) throw new Error(body.message ?? "Comment could not be sent.");
       setComment("");
+      setLastSentCommentId(body.id ?? null);
       setStatus("Comment sent to the owner.");
     } catch (error) {
       setHasError(true);
@@ -36,6 +38,25 @@ export function LearningNotes({ pageSlug, note, onNoteChange }: LearningNotesPro
       setStatus(`${message} Your comment is still here; edit it and try again.`);
     } finally {
       setIsSending(false);
+    }
+  }
+
+  async function withdrawLastComment() {
+    if (!lastSentCommentId) return;
+    setHasError(false);
+    try {
+      const response = await fetch("/api/learning-comments", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: lastSentCommentId }),
+      });
+      const body = await response.json() as { deleted?: boolean; message?: string };
+      if (!response.ok || !body.deleted) throw new Error(body.message ?? "The comment could not be withdrawn.");
+      setLastSentCommentId(null);
+      setStatus("Your last comment was withdrawn.");
+    } catch (error) {
+      setHasError(true);
+      setStatus(error instanceof Error ? error.message : "The comment could not be withdrawn.");
     }
   }
 
@@ -56,6 +77,7 @@ export function LearningNotes({ pageSlug, note, onNoteChange }: LearningNotesPro
         </label>
         <div className="mt-3 flex items-center gap-3">
           <button className="tool-button-dark" disabled={isSending} type="submit">{isSending ? "Sending comment…" : "Send to owner"}</button>
+          {lastSentCommentId ? <button className="tool-button" onClick={() => void withdrawLastComment()} type="button">Withdraw last comment</button> : null}
           <AsyncStatus className="text-xs text-muted" isError={hasError} message={status} />
         </div>
       </form>

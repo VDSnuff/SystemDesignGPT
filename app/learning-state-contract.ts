@@ -16,6 +16,7 @@ export interface LearningStateWrite extends LearningPayload {
 }
 
 export interface LearningStateRepository {
+  readonly deleteForUser: (userId: string) => Promise<void>;
   readonly find: (userId: string, pageSlug: string) => Promise<LearningStateRecord | null>;
   readonly save: (value: LearningStateWrite) => Promise<void>;
 }
