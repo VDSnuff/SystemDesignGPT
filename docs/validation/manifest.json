@@ -142,7 +142,8 @@
       "id": "component-interactions",
       "risks": ["functional-ui", "persistence", "accessibility"],
       "files": [
-        "tests/chat-panel.test.tsx", "tests/diagram-builder.test.tsx", "tests/diagram-editor.test.tsx",
+        "tests/chat-panel.test.tsx", "tests/collapsible-navigation.test.tsx",
+        "tests/diagram-builder.test.tsx", "tests/diagram-editor.test.tsx",
         "tests/diagram-model.test.ts", "tests/handbook-progress-ui.test.tsx",
         "tests/mermaid-description.test.ts", "tests/mermaid-diagram.test.tsx",
         "tests/section-quiz-ui.test.tsx"

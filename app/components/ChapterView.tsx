@@ -12,7 +12,7 @@ export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
   return (
     <>
       <AppHeader />
-      <main className="mx-auto grid min-h-screen max-w-[1600px] bg-paper text-ink xl:grid-cols-[230px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]" id="main-content" tabIndex={-1}>
+      <main className="reader-layout reader-layout-guide mx-auto grid min-h-screen max-w-[1600px] bg-paper text-ink" id="main-content" tabIndex={-1}>
         <ChapterNav activeSlug={page.slug} />
         <article className="min-w-0 px-5 py-10 sm:px-10 lg:px-12 lg:py-14">
           <p className="kicker">Chapter {page.number} · {page.label}</p>

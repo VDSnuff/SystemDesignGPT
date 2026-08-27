@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { bookSections } from "../book-content.generated";
+import { CollapsibleNavigation } from "./CollapsibleNavigation";
 import { HandbookProgressPanel } from "./HandbookProgressPanel";
 
 export function BookNav({ activeSlug }: Readonly<{ activeSlug: string }>) {
@@ -13,13 +14,13 @@ export function BookNav({ activeSlug }: Readonly<{ activeSlug: string }>) {
           <BookLinks activeSlug={activeSlug} />
         </nav>
       </details>
-      <aside className="hidden border-r border-ink/15 p-5 xl:block">
+      <CollapsibleNavigation label="complete book menu">
         <div className="sticky top-5 max-h-[calc(100vh-40px)] overflow-y-auto pr-1">
           <HandbookProgressPanel instanceId="desktop" />
           <p className="mb-4 px-3 text-xs font-bold uppercase tracking-[0.14em] text-muted">Complete book</p>
           <nav aria-label="Complete handbook sections" className="space-y-0.5"><BookLinks activeSlug={activeSlug} /></nav>
         </div>
-      </aside>
+      </CollapsibleNavigation>
     </>
   );
 }

@@ -142,7 +142,12 @@ export function ChatPanel(props: ChatPanelProps) {
         ) : null}
 
         <p aria-atomic="true" className="sr-only" role="status">{announcement}</p>
-        <div aria-busy={status === "sending"} className="chat-scroll flex-1 space-y-3 overflow-y-auto py-5">
+        <div
+          aria-busy={status === "sending"}
+          aria-label="Design copilot conversation"
+          className="chat-scroll flex-1 space-y-3 overflow-y-auto py-5"
+          tabIndex={0}
+        >
           <div className="message-assistant">I’m reading <strong>{props.pageLabel}</strong>. Ask me to test a decision, expose a risk, or guide you to the right chapter.</div>
           {messages.map((message, index) => (
             <div className={message.role === "user" ? "message-user" : "message-assistant"} key={`${message.role}-${index}`}>

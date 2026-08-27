@@ -50,7 +50,7 @@ export function BookPageView({ section }: Readonly<{ section: BookSection }>) {
   return (
     <>
       <AppHeader />
-      <main className="mx-auto grid min-h-screen max-w-[1700px] bg-paper text-ink xl:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]" id="main-content" tabIndex={-1}>
+      <main className="reader-layout reader-layout-book mx-auto grid min-h-screen max-w-[1700px] bg-paper text-ink" id="main-content" tabIndex={-1}>
         <BookNav activeSlug={section.slug} />
         <BookArticle learningSection={learningSection} section={section} />
         <ChatPanel

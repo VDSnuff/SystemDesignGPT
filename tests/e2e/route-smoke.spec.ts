@@ -98,6 +98,28 @@ test("a mobile reader can open and use the contextual copilot without page clipp
   await expect(page).toHaveURL(/\/book\/9-security$/);
 });
 
+test("a desktop reader can collapse the menu and contextual copilot", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await mockReaderBoundaries(page);
+  await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
+  await expect(page.getByLabel("Copilot status: Ready to ask")).toBeVisible();
+
+  const article = page.locator("#main-content > article");
+  const initialWidth = (await article.boundingBox())?.width ?? 0;
+  await page.getByRole("button", { name: "Collapse complete book menu" }).click();
+  await page.getByRole("button", { name: "Collapse design copilot" }).click();
+
+  await expect(page.getByRole("button", { name: "Expand complete book menu" })).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("button", { name: "Expand design copilot" })).toHaveAttribute("aria-expanded", "false");
+  await expect.poll(async () => (await article.boundingBox())?.width ?? 0).toBeGreaterThan(initialWidth);
+  await expect(page.getByRole("navigation", { name: "Complete handbook sections" }).last()).toBeHidden();
+
+  await page.getByRole("button", { name: "Expand complete book menu" }).click();
+  await page.getByRole("button", { name: "Expand design copilot" }).click();
+  await expect(page.getByRole("navigation", { name: "Complete handbook sections" }).last()).toBeVisible();
+  await expect(page.getByRole("textbox", { name: /Ask about 1. Requirements/ })).toBeVisible();
+});
+
 test("the Requirements guide article renders at desktop and mobile widths", async ({ page }) => {
   await mockReaderBoundaries(page);
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
