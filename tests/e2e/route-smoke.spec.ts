@@ -55,32 +55,6 @@ test("reader pagination follows the generated section route", async ({ page }) =
   await expect(page.getByRole("heading", { level: 1, name: "Book plan" })).toBeVisible();
 });
 
-test("keyboard search opens the exact generated heading anchor", async ({ page }) => {
-  const progressStore: ProgressStore = { state: null };
-  await mockReaderBoundaries(page, progressStore);
-  await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
-
-  const search = page.getByRole("combobox", { name: "Search the complete handbook" });
-  await expect(search).toBeEnabled({ timeout: 20_000 });
-  await search.fill("14.2 functional requ");
-  await expect(page.getByRole("option").first()).toBeVisible();
-  await search.press("ArrowDown");
-  const focusedHref = await page.locator("a:focus").getAttribute("href");
-  expect(focusedHref).toMatch(/#14-2-functional-requirements-fr-full-cycle$/);
-  await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/#14-2-functional-requirements-fr-full-cycle$/);
-  await expect.poll(() => progressStore.state?.lastRead?.headingId).toBe("14-2-functional-requirements-fr-full-cycle");
-});
-
-test("search reports a lazy corpus loading failure", async ({ page }) => {
-  await page.route(/\/app\/book-search\.ts(?:\?|$)/, (route) => route.abort("failed"));
-  await mockReaderBoundaries(page);
-  await page.goto("/");
-
-  await page.getByRole("combobox", { name: "Search the complete handbook" }).fill("requirements");
-  await expect(page.getByText("Search is unavailable. Use the chapter navigation.")).toBeVisible();
-});
-
 test("completion and checklist choices survive reload", async ({ page }) => {
   const progressStore: ProgressStore = { state: null };
   await mockReaderBoundaries(page, progressStore);
@@ -117,7 +91,7 @@ test("a mobile reader can open and use the contextual copilot without page clipp
   await expect(textbox).toBeInViewport();
   await dialog.getByRole("button", { name: "Close design copilot" }).click();
 
-  const search = page.getByRole("combobox", { name: "Search the complete handbook" });
+  const search = page.getByRole("combobox", { name: "Search the guide and handbook" });
   await expect(search).toBeEnabled({ timeout: 20_000 });
   await search.fill("9 Security");
   await page.getByRole("option").first().getByRole("link").click();

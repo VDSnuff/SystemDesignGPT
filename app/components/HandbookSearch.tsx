@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState, useSyncExternalStore, type RefObject } from "react";
+import type { BookSearchEntry } from "../book-search.generated";
 import type { BookSearchResult } from "../book-search";
 
 const SEARCH_RESULTS_ID = "handbook-search-results";
@@ -20,16 +21,16 @@ function loadSearchModule() {
   return searchModulePromise;
 }
 
-function useLazySearch(query: string) {
-  const [rankSearch, setRankSearch] = useState<typeof import("../book-search")["rankBookSearch"] | null>(null);
+function useLazySearch(query: string, guideEntries: readonly BookSearchEntry[]) {
+  const [rankSearch, setRankSearch] = useState<typeof import("../book-search")["rankSiteSearch"] | null>(null);
   const [loadStatus, setLoadStatus] = useState<SearchLoadStatus>("idle");
-  const results = useMemo(() => rankSearch?.(query) ?? [], [query, rankSearch]);
+  const results = useMemo(() => rankSearch?.(query, guideEntries) ?? [], [guideEntries, query, rankSearch]);
   function prepareSearch() {
     if (loadStatus === "loading" || loadStatus === "ready") return;
     setLoadStatus("loading");
     void loadSearchModule()
       .then((module) => {
-        setRankSearch(() => module.rankBookSearch);
+        setRankSearch(() => module.rankSiteSearch);
         setLoadStatus("ready");
       })
       .catch(() => setLoadStatus("error"));
@@ -39,12 +40,12 @@ function useLazySearch(query: string) {
 
 function resultMessage(loadStatus: SearchLoadStatus) {
   if (loadStatus === "loading") return "Preparing complete handbook search…";
-  if (loadStatus === "error") return "Search is unavailable. Use the chapter navigation.";
+  if (loadStatus === "error") return "Search is unavailable. Use the guide or handbook navigation.";
 }
 
 function searchStatus(query: string, loadStatus: SearchLoadStatus, resultCount: number) {
-  if (!query.trim() || loadStatus !== "ready") return "Search section titles, headings, and handbook text";
-  return resultCount ? `${resultCount} handbook results` : "No handbook matches";
+  if (!query.trim() || loadStatus !== "ready") return "Search guide and handbook titles, headings, and text";
+  return resultCount ? `${resultCount} search results` : "No guide or handbook matches";
 }
 
 function escaped(value: string) {
@@ -73,11 +74,11 @@ interface SearchBoxProps {
 
 function SearchBox({ isHydrated, isOpen, onKeyDown, onQueryChange, onFocus, query, status }: SearchBoxProps) {
   return <>
-    <label className="sr-only" htmlFor={`${SEARCH_RESULTS_ID}-input`}>Search the complete handbook</label>
+    <label className="sr-only" htmlFor={`${SEARCH_RESULTS_ID}-input`}>Search the guide and handbook</label>
     <input aria-controls={SEARCH_RESULTS_ID} aria-expanded={isOpen && Boolean(query.trim())} aria-haspopup="listbox"
       autoComplete="off" className="search-control w-full rounded-full border border-ink/20 bg-white/75 px-4 py-2 text-sm"
       disabled={!isHydrated} id={`${SEARCH_RESULTS_ID}-input`} onFocus={onFocus} onInput={(event) => onQueryChange(event.currentTarget.value)}
-      onKeyDown={onKeyDown} placeholder={isHydrated ? "Search handbook" : "Loading search…"} role="combobox" type="search" value={query} />
+      onKeyDown={onKeyDown} placeholder={isHydrated ? "Search guide and handbook" : "Loading search…"} role="combobox" type="search" value={query} />
     <span aria-live="polite" className="sr-only">{status}</span>
   </>;
 }
@@ -96,12 +97,12 @@ function SearchResults({ isOpen, message, onSelect, query, resultListRef, result
   </ul>;
 }
 
-export function HandbookSearch() {
+export function HandbookSearch({ guideEntries }: Readonly<{ guideEntries: readonly BookSearchEntry[] }>) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const isHydrated = useSyncExternalStore(hydrationSubscription, clientSnapshot, serverSnapshot);
   const resultListRef = useRef<HTMLUListElement>(null);
-  const { loadStatus, prepareSearch, results } = useLazySearch(query);
+  const { loadStatus, prepareSearch, results } = useLazySearch(query, guideEntries);
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Escape") {

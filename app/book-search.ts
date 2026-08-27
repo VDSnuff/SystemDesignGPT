@@ -1,6 +1,6 @@
-import { bookSearchEntries } from "./book-search.generated";
+import { bookSearchEntries, type BookSearchEntry } from "./book-search.generated";
 
-export type BookSearchResult = (typeof bookSearchEntries)[number];
+export type BookSearchResult = BookSearchEntry;
 
 function normalize(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -23,14 +23,22 @@ function resultScore(result: BookSearchResult, query: string, terms: readonly st
   return score;
 }
 
-export function rankBookSearch(rawQuery: string, limit = 8) {
+function rankEntries(rawQuery: string, entries: readonly BookSearchEntry[], limit: number) {
   const query = normalize(rawQuery);
   if (!query) return [];
   const terms = query.split(/\s+/);
-  return bookSearchEntries
+  return entries
     .map((result) => ({ result, score: resultScore(result, query, terms) }))
     .filter((candidate) => candidate.score > 0)
     .sort((left, right) => right.score - left.score || left.result.href.localeCompare(right.result.href))
     .slice(0, limit)
     .map((candidate) => candidate.result);
+}
+
+export function rankBookSearch(rawQuery: string, limit = 8) {
+  return rankEntries(rawQuery, bookSearchEntries, limit);
+}
+
+export function rankSiteSearch(rawQuery: string, guideEntries: readonly BookSearchEntry[], limit = 8) {
+  return rankEntries(rawQuery, [...guideEntries, ...bookSearchEntries], limit);
 }
