@@ -81,25 +81,27 @@ export function PanelResizeHandle(props: PanelResizeHandleProps) {
   const action = props.isOpen ? `Resize or collapse ${props.label}` : `Expand ${props.label}`;
 
   return (
-    <button
-      aria-controls={props.controlsId}
-      aria-expanded={props.isOpen}
-      aria-label={action}
-      className={`panel-resize-handle panel-resize-handle-${props.side}`}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      onPointerCancel={handlePointerEnd}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerEnd}
-      title={`${action}. Drag horizontally to resize.`}
-      type="button"
-    >
-      <span aria-hidden="true" className="panel-resize-grip">
-        <span />
-        <span />
-        <span />
-      </span>
-    </button>
+    <span className={`panel-resize-anchor panel-resize-anchor-${props.side}`}>
+      <button
+        aria-controls={props.controlsId}
+        aria-expanded={props.isOpen}
+        aria-label={action}
+        className={`panel-resize-handle panel-resize-handle-${props.side}`}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        onPointerCancel={handlePointerEnd}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        title={`${action}. Drag horizontally to resize.`}
+        type="button"
+      >
+        <span aria-hidden="true" className="panel-resize-grip">
+          <span />
+          <span />
+          <span />
+        </span>
+      </button>
+    </span>
   );
 }
