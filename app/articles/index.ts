@@ -7,6 +7,7 @@ import { dataModelingArticle } from "./data-modeling";
 import { deliveryLifecycleArticle } from "./delivery-lifecycle";
 import { messagingArticle } from "./messaging";
 import { networkingArticle } from "./networking";
+import { observabilityArticle } from "./observability";
 import { realtimeWorkArticle } from "./realtime-work";
 import { requirementsArticle } from "./requirements";
 import { resilienceArticle } from "./resilience";
@@ -29,6 +30,7 @@ const guideArticles: readonly GuideArticle[] = [
   resilienceArticle,
   scalePerformanceArticle,
   securityArticle,
+  observabilityArticle,
   deliveryLifecycleArticle,
   agenticSystemsArticle,
 ];

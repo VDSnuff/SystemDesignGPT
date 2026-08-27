@@ -16,6 +16,7 @@ const representativeRoutes = [
   "/chapter/resilience",
   "/chapter/scale-performance",
   "/chapter/security",
+  "/chapter/observability",
   "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
   "/book/practical-system-design-workflow",
   "/workshop",
@@ -106,6 +107,7 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
     "/chapter/resilience",
     "/chapter/scale-performance",
     "/chapter/security",
+    "/chapter/observability",
     "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
     "/workshop",
   ];
