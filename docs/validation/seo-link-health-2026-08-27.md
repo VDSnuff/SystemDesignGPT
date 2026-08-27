@@ -4,8 +4,8 @@
 
 | Field | Value |
 | --- | --- |
-| Application revision | `b69f0b012a650b367cfb1b794ad60229516c1ec9` |
-| Environment | Local vinext development server and deterministic Node checks |
+| Application revision | `3854069c6a423aebccad4292f546459fa5d4eadc` |
+| Environment | Local vinext development and production servers plus deterministic Node checks |
 | Production origin | `https://system-design-studio.v-dovnich.chatgpt.site` |
 | Browser engine | Playwright Chromium |
 | Scope | Issue #67 SEO, metadata, crawlability, sharing, and link health |
@@ -43,6 +43,8 @@ single slashless path, preventing duplicate route variants.
 | Error and alias behavior | PASS | Canonical redirects, trailing slash, malformed slug, and intentional 404 contracts passed |
 | Sensitive SSR content | PASS | Owner HTML contained no comment data, email address, or API-key marker |
 | External sources | PASS WITH LIMITATION | 97 checked: 94 PASS, 0 FAIL, 3 UNVERIFIED due HTTP 403 bot protection |
+| Full regression | PASS | 114 unit/component tests and 68 Chromium browser/accessibility tests |
+| Local production build | PASS | Representative home, guide, handbook, workshop, owner, robots, sitemap, alias, trailing-slash, and 404 responses matched policy |
 
 The three automated external checks left unverified were the two ISO standard
 pages and OpenAI's practical agent guide. Their exact URLs remain in the source
@@ -59,13 +61,17 @@ current discoverability contract without speculative markup.
 ## Commands
 
 ```bash
-npx vitest run tests/seo-links.test.ts tests/validation-manifest.test.ts
+npm test
 npm run lint
 npm run check:generated
+npm audit --omit=dev --audit-level=high
 npm run build
-npm run test:e2e:seo
+npm run test:e2e
 npm run check:external-links
 ```
 
-Production metadata and route behavior remain unverified until this revision is
-merged, deployed as a pinned Sites version, and checked at the public origin.
+The production-only dependency audit reported zero vulnerabilities. The full
+development-toolchain audit remains separately owned by issue #68 and reported
+the known six moderate and six high advisories; no pass is inferred for that
+workstream. Public-origin metadata remains unverified until this revision is
+merged, deployed as a pinned Sites version, and checked in production.
