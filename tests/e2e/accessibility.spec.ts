@@ -1,24 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { guidePages } from "../../app/content";
 
+const guideRoutes = guidePages.map(({ slug }) => `/chapter/${slug}`);
 const representativeRoutes = [
   "/",
-  "/chapter/requirements",
-  "/chapter/boundaries-state-data",
-  "/chapter/networking",
-  "/chapter/data-modeling",
-  "/chapter/time-ordering",
-  "/chapter/concurrency",
-  "/chapter/transactions-consistency",
-  "/chapter/apis-idempotency",
-  "/chapter/messaging",
-  "/chapter/realtime-work",
-  "/chapter/resilience",
-  "/chapter/scale-performance",
-  "/chapter/security",
-  "/chapter/observability",
-  "/chapter/deployment-evolution",
-  "/chapter/cost-simplicity",
+  ...guideRoutes,
   "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
   "/book/practical-system-design-workflow",
   "/workshop",
@@ -53,7 +40,7 @@ for (const route of representativeRoutes) {
     await waitForHydratedSurface(page, route);
     if (route.includes("practical-system-design-workflow")) {
       const diagram = page.getByRole("img", { name: "Architecture diagram" });
-      if (!await diagram.count()) await page.locator(".mermaid-loading").scrollIntoViewIfNeeded();
+      await page.locator(".book-prose").getByText(/^Figure 1\./).scrollIntoViewIfNeeded();
       await expect(diagram).toBeVisible({ timeout: 20_000 });
     }
 
@@ -96,22 +83,7 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
   await page.setViewportSize({ width: 320, height: 720 });
   await mockAccessibilityBoundaries(page);
   const reflowRoutes = [
-    "/chapter/requirements",
-    "/chapter/boundaries-state-data",
-    "/chapter/networking",
-    "/chapter/data-modeling",
-    "/chapter/time-ordering",
-    "/chapter/concurrency",
-    "/chapter/transactions-consistency",
-    "/chapter/apis-idempotency",
-    "/chapter/messaging",
-    "/chapter/realtime-work",
-    "/chapter/resilience",
-    "/chapter/scale-performance",
-    "/chapter/security",
-    "/chapter/observability",
-    "/chapter/deployment-evolution",
-    "/chapter/cost-simplicity",
+    ...guideRoutes,
     "/book/1-requirements-frs-nfrs-constraints-and-assumptions",
     "/workshop",
   ];
@@ -125,7 +97,7 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
 test("interactive controls retain visible focus and 44 pixel targets", async ({ page }) => {
   await mockAccessibilityBoundaries(page);
   await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
-  await expect(page.getByRole("combobox", { name: "Search the complete handbook" })).toBeEnabled({ timeout: 20_000 });
+  await expect(page.getByRole("combobox", { name: "Search the guide and handbook" })).toBeEnabled({ timeout: 20_000 });
   const controls = page.locator(".nav-target:visible, .search-control:visible, .tool-button:visible, .tool-button-dark:visible, .compact-action:visible");
   const count = await controls.count();
   for (let index = 0; index < count; index += 1) {

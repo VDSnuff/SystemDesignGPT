@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { guideSearchEntries } from "../guide-search";
 import { HandbookSearch } from "./HandbookSearch";
 
 export function AppHeader() {
@@ -11,7 +10,7 @@ export function AppHeader() {
           <span className="grid h-9 w-9 place-items-center rounded-full bg-ink text-accent">SD</span>
           <span>System Design Studio</span>
         </Link>
-        <HandbookSearch />
+        <HandbookSearch guideEntries={guideSearchEntries} />
         <nav className="flex items-center gap-2" aria-label="Primary navigation">
           <Link className="nav-target hidden rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white md:flex" href="/owner/comments">Owner inbox</Link>
           <Link className="nav-target hidden rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] hover:bg-white sm:flex" href="/chapter/requirements">Quick guide</Link>
