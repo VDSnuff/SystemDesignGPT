@@ -45,12 +45,14 @@ export function PanelResizeHandle(props: PanelResizeHandleProps) {
     if (!drag.current.moved && Math.abs(distance) < POINTER_DRAG_THRESHOLD) return;
     drag.current.moved = true;
     suppressClick.current = true;
+    event.currentTarget.dataset.resizing = "true";
     if (!props.isOpen) props.onOpen();
     props.onResize(clamp(drag.current.startWidth + distance * direction, props.minWidth, props.maxWidth));
   }
 
   function handlePointerEnd(event: PointerEvent<HTMLButtonElement>) {
     drag.current = null;
+    delete event.currentTarget.dataset.resizing;
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }

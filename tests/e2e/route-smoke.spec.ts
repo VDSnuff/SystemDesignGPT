@@ -41,8 +41,13 @@ async function dragHorizontally(page: Page, handle: Locator, distance: number) {
   const startY = box.y + box.height / 2;
   await page.mouse.move(startX, startY);
   await page.mouse.down();
+  await expect(handle).not.toHaveAttribute("data-resizing", "true");
+  expect(await handle.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0.18s, 0.18s");
   await page.mouse.move(startX + distance, startY, { steps: 5 });
+  await expect(handle).toHaveAttribute("data-resizing", "true");
+  expect(await handle.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
   await page.mouse.up();
+  await expect(handle).not.toHaveAttribute("data-resizing", "true");
 }
 
 for (const route of handbookRoutes) {
@@ -123,6 +128,12 @@ test("a desktop reader can resize and collapse both side panels", async ({ page 
   const initialChatWidth = (await chat.boundingBox())?.width ?? 0;
   const menuHandle = page.getByRole("button", { name: "Resize or collapse complete book menu" });
   const chatHandle = page.getByRole("button", { name: "Resize or collapse design copilot" });
+  const menuHandleBox = await menuHandle.boundingBox();
+  const chatHandleBox = await chatHandle.boundingBox();
+
+  expect(menuHandleBox?.y).toBe(chatHandleBox?.y);
+  await menuHandle.focus();
+  expect(await menuHandle.evaluate((element) => getComputedStyle(element, "::before").boxShadow)).toContain("inset");
 
   await dragHorizontally(page, menuHandle, 40);
   await expect.poll(async () => (await navigation.boundingBox())?.width ?? 0).toBeGreaterThan(initialNavigationWidth + 30);

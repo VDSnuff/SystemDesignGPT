@@ -96,7 +96,7 @@
     transition: width 180ms ease, padding 180ms ease;
   }
 
-  .responsive-chat-surface:has(.panel-resize-handle:active) { transition: none; }
+  .responsive-chat-surface:has(.panel-resize-handle[data-resizing="true"]) { transition: none; }
 
   .responsive-chat-panel {
     position: sticky;
@@ -130,7 +130,7 @@
     transition: width 180ms ease, padding 180ms ease;
   }
 
-  .desktop-navigation:has(.panel-resize-handle:active) { transition: none; }
+  .desktop-navigation:has(.panel-resize-handle[data-resizing="true"]) { transition: none; }
 
   .desktop-navigation.is-collapsed { padding: 0; }
   .panel-resize-handle-left { display: flex; }
@@ -174,11 +174,16 @@
 }
 
 .panel-resize-handle:hover { color: #17201c; }
-.panel-resize-handle:active { transition: none; }
+.panel-resize-handle[data-resizing="true"] { transition: none; }
 
 .panel-resize-handle:focus-visible {
-  outline: 3px solid #b8e63f;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
+}
+
+.panel-resize-handle:focus-visible::before {
+  border-color: #17201c;
+  box-shadow: inset 0 0 0 3px #b8e63f, 0 5px 16px rgb(23 32 28 / 12%);
 }
 
 .panel-resize-handle-left {
