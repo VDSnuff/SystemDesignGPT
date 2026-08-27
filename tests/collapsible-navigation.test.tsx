@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import { CollapsibleNavigation } from "../app/components/CollapsibleNavigation";
@@ -39,5 +39,23 @@ describe("CollapsibleNavigation", () => {
     await user.keyboard("{ArrowRight}");
     expect(navigation?.style.width).toBe("296px");
     expect(handle.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("disables motion only after pointer movement becomes a drag", () => {
+    render(
+      <CollapsibleNavigation defaultWidth={280} label="complete book menu">
+        <nav>Sections</nav>
+      </CollapsibleNavigation>,
+    );
+    const handle = screen.getByRole("button", { name: "Resize or collapse complete book menu" });
+
+    fireEvent.pointerDown(handle, { button: 0, clientX: 100, pointerId: 1 });
+    expect(handle.dataset.resizing).toBeUndefined();
+
+    fireEvent.pointerMove(handle, { clientX: 110, pointerId: 1 });
+    expect(handle.dataset.resizing).toBe("true");
+
+    fireEvent.pointerUp(handle, { pointerId: 1 });
+    expect(handle.dataset.resizing).toBeUndefined();
   });
 });
