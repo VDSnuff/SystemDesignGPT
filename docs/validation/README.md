@@ -10,6 +10,9 @@ release record starts from [`release-report-template.md`](./release-report-templ
 Every report pins the exact revision and records missing evidence as
 `UNVERIFIED` or `BLOCKED`, never as a pass.
 
+Dated domain evidence includes the
+[`27 August 2026 SEO and link-health report`](./seo-link-health-2026-08-27.md).
+
 ## Evidence states
 
 | State | Meaning | Release effect |
