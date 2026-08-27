@@ -77,7 +77,9 @@ describe("ChatPanel service states", () => {
 
     await sendQuestion();
 
-    expect(document.querySelector(".chat-scroll")?.getAttribute("aria-live")).toBeNull();
+    const transcript = screen.getByLabelText("Design copilot conversation");
+    expect(transcript.getAttribute("aria-live")).toBeNull();
+    expect(transcript.getAttribute("tabindex")).toBe("0");
     expect(screen.getAllByRole("status").some((node) => node.textContent === "Copilot response: Use a bounded retry budget.")).toBe(true);
   });
 
