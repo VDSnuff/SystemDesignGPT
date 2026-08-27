@@ -62,5 +62,6 @@ export const rootMetadata: Metadata = {
 export const notFoundMetadata: Metadata = {
   title: "Page not found",
   description: "The requested System Design Studio page does not exist.",
+  alternates: { canonical: null },
   robots: { index: false, follow: false },
 };

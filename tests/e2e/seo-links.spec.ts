@@ -74,7 +74,9 @@ test("robots, sitemap, private routes, aliases, and errors match policy", async 
   for (const path of ["/not-a-real-route", "/book/not-a-real-section", "/book/%2F"] ) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(404);
-    expect(await response.text(), path).toContain("noindex");
+    const document = new JSDOM(await response.text()).window.document;
+    expect(content(document, "meta[name='robots']", "content"), path).toContain("noindex");
+    expect(document.querySelector("link[rel='canonical']"), path).toBeNull();
   }
 });
 
