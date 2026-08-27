@@ -11,6 +11,7 @@ import { realtimeWorkArticle } from "./realtime-work";
 import { requirementsArticle } from "./requirements";
 import { resilienceArticle } from "./resilience";
 import { scalePerformanceArticle } from "./scale-performance";
+import { securityArticle } from "./security";
 import { timeOrderingArticle } from "./time-ordering";
 import { transactionsConsistencyArticle } from "./transactions-consistency";
 
@@ -27,6 +28,7 @@ const guideArticles: readonly GuideArticle[] = [
   realtimeWorkArticle,
   resilienceArticle,
   scalePerformanceArticle,
+  securityArticle,
   deliveryLifecycleArticle,
   agenticSystemsArticle,
 ];
