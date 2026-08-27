@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import type { HandbookProgress } from "../../app/handbook-progress";
 
 const handbookRoutes = [
@@ -32,6 +32,17 @@ async function mockReaderBoundaries(page: Page, progressStore: ProgressStore = {
     progressStore.state = route.request().postDataJSON() as HandbookProgress;
     return route.fulfill({ json: { saved: true } });
   });
+}
+
+async function dragHorizontally(page: Page, handle: Locator, distance: number) {
+  const box = await handle.boundingBox();
+  if (!box) throw new Error("Resize handle is not visible");
+  const startX = box.x + box.width / 2;
+  const startY = box.y + box.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + distance, startY, { steps: 5 });
+  await page.mouse.up();
 }
 
 for (const route of handbookRoutes) {
@@ -98,7 +109,7 @@ test("a mobile reader can open and use the contextual copilot without page clipp
   await expect(page).toHaveURL(/\/book\/9-security$/);
 });
 
-test("a desktop reader can collapse the menu and contextual copilot", async ({ page }) => {
+test("a desktop reader can resize and collapse both side panels", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await mockReaderBoundaries(page);
   await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
@@ -106,8 +117,20 @@ test("a desktop reader can collapse the menu and contextual copilot", async ({ p
 
   const article = page.locator("#main-content > article");
   const initialWidth = (await article.boundingBox())?.width ?? 0;
-  await page.getByRole("button", { name: "Collapse complete book menu" }).click();
-  await page.getByRole("button", { name: "Collapse design copilot" }).click();
+  const navigation = page.locator(".desktop-navigation");
+  const chat = page.locator(".responsive-chat-surface");
+  const initialNavigationWidth = (await navigation.boundingBox())?.width ?? 0;
+  const initialChatWidth = (await chat.boundingBox())?.width ?? 0;
+  const menuHandle = page.getByRole("button", { name: "Resize or collapse complete book menu" });
+  const chatHandle = page.getByRole("button", { name: "Resize or collapse design copilot" });
+
+  await dragHorizontally(page, menuHandle, 40);
+  await expect.poll(async () => (await navigation.boundingBox())?.width ?? 0).toBeGreaterThan(initialNavigationWidth + 30);
+  await dragHorizontally(page, chatHandle, -40);
+  await expect.poll(async () => (await chat.boundingBox())?.width ?? 0).toBeGreaterThan(initialChatWidth + 30);
+
+  await menuHandle.click();
+  await chatHandle.click();
 
   await expect(page.getByRole("button", { name: "Expand complete book menu" })).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByRole("button", { name: "Expand design copilot" })).toHaveAttribute("aria-expanded", "false");
