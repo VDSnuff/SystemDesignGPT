@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "actors": ["guest", "user-a", "user-b", "owner"],
+  "environments": ["unit-component", "mocked-browser", "local-production", "ci", "hosted-production", "real-account", "bounded-provider"],
+  "riskDomains": [
+    { "id": "content-integrity", "ownerIssue": 63 },
+    { "id": "functional-ui", "ownerIssue": 63 },
+    { "id": "persistence", "ownerIssue": 61 },
+    { "id": "provider-ai", "ownerIssue": 62 },
+    { "id": "security-privacy", "ownerIssue": 60 },
+    { "id": "accessibility", "ownerIssue": 64 },
+    { "id": "browser-compatibility", "ownerIssue": 65 },
+    { "id": "performance", "ownerIssue": 66 },
+    { "id": "seo-link-health", "ownerIssue": 67 },
+    { "id": "supply-chain", "ownerIssue": 68 },
+    { "id": "deployment-operations", "ownerIssue": 69 }
+  ],
+  "routeGroups": [
+    {
+      "id": "public-static",
+      "actors": ["guest", "user-a", "user-b", "owner"],
+      "environments": ["mocked-browser", "local-production", "ci", "hosted-production", "real-account"],
+      "risks": ["functional-ui", "accessibility", "browser-compatibility", "performance", "seo-link-health"],
+      "testTypes": ["browser", "accessibility", "performance", "production-smoke"],
+      "ownerIssues": [63, 64, 65, 66, 67, 69],
+      "artifacts": ["browser report", "accessibility results", "performance trace", "production route matrix"],
+      "routes": ["/", "/workshop", "/owner/comments"]
+    },
+    {
+      "id": "quick-guide",
+      "actors": ["guest", "user-a", "user-b", "owner"],
+      "environments": ["unit-component", "mocked-browser", "local-production", "ci", "hosted-production", "real-account"],
+      "risks": ["content-integrity", "functional-ui", "accessibility", "browser-compatibility", "performance", "seo-link-health"],
+      "testTypes": ["unit", "browser", "accessibility", "crawl", "production-smoke"],
+      "ownerIssues": [63, 64, 65, 66, 67, 69],
+      "artifacts": ["test output", "browser report", "crawl report", "production route matrix"],
+      "routes": [
+        "/chapter/requirements", "/chapter/boundaries-state-data", "/chapter/networking",
+        "/chapter/data-modeling", "/chapter/time-ordering", "/chapter/concurrency",
+        "/chapter/transactions-consistency", "/chapter/apis-idempotency", "/chapter/messaging",
+        "/chapter/realtime-work", "/chapter/resilience", "/chapter/scale-performance",
+        "/chapter/security", "/chapter/observability", "/chapter/deployment-evolution",
+        "/chapter/cost-simplicity", "/chapter/delivery-lifecycle", "/chapter/agentic-systems"
+      ]
+    },
+    {
+      "id": "canonical-handbook",
+      "actors": ["guest", "user-a", "user-b", "owner"],
+      "environments": ["unit-component", "mocked-browser", "local-production", "ci", "hosted-production", "real-account"],
+      "risks": ["content-integrity", "functional-ui", "accessibility", "browser-compatibility", "performance", "seo-link-health"],
+      "testTypes": ["unit", "browser", "accessibility", "crawl", "production-smoke"],
+      "ownerIssues": [63, 64, 65, 66, 67, 69],
+      "artifacts": ["generated diff", "browser report", "crawl report", "production route matrix"],
+      "routes": [
+        "/book/introduction", "/book/book-plan", "/book/what-we-adopted-from-hellointerview",
+        "/book/practical-system-design-workflow", "/book/the-12-question-system-design-loop",
+        "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/book/2-boundaries-state-and-data",
+        "/book/2a-networking-and-communication", "/book/2b-data-modeling-indexing-and-partitioning",
+        "/book/2c-time-clocks-and-ordering", "/book/3-concurrency",
+        "/book/4-transactions-and-consistency", "/book/5-apis-contracts-and-idempotency",
+        "/book/6-messaging-and-asynchronous-work", "/book/6a-real-time-and-long-running-work",
+        "/book/7-failure-handling-and-resilience", "/book/8-scale-capacity-performance-and-caching",
+        "/book/9-security", "/book/10-observability-and-reliability",
+        "/book/11-deployment-migration-and-evolution", "/book/12-cost-simplicity-and-operability",
+        "/book/13-master-system-design-review-checklist",
+        "/book/14-requirements-to-delivery-lifecycle-fr-nfr-constraints-adr-and-tip",
+        "/book/15-llm-and-agentic-systems", "/book/16-spec-driven-development-for-agentic-systems",
+        "/book/17-agent-system-design-review-checklist", "/book/architecture-decision-record-short-template",
+        "/book/design-review-outcome-template", "/book/compact-glossary", "/book/about-the-diagrams",
+        "/book/references-and-verification-register"
+      ]
+    },
+    {
+      "id": "api",
+      "actors": ["guest", "user-a", "user-b", "owner"],
+      "environments": ["unit-component", "mocked-browser", "ci", "hosted-production", "real-account", "bounded-provider"],
+      "risks": ["persistence", "provider-ai", "security-privacy", "performance", "deployment-operations"],
+      "testTypes": ["unit", "integration", "security", "load", "production-smoke"],
+      "ownerIssues": [60, 61, 62, 66, 69],
+      "artifacts": ["contract output", "sanitized actor matrix", "load report", "production API matrix"],
+      "routes": [
+        "/api/chat", "/api/handbook-progress", "/api/learning-comments", "/api/learning-state"
+      ]
+    },
+    {
+      "id": "negative-routing",
+      "actors": ["guest"],
+      "environments": ["mocked-browser", "local-production", "ci", "hosted-production"],
+      "risks": ["functional-ui", "seo-link-health"],
+      "testTypes": ["browser", "crawl", "production-smoke"],
+      "ownerIssues": [63, 67, 69],
+      "artifacts": ["browser output", "crawl report", "production route matrix"],
+      "routes": ["/book/not-a-real-section", "/not-a-real-route"]
+    }
+  ],
+  "generatedArtifacts": [
+    {
+      "source": "docs/System_Design_Checklist_Book.md",
+      "commandId": "generated-content",
+      "targets": [
+        "app/book-content.generated.ts", "app/book-learning.generated.ts",
+        "app/book-progress.generated.ts", "app/book-search.generated.ts"
+      ]
+    }
+  ],
+  "commands": [
+    { "id": "unit-component", "command": "npm test", "status": "available", "blocking": true, "artifacts": ["test counts", "failure output"] },
+    { "id": "lint", "command": "npm run lint", "status": "available", "blocking": true, "artifacts": ["lint output"] },
+    { "id": "generated-content", "command": "npm run check:generated", "status": "available", "blocking": true, "artifacts": ["section count", "git diff"] },
+    { "id": "production-audit", "command": "npm audit --omit=dev --audit-level=high", "status": "available", "blocking": true, "artifacts": ["audit summary"] },
+    { "id": "full-audit", "command": "npm audit --audit-level=high", "status": "available", "blocking": true, "artifacts": ["advisory triage"] },
+    { "id": "build", "command": "npm run build", "status": "available", "blocking": true, "artifacts": ["route table", "bundle warnings"] },
+    { "id": "client-js", "command": "CLIENT_MEASURE_BASE_URL=http://127.0.0.1:4173 npm run measure:client-js", "status": "available", "blocking": false, "artifacts": ["raw and gzip route totals"] },
+    { "id": "browser", "command": "npm run test:e2e", "status": "available", "blocking": true, "artifacts": ["test counts", "Playwright report on failure"] },
+    { "id": "accessibility", "command": "npx playwright test tests/e2e/accessibility.spec.ts", "status": "available", "blocking": true, "artifacts": ["axe and interaction results"] },
+    { "id": "diff", "command": "git diff --check", "status": "available", "blocking": true, "artifacts": ["diff output"] },
+    { "id": "link-health", "command": null, "status": "planned", "blocking": true, "ownerIssue": 67, "artifacts": ["internal and external link report"] },
+    { "id": "production-smoke", "command": null, "status": "planned", "blocking": true, "ownerIssue": 69, "artifacts": ["Sites version and route matrix"] }
+  ],
+  "testMappings": [
+    {
+      "id": "canonical-content",
+      "risks": ["content-integrity", "functional-ui"],
+      "files": [
+        "tests/book-generation.test.ts", "tests/book-search.test.ts", "tests/guide-articles.test.ts",
+        "tests/cost-simplicity-guide-article.test.ts", "tests/deployment-evolution-guide-article.test.ts",
+        "tests/observability-guide-article.test.ts", "tests/resilience-guide-article.test.ts",
+        "tests/scale-performance-guide-article.test.ts", "tests/security-guide-article.test.ts",
+        "tests/quiz-persistence.test.ts", "tests/section-quiz.test.ts"
+      ]
+    },
+    {
+      "id": "api-contracts",
+      "risks": ["persistence", "provider-ai", "security-privacy"],
+      "files": [
+        "tests/chat-route.test.ts", "tests/handbook-progress-handlers.test.ts",
+        "tests/learning-comments-route.test.ts", "tests/learning-state-handlers.test.ts"
+      ]
+    },
+    {
+      "id": "component-interactions",
+      "risks": ["functional-ui", "persistence", "accessibility"],
+      "files": [
+        "tests/chat-panel.test.tsx", "tests/diagram-builder.test.tsx", "tests/diagram-editor.test.tsx",
+        "tests/diagram-model.test.ts", "tests/handbook-progress-ui.test.tsx",
+        "tests/mermaid-description.test.ts", "tests/mermaid-diagram.test.tsx",
+        "tests/section-quiz-ui.test.tsx"
+      ]
+    },
+    {
+      "id": "browser-accessibility",
+      "risks": ["accessibility", "browser-compatibility", "functional-ui"],
+      "files": ["tests/e2e/accessibility.spec.ts"]
+    },
+    {
+      "id": "browser-reader",
+      "risks": ["content-integrity", "functional-ui", "browser-compatibility"],
+      "files": [
+        "tests/e2e/agentic-systems-guide.spec.ts", "tests/e2e/authored-quiz.spec.ts",
+        "tests/e2e/cost-simplicity-guide.spec.ts", "tests/e2e/delivery-lifecycle-guide.spec.ts",
+        "tests/e2e/deployment-evolution-guide.spec.ts", "tests/e2e/messaging-guide.spec.ts",
+        "tests/e2e/observability-guide.spec.ts", "tests/e2e/realtime-work-guide.spec.ts",
+        "tests/e2e/resilience-guide.spec.ts", "tests/e2e/route-smoke.spec.ts",
+        "tests/e2e/scale-performance-guide.spec.ts", "tests/e2e/search.spec.ts",
+        "tests/e2e/security-guide.spec.ts"
+      ]
+    },
+    {
+      "id": "browser-workshop",
+      "risks": ["functional-ui", "persistence", "accessibility", "browser-compatibility"],
+      "files": ["tests/e2e/diagram-workshop.spec.ts"]
+    },
+    {
+      "id": "validation-contract",
+      "risks": ["content-integrity", "supply-chain", "deployment-operations"],
+      "files": ["tests/validation-manifest.test.ts"]
+    }
+  ]
+}
