@@ -3,6 +3,7 @@ import { agenticSystemsArticle } from "./agentic-systems";
 import { apisIdempotencyArticle } from "./apis-idempotency";
 import { boundariesStateDataArticle } from "./boundaries-state-data";
 import { concurrencyArticle } from "./concurrency";
+import { costSimplicityArticle } from "./cost-simplicity";
 import { dataModelingArticle } from "./data-modeling";
 import { deliveryLifecycleArticle } from "./delivery-lifecycle";
 import { messagingArticle } from "./messaging";
@@ -31,6 +32,7 @@ const guideArticles: readonly GuideArticle[] = [
   scalePerformanceArticle,
   securityArticle,
   observabilityArticle,
+  costSimplicityArticle,
   deliveryLifecycleArticle,
   agenticSystemsArticle,
 ];
