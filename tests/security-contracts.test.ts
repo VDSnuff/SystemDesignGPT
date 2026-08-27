@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { readJsonRequest } from "../app/json-request";
-import { securityHeaders } from "../app/security-headers";
+import { noIndexHeaders, securityHeaders } from "../app/security-headers";
 import nextConfig from "../next.config";
 
 function request(body: BodyInit, contentType = "application/json") {
@@ -47,7 +47,11 @@ describe("production response header policy", () => {
     const values = Object.fromEntries(securityHeaders.map(({ key, value }) => [key, value]));
     const rules = await nextConfig.headers?.();
 
-    expect(rules).toEqual([{ source: "/:path*", headers: [...securityHeaders] }]);
+    expect(rules).toEqual([
+      { source: "/:path*", headers: [...securityHeaders] },
+      { source: "/api/:path*", headers: [...noIndexHeaders] },
+      { source: "/owner/:path*", headers: [...noIndexHeaders] },
+    ]);
     expect(values["Content-Security-Policy"]).toContain("frame-ancestors 'self' https://chatgpt.com");
     expect(values["Content-Security-Policy"]).toContain("object-src 'none'");
     expect(values["Permissions-Policy"]).toBe("camera=(), geolocation=(), microphone=()");

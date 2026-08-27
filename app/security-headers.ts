@@ -19,3 +19,7 @@ export const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=31536000" },
   { key: "X-Content-Type-Options", value: "nosniff" },
 ] as const;
+
+export const noIndexHeaders = [
+  { key: "X-Robots-Tag", value: "noindex, nofollow" },
+] as const;
