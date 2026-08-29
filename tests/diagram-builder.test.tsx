@@ -14,6 +14,14 @@ afterEach(() => {
 });
 
 describe("workshop diagram persistence", () => {
+  it("reserves the editor layout while persisted work loads", () => {
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise(() => undefined)));
+    render(<DiagramBuilder pageSlug="diagram-workshop" />);
+
+    expect(screen.getByRole("status", { name: "Loading diagram editor" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Save workshop diagram" })).toHaveProperty("disabled", true);
+  });
+
   it("loads saved work and persists edits with the shared versioned schema", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(Response.json({ state: savedPayload }))
