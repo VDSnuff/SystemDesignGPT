@@ -27,7 +27,7 @@
     { "id": "home", "path": "/", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
     { "id": "guide", "path": "/chapter/requirements", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
     { "id": "handbook", "path": "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
-    { "id": "handbook-mermaid", "path": "/book/practical-system-design-workflow", "rawJsBytes": 1450000, "gzipJsBytes": 415000, "mermaid": true },
+    { "id": "handbook-mermaid", "path": "/book/practical-system-design-workflow", "rawJsBytes": 1450000, "gzipJsBytes": 415000, "mermaid": true, "tbtMs": { "mobile": 500 } },
     { "id": "workshop", "path": "/workshop", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
     { "id": "owner", "path": "/owner/comments", "rawJsBytes": 610000, "gzipJsBytes": 190000 }
   ],

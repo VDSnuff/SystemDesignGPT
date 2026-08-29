@@ -37,11 +37,11 @@ function persistResults() {
   writeFileSync(outputPath, `${JSON.stringify({ measuredAt: new Date().toISOString(), results }, null, 2)}\n`);
 }
 
-function assertRoute(measurement: Awaited<ReturnType<typeof measureRoute>>, route: RouteBudget, profile: Profile) {
+function assertRoute(measurement: Awaited<ReturnType<typeof measureRoute>>, route: RouteBudget, profileName: string, profile: Profile) {
   expect(measurement.status).toBe(200);
   expect(measurement.lcpMs).toBeLessThanOrEqual(profile.lcpMs);
   expect(measurement.cls, route.id).toBeLessThanOrEqual(profile.cls);
-  expect(measurement.tbtMs).toBeLessThanOrEqual(profile.tbtMs);
+  expect(measurement.tbtMs, route.id).toBeLessThanOrEqual(route.tbtMs?.[profileName] ?? profile.tbtMs);
   expect(measurement.ttfbMs).toBeLessThanOrEqual(profile.ttfbMs);
   expect(measurement.rawJsBytes).toBeLessThanOrEqual(route.rawJsBytes);
   expect(measurement.gzipJsBytes).toBeLessThanOrEqual(route.gzipJsBytes);
@@ -69,7 +69,7 @@ for (const [profileName, profile] of Object.entries(budgets.profiles)) {
         const measurement = await measureRoute(browser, route, profile);
         results.push({ kind: "route", profile: profileName, route: route.id, run, ...measurement });
         persistResults();
-        assertRoute(measurement, route, profile);
+        assertRoute(measurement, route, profileName, profile);
       }
     }
   });

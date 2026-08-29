@@ -19,6 +19,7 @@ export interface RouteBudget {
   readonly rawJsBytes: number;
   readonly gzipJsBytes: number;
   readonly mermaid?: boolean;
+  readonly tbtMs?: Readonly<Record<string, number>>;
 }
 
 export interface ApiRoute {
