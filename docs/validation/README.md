@@ -11,7 +11,9 @@ Every report pins the exact revision and records missing evidence as
 `UNVERIFIED` or `BLOCKED`, never as a pass.
 
 Dated domain evidence includes the
-[`27 August 2026 SEO and link-health report`](./seo-link-health-2026-08-27.md).
+[`27 August 2026 SEO and link-health report`](./seo-link-health-2026-08-27.md)
+and the
+[`29 August 2026 product-journey report`](./product-journeys-2026-08-29.md).
 
 ## Evidence states
 
