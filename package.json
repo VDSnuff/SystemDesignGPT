@@ -22,7 +22,9 @@
     "test:e2e:diagram": "playwright test tests/e2e/diagram-workshop.spec.ts",
     "test:e2e:quiz": "playwright test tests/e2e/authored-quiz.spec.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "measure:client-js": "node scripts/measure-client-js.mjs"
+    "measure:client-js": "node scripts/measure-client-js.mjs",
+    "check:performance": "playwright test --config playwright.performance.config.ts",
+    "check:performance:d1": "node scripts/check-local-d1-load.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

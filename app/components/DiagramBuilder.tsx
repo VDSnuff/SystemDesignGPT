@@ -67,7 +67,13 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
         <p className="kicker">Diagram constructor</p>
         <h2 className="mt-2 font-serif text-4xl tracking-[-0.03em]" id="canvas-heading">Make the boundaries visible.</h2>
       </div>
-      {isReady ? <DiagramEditor label="Workshop diagram canvas" onChange={setDiagram} value={diagram} /> : null}
+      {isReady ? (
+        <DiagramEditor label="Workshop diagram canvas" onChange={setDiagram} value={diagram} />
+      ) : (
+        <div aria-label="Loading diagram editor" className="diagram-editor-placeholder" role="status">
+          Preparing the diagram editor…
+        </div>
+      )}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button className="tool-button-dark" disabled={!canSave || !isReady} onClick={save} type="button">Save workshop diagram</button>
         <AsyncStatus className="text-xs text-muted" isError={hasError} message={status} />

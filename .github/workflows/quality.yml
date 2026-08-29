@@ -29,6 +29,7 @@ jobs:
       - run: npm run check:generated
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run build
+      - run: npm run check:performance:d1
 
   browser:
     name: Responsive browser contracts
@@ -43,6 +44,16 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - run: npm run build
+      - run: npm run check:performance
+      - name: Upload performance evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: performance-${{ github.run_id }}
+          path: performance-results/
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload browser failure evidence
         if: failure()
         uses: actions/upload-artifact@v7

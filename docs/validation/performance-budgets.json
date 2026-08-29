@@ -1,0 +1,53 @@
+{
+  "profiles": {
+    "desktop": {
+      "viewport": { "width": 1440, "height": 900 },
+      "deviceScaleFactor": 1,
+      "cpuSlowdown": 1,
+      "latencyMs": 20,
+      "downloadBytesPerSecond": 5000000,
+      "lcpMs": 2000,
+      "cls": 0.1,
+      "tbtMs": 250,
+      "ttfbMs": 600
+    },
+    "mobile": {
+      "viewport": { "width": 390, "height": 844 },
+      "deviceScaleFactor": 2,
+      "cpuSlowdown": 4,
+      "latencyMs": 40,
+      "downloadBytesPerSecond": 2500000,
+      "lcpMs": 2500,
+      "cls": 0.1,
+      "tbtMs": 400,
+      "ttfbMs": 800
+    }
+  },
+  "routes": [
+    { "id": "home", "path": "/", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
+    { "id": "guide", "path": "/chapter/requirements", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
+    { "id": "handbook", "path": "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
+    { "id": "handbook-mermaid", "path": "/book/practical-system-design-workflow", "rawJsBytes": 1450000, "gzipJsBytes": 415000, "mermaid": true },
+    { "id": "workshop", "path": "/workshop", "rawJsBytes": 610000, "gzipJsBytes": 190000 },
+    { "id": "owner", "path": "/owner/comments", "rawJsBytes": 610000, "gzipJsBytes": 190000 }
+  ],
+  "interactionMs": {
+    "searchFirstUse": 500,
+    "mobileCopilotOpen": 200,
+    "mermaidRender": 1500,
+    "quizAnswer": 200,
+    "workshopManipulation": 200,
+    "mockedSaveResume": 1000
+  },
+  "api": {
+    "samples": 20,
+    "concurrency": 8,
+    "p95Ms": 1500,
+    "errorRate": 0
+  },
+  "d1": {
+    "concurrency": 8,
+    "p95Ms": 1000,
+    "errorRate": 0
+  }
+}

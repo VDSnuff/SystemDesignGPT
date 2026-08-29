@@ -65,7 +65,8 @@ describe("release validation manifest", () => {
   it("keeps executable commands and planned gaps explicit", () => {
     const requiredCommands = [
       "unit-component", "lint", "generated-content", "production-audit", "full-audit",
-      "build", "client-js", "browser", "accessibility", "diff", "link-health", "production-smoke",
+      "build", "client-js", "performance-browser", "performance-d1-load", "browser",
+      "accessibility", "diff", "link-health", "production-smoke",
     ];
     expect(manifest.commands.map(({ id }) => id)).toEqual(requiredCommands);
     for (const item of manifest.commands) {

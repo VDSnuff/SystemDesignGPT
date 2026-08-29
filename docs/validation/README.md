@@ -14,6 +14,9 @@ Dated domain evidence includes the
 [`27 August 2026 SEO and link-health report`](./seo-link-health-2026-08-27.md)
 and the
 [`29 August 2026 product-journey report`](./product-journeys-2026-08-29.md).
+Performance thresholds and the latest measured evidence are recorded in
+[`performance-budgets.json`](./performance-budgets.json) and the
+[`29 August 2026 performance report`](./performance-2026-08-29.md).
 
 ## Evidence states
 
@@ -141,6 +144,8 @@ npm run check:generated
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
 npm run build
+npm run check:performance
+npm run check:performance:d1
 npm run check:links
 npm run test:e2e
 git diff --check
@@ -150,6 +155,15 @@ Client-JS measurement requires a built production server on port 4173. The
 manifest records the measurement command separately so server startup and
 shutdown remain observable. Accessibility has a focused Playwright command in
 addition to the full browser suite.
+
+The blocking browser performance gate starts a built production server and
+records route LCP, CLS, TBT, TTFB, transferred bytes, JS execution, route JS,
+and interaction latency. Local production cannot execute Cloudflare-bound API
+modules in Node, so the separate D1 gate starts an isolated Vite/Miniflare
+target, applies migrations to a temporary database, exercises bounded synthetic
+writes and rate limits, deletes its fixtures, and verifies recovery. Hosted runs
+set `PERFORMANCE_BASE_URL` and cover repeated cold/warm public and signed-out API
+measurements without creating production data or provider traffic.
 
 Link health is executable under #67. It checks the canonical source URLs,
 route/anchor contracts, server-rendered metadata, robots, sitemap, aliases,

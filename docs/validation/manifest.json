@@ -111,6 +111,8 @@
     { "id": "full-audit", "command": "npm audit --audit-level=high", "status": "available", "blocking": true, "artifacts": ["advisory triage"] },
     { "id": "build", "command": "npm run build", "status": "available", "blocking": true, "artifacts": ["route table", "bundle warnings"] },
     { "id": "client-js", "command": "CLIENT_MEASURE_BASE_URL=http://127.0.0.1:4173 npm run measure:client-js", "status": "available", "blocking": false, "artifacts": ["raw and gzip route totals"] },
+    { "id": "performance-browser", "command": "npm run check:performance", "status": "available", "blocking": true, "artifacts": ["route and interaction budgets", "Core Web Vitals lab evidence", "public load percentiles"] },
+    { "id": "performance-d1-load", "command": "npm run check:performance:d1", "status": "available", "blocking": true, "artifacts": ["isolated D1 latency percentiles", "rate-limit and recovery evidence"] },
     { "id": "browser", "command": "npm run test:e2e", "status": "available", "blocking": true, "artifacts": ["test counts", "Playwright report on failure"] },
     { "id": "accessibility", "command": "npx playwright test tests/e2e/accessibility.spec.ts", "status": "available", "blocking": true, "artifacts": ["axe and interaction results"] },
     { "id": "diff", "command": "git diff --check", "status": "available", "blocking": true, "artifacts": ["diff output"] },
@@ -173,6 +175,11 @@
       "id": "browser-workshop",
       "risks": ["functional-ui", "persistence", "accessibility", "browser-compatibility"],
       "files": ["tests/e2e/diagram-workshop.spec.ts"]
+    },
+    {
+      "id": "performance",
+      "risks": ["performance", "persistence", "provider-ai"],
+      "files": ["tests/performance/performance-budgets.spec.ts"]
     },
     {
       "id": "validation-contract",
