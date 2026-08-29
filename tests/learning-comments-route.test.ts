@@ -145,6 +145,8 @@ describe("learning comment authorization contract", () => {
     }));
 
     expect(response.status).toBe(429);
+    expect(consumeMock).toHaveBeenCalledTimes(1);
+    expect(consumeMock).toHaveBeenCalledWith("comments-user", "reader", 86_400_000);
     expect(getDbMock).not.toHaveBeenCalled();
   });
 

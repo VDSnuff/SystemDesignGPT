@@ -26,11 +26,10 @@ function invalidBody(status: 400 | 413 | 415, message: string) {
 }
 
 async function isRateLimited(userId: string) {
-  const [userCount, globalCount] = await Promise.all([
-    rateLimitRepository.consume(rateLimitScopes.commentsUser, userId, commentWindowMs),
-    rateLimitRepository.consume(rateLimitScopes.commentsGlobal, globalRateKey, commentWindowMs),
-  ]);
-  return userCount > maxCommentsPerWindow || globalCount > maxGlobalCommentsPerWindow;
+  const userCount = await rateLimitRepository.consume(rateLimitScopes.commentsUser, userId, commentWindowMs);
+  if (userCount > maxCommentsPerWindow) return true;
+  const globalCount = await rateLimitRepository.consume(rateLimitScopes.commentsGlobal, globalRateKey, commentWindowMs);
+  return globalCount > maxGlobalCommentsPerWindow;
 }
 
 async function removeExpiredComments(now = Date.now()) {

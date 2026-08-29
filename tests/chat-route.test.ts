@@ -191,6 +191,20 @@ describe("chat route service contract", () => {
     expect(providerFetch).toHaveBeenCalledTimes(14);
   });
 
+  it("does not debit the shared quota after the user quota is exhausted", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-key");
+    const providerFetch = vi.fn();
+    vi.stubGlobal("fetch", providerFetch);
+    consumeMock.mockResolvedValueOnce(15);
+
+    const response = await POST(chatRequest("rate-limited-client"));
+
+    expect(response.status).toBe(429);
+    expect(consumeMock).toHaveBeenCalledTimes(1);
+    expect(consumeMock).toHaveBeenCalledWith("chat-user", "rate-limited-client", 600_000);
+    expect(providerFetch).not.toHaveBeenCalled();
+  });
+
   it("maps provider 429 responses to usage-limited without leaking the provider body", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ secret: "provider detail" }, { status: 429 })));
