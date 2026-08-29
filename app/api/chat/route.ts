@@ -35,11 +35,10 @@ export async function GET(request: Request) {
 }
 
 async function isRateLimited(userId: string) {
-  const [userCount, globalCount] = await Promise.all([
-    rateLimitRepository.consume(rateLimitScopes.chatUser, userId, requestWindowMs),
-    rateLimitRepository.consume(rateLimitScopes.chatGlobal, globalRateKey, requestWindowMs),
-  ]);
-  return userCount > maxRequestsPerWindow || globalCount > maxGlobalRequestsPerWindow;
+  const userCount = await rateLimitRepository.consume(rateLimitScopes.chatUser, userId, requestWindowMs);
+  if (userCount > maxRequestsPerWindow) return true;
+  const globalCount = await rateLimitRepository.consume(rateLimitScopes.chatGlobal, globalRateKey, requestWindowMs);
+  return globalCount > maxGlobalRequestsPerWindow;
 }
 
 function parseHistory(value: unknown): readonly ChatTurn[] {
