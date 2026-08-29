@@ -8,7 +8,7 @@ export function SectionProgressControls({ sectionSlug }: Readonly<{ sectionSlug:
   return (
     <button
       aria-pressed={isComplete}
-      className={isComplete ? "tool-button-dark" : "tool-button"}
+      className={`${isComplete ? "tool-button-dark" : "tool-button"} min-w-48`}
       disabled={status === "loading"}
       onClick={() => toggleSection(sectionSlug)}
       type="button"
