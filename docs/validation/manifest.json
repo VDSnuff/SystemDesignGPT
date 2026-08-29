@@ -146,7 +146,7 @@
         "tests/diagram-builder.test.tsx", "tests/diagram-editor.test.tsx",
         "tests/diagram-model.test.ts", "tests/handbook-progress-ui.test.tsx",
         "tests/mermaid-description.test.ts", "tests/mermaid-diagram.test.tsx",
-        "tests/section-quiz-ui.test.tsx"
+        "tests/owner-comments.test.tsx", "tests/section-quiz-ui.test.tsx"
       ]
     },
     {
@@ -159,6 +159,7 @@
       "risks": ["content-integrity", "functional-ui", "browser-compatibility"],
       "files": [
         "tests/e2e/agentic-systems-guide.spec.ts", "tests/e2e/authored-quiz.spec.ts",
+        "tests/e2e/complete-journeys.spec.ts",
         "tests/e2e/cost-simplicity-guide.spec.ts", "tests/e2e/delivery-lifecycle-guide.spec.ts",
         "tests/e2e/deployment-evolution-guide.spec.ts", "tests/e2e/divider-handles.spec.ts",
         "tests/e2e/messaging-guide.spec.ts",
