@@ -29,6 +29,17 @@ the sum of long-task time above 50 ms. Script execution comes from Chrome's
 Performance domain. Transferred bytes use Resource Timing. Raw and gzip JS sum
 actual script response bodies.
 
+Hosted browser runs block Cloudflare's injected
+`/cdn-cgi/challenge-platform/` bot-detection script so platform-owned headless
+detection work is not attributed to application TBT, JS, or interaction costs.
+TTFB and the HTTP API load measurements still include the real edge and Worker.
+The platform-inclusive warm probe is retained separately in the release
+closeout so the exclusion remains visible rather than silently discarded.
+Each instrumented route gets one unthrottled HTTP warm-up before its browser
+budget; the API gate records the un-warmed cold request separately. This keeps
+cold-start evidence explicit without mixing idle Worker startup into warm
+rendering regression thresholds.
+
 Browser lab measurements are intentionally one run in CI because hard budgets
 are padded above the measured baseline. Hosted release evidence uses two runs
 to expose production noise. Interaction wall times include lazy loading and
@@ -110,8 +121,9 @@ capacity; #61 owns that terminal evidence.
 The first mobile run found workshop CLS 0.170: the 690 px editor was inserted
 after persistence loading. A CI trace then found handbook CLS 0.157 from its
 mobile navigation grid row collapsing during streaming. The implementation now
-reserves the editor size and keeps mobile book content in stable block flow.
-Three repeated mobile runs measured all 18 routes at CLS ≤ 0.00052 without
+reserves the editor size, keeps mobile book content in stable block flow, and
+reserves progress-control width across loading and resolved labels.
+Five repeated mobile runs measured all 30 routes at CLS ≤ 0.00052 without
 weakening the ≤ 0.10 budget. No unresolved
 P0/P1 performance, capacity, or cost finding remains inside this workstream's
 declared boundary.

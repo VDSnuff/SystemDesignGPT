@@ -49,8 +49,15 @@ export function percentile(values: number[], fraction: number) {
 async function mockApi(page: Page) {
   await page.route("**/api/chat", (route) => route.fulfill({ json: { status: "authentication-required" } }));
   await page.route("**/api/learning-state**", (route) => route.fulfill({ status: 401, json: { message: "Sign in" } }));
-  await page.route("**/api/handbook-progress", (route) => route.fulfill({ status: 401, json: { message: "Sign in" } }));
+  await page.route("**/api/handbook-progress", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.fulfill({ status: 401, json: { message: "Sign in" } });
+  });
   await page.route("**/api/learning-comments**", (route) => route.fulfill({ status: 401, json: { message: "Sign in" } }));
+}
+
+async function isolateApplicationPerformance(page: Page) {
+  await page.route("**/cdn-cgi/challenge-platform/**", (route) => route.abort("blockedbyclient"));
 }
 
 async function installObservers(page: Page) {
@@ -123,8 +130,10 @@ function scriptSizes(bodies: Map<string, Buffer>) {
 
 export async function measureRoute(browser: Browser, route: RouteBudget, profile: Profile) {
   const context = await browser.newContext({ viewport: profile.viewport, deviceScaleFactor: profile.deviceScaleFactor });
+  await context.request.get(route.path);
   const page = await context.newPage();
   const bodies = new Map<string, Buffer>();
+  await isolateApplicationPerformance(page);
   await mockApi(page);
   await installObservers(page);
   const session = await throttle(page, profile);
@@ -215,6 +224,7 @@ async function workshopInteractions(page: Page) {
 export async function measureInteractions(browser: Browser) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  await isolateApplicationPerformance(page);
   await mockApi(page);
   const reader = await readerInteractions(page);
   const mermaidRender = await mermaidInteraction(page);
