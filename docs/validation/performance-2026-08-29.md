@@ -61,25 +61,25 @@ production build. The final exact revision is pinned in the closeout.
 
 | Profile | Worst LCP | Worst CLS | Worst TBT | Worst TTFB |
 | --- | ---: | ---: | ---: | ---: |
-| Desktop, six routes | 280 ms | 0.0132 | 2 ms | 85 ms |
-| Mobile, six routes | 348 ms | 0.00052 | 311 ms | 45 ms |
+| Desktop, six routes | 156 ms | 0.0132 | 0 ms | 41 ms |
+| Mobile, six routes | 316 ms | 0.00052 | 237 ms | 33 ms |
 
 The six routes were home, requirements guide, handbook without Mermaid,
 handbook with Mermaid, workshop, and owner comments. Non-diagram routes stayed
-between 574,509–579,300 raw JS bytes and 177,577–179,892 gzip bytes. The Mermaid
-route used 1,371,051 raw / 389,371 gzip bytes on desktop and 1,370,668 raw /
-389,090 gzip bytes on mobile. Only the Mermaid route fetched the parser.
+between 574,509–579,300 raw JS bytes and 177,573–179,882 gzip bytes. The Mermaid
+route used 1,371,051 raw / 389,344 gzip bytes on desktop and 1,370,668 raw /
+389,063 gzip bytes on mobile. Only the Mermaid route fetched the parser.
 
 | Interaction | Measured wall time | Budget |
 | --- | ---: | ---: |
-| Search first-use | 285 ms | 500 ms |
-| Mobile copilot open | 141 ms | 200 ms |
-| Mermaid approach/render | 351 ms | 1,500 ms |
-| Quiz answer | 67 ms | 200 ms |
-| Workshop manipulation | 49 ms | 200 ms |
-| Mocked save/reload | 189 ms | 1,000 ms |
+| Search first-use | 153 ms | 500 ms |
+| Mobile copilot open | 71 ms | 200 ms |
+| Mermaid approach/render | 306 ms | 1,500 ms |
+| Quiz answer | 51 ms | 200 ms |
+| Workshop manipulation | 84 ms | 200 ms |
+| Mocked save/reload | 125 ms | 1,000 ms |
 
-The local public-read burst recorded home p50 130 ms, p95 149 ms, p99 150 ms,
+The local public-read burst recorded home p50 102 ms, p95 135 ms, p99 136 ms,
 0% errors, and successful recovery. Cloudflare-bound API modules are not loaded
 through Vinext's Node production server; those APIs are measured in the hosted
 run and exercised separately through local Miniflare.
@@ -87,15 +87,15 @@ run and exercised separately through local Miniflare.
 ## Isolated D1 and rate-limit evidence
 
 `npm run check:performance:d1` creates a temporary Miniflare persistence path,
-applies all three D1 migrations, starts the Vite Worker target, and signs in as
-the Sites synthetic local user. Eight concurrent writes to distinct valid
-learning pages had p50 513 ms, p95/p99 516 ms, and 0 errors. Eight matching
-reads had p50 36 ms, p95/p99 37 ms, returned every marker, and had 0 errors.
+applies all three D1 migrations, starts the built Worker through Wrangler, and
+uses synthetic Sites identity headers. Eight concurrent writes to distinct valid
+learning pages had p50 56 ms, p95/p99 57 ms, and 0 errors. Eight matching
+reads had p50/p95/p99 27 ms, returned every marker, and had 0 errors.
 
 Six concurrent comment submissions produced exactly five HTTP 201 responses
-and one HTTP 429 from the atomic D1 quota. Their p50 was 54 ms and p95/p99 55
-ms. The harness deleted every created comment through the API, deleted the
-synthetic learning state, verified a subsequent empty read in 10 ms, stopped
+and one HTTP 429 from the atomic D1 quota. Their p50 was 37 ms and p95/p99 was
+38 ms. The harness deleted every created comment through the API, deleted the
+synthetic learning state, verified a subsequent empty read in 4 ms, stopped
 the server, and removed only its temporary database.
 
 This proves bounded single-user local D1 concurrency and the atomic quota
@@ -105,9 +105,11 @@ capacity; #61 owns that terminal evidence.
 ## Finding and remediation
 
 The first mobile run found workshop CLS 0.170: the 690 px editor was inserted
-after persistence loading. The implementation now renders a responsive,
-size-matched loading reservation until the editor is ready. The rerun reduced
-workshop mobile CLS to 0.00052 without weakening the ≤ 0.10 budget. No unresolved
+after persistence loading. A CI trace then found handbook CLS 0.157 from its
+mobile navigation grid row collapsing during streaming. The implementation now
+reserves the editor size and keeps mobile book content in stable block flow.
+Three repeated mobile runs measured all 18 routes at CLS ≤ 0.00052 without
+weakening the ≤ 0.10 budget. No unresolved
 P0/P1 performance, capacity, or cost finding remains inside this workstream's
 declared boundary.
 

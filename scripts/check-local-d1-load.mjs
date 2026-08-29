@@ -7,7 +7,6 @@ import { performance } from "node:perf_hooks";
 
 const PORT = 4176;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
-const COOKIE = "__sites_local_auth=1";
 const CONFIG_PATH = "dist/server/wrangler.json";
 const BUDGET_PATH = "docs/validation/performance-budgets.json";
 const OUTPUT_PATH = "performance-results/local-d1-load.json";
@@ -81,9 +80,10 @@ function authenticatedInit(method, body) {
   return {
     method,
     headers: {
-      Cookie: COOKIE,
       Origin: ORIGIN,
       "Content-Type": "application/json",
+      "oai-authenticated-user-email": "performance@example.test",
+      "oai-authenticated-user-id": "performance-user",
     },
     body: body ? JSON.stringify(body) : undefined,
   };
@@ -171,19 +171,17 @@ async function main() {
   let server;
   try {
     for (const migration of MIGRATIONS) applyMigration(migration, persistencePath);
-    server = spawn("npm", ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(PORT)], {
+    server = spawn("npx", [
+      "wrangler", "dev", "--config", CONFIG_PATH,
+      "--port", String(PORT), "--persist-to", persistencePath,
+    ], {
       detached: true,
-      env: {
-        ...process.env,
-        LOCAL_D1_PERSISTENCE_PATH: persistencePath,
-        MINIFLARE_REGISTRY_PATH: path.join(persistencePath, "registry"),
-      },
       stdio: "ignore",
     });
     await waitForServer(server);
     const result = {
       measuredAt: new Date().toISOString(),
-      target: "isolated local Miniflare D1",
+      target: "built Worker with isolated local Miniflare D1",
       concurrency: budgets.d1.concurrency,
       learning: await exerciseLearningState(),
       rateLimit: await exerciseRateLimit(),

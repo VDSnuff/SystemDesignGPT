@@ -8,6 +8,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
+  timeout: 120_000,
   reporter: "line",
   outputDir: "performance-results/playwright",
   use: {

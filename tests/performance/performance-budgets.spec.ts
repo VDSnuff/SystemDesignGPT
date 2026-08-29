@@ -20,7 +20,17 @@ const budgets = JSON.parse(readFileSync("docs/validation/performance-budgets.jso
 const outputPath = process.env.PERFORMANCE_ARTIFACT_PATH ?? "performance-results/browser-performance.json";
 const runCount = Number(process.env.PERFORMANCE_RUNS ?? 1);
 const hostedTarget = Boolean(process.env.PERFORMANCE_BASE_URL);
-const results: Record<string, unknown>[] = [];
+
+function initialResults() {
+  if (Number(process.env.TEST_WORKER_INDEX ?? 0) === 0) return [];
+  try {
+    return JSON.parse(readFileSync(outputPath, "utf8")).results ?? [];
+  } catch {
+    return [];
+  }
+}
+
+const results: Record<string, unknown>[] = initialResults();
 
 function persistResults() {
   mkdirSync(path.dirname(outputPath), { recursive: true });
