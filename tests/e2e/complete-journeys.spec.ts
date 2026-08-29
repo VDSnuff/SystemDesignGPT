@@ -6,6 +6,8 @@ import type { LearningPayload } from "../../app/learning-types";
 
 interface RouteExpectation { readonly path: string; readonly title: string }
 
+const DEV_FONT_ORIGIN = "https://fonts.googleapis.com";
+
 const routeExpectations: readonly RouteExpectation[] = [
   { path: "/", title: bookSections[0].title },
   ...guidePages.map(({ slug, title }) => ({ path: `/chapter/${slug}`, title })),
@@ -17,6 +19,14 @@ const routeExpectations: readonly RouteExpectation[] = [
 interface LearnerStores {
   learning: LearningPayload | null;
   progress: HandbookProgress | null;
+}
+
+function isExpectedDevFontConsole(message: string) {
+  return message.includes(DEV_FONT_ORIGIN) && message.includes("Content Security Policy");
+}
+
+function isExpectedDevFontRequest(url: string, errorText?: string) {
+  return url.startsWith(DEV_FONT_ORIGIN) && errorText === "csp";
 }
 
 async function mockBoundaries(page: Page, stores: LearnerStores = { learning: null, progress: null }) {
@@ -47,10 +57,17 @@ test("every public UI route renders cleanly at the reflow width", async ({ page 
   await mockBoundaries(page);
   const diagnostics: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") diagnostics.push(`console: ${message.text()}`);
+    if (message.type() === "error" && !isExpectedDevFontConsole(message.text())) {
+      diagnostics.push(`console: ${message.text()}`);
+    }
   });
   page.on("pageerror", (error) => diagnostics.push(`page: ${error.message}`));
-  page.on("requestfailed", (request) => diagnostics.push(`request: ${request.url()} ${request.failure()?.errorText ?? "failed"}`));
+  page.on("requestfailed", (request) => {
+    const errorText = request.failure()?.errorText;
+    if (!isExpectedDevFontRequest(request.url(), errorText)) {
+      diagnostics.push(`request: ${request.url()} ${errorText ?? "failed"}`);
+    }
+  });
 
   for (const route of routeExpectations) {
     await test.step(route.path, async () => {
