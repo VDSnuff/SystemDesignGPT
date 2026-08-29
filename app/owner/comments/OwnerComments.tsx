@@ -22,6 +22,11 @@ async function loadComments(signal: AbortSignal, before?: string) {
   return { comments: body.comments ?? [], nextCursor: body.nextCursor };
 }
 
+function appendUniqueComments(current: readonly LearningComment[], next: readonly LearningComment[]) {
+  const existingIds = new Set(current.map(({ id }) => id));
+  return [...current, ...next.filter(({ id }) => !existingIds.has(id))];
+}
+
 interface CommentCardProps {
   readonly comment: LearningComment;
   readonly onDelete: (comment: LearningComment) => void;
@@ -116,7 +121,7 @@ export function OwnerComments() {
     setHasError(false);
     try {
       const page = await loadComments(new AbortController().signal, nextCursor);
-      setComments((current) => [...current, ...page.comments]);
+      setComments((current) => appendUniqueComments(current, page.comments));
       setNextCursor(page.nextCursor);
     } catch (error) {
       setHasError(true);
