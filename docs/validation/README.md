@@ -20,6 +20,9 @@ Performance thresholds and the latest measured evidence are recorded in
 Supply-chain policy, audit remediation, and the required merge-governance
 settings are recorded in the
 [`1 September 2026 supply-chain report`](./supply-chain-2026-09-01.md).
+Sites release, exact-revision proof, production smoke, rollback, and forward
+recovery follow the
+[`Sites release runbook`](../operations/sites-release-runbook.md).
 
 ## Evidence states
 
@@ -151,6 +154,7 @@ npm run build
 npm run check:performance
 npm run check:performance:d1
 npm run check:links
+npm run check:production-smoke
 npm run test:e2e
 npm run test:e2e:cross-browser
 git diff --check
@@ -174,8 +178,12 @@ Link health is executable under #67. It checks the canonical source URLs,
 route/anchor contracts, server-rendered metadata, robots, sitemap, aliases,
 errors, internal links, and public images. HTTP 401, 403, 429, 5xx responses,
 and network failures remain `UNVERIFIED` instead of being mislabeled as broken;
-other terminal 4xx responses fail the gate. Production smoke remains `planned`
-under #69 and is `UNVERIFIED` until that issue ships its executable contract.
+other terminal 4xx responses fail the gate. Production smoke is executable
+under #69 and requires an HTTPS origin, exact 40-character Git SHA, and numeric
+Sites version. It checks the public signed-out route/API/header matrix and fails
+closed on any mismatch. The Sites control-plane record must independently prove
+that the supplied SHA maps to the deployed version; authenticated persistence,
+Mermaid browser rendering, D1 restore, and alert delivery remain separate gates.
 
 ## Report workflow
 

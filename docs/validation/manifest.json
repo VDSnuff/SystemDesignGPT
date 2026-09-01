@@ -119,7 +119,7 @@
     { "id": "accessibility", "command": "npx playwright test tests/e2e/accessibility.spec.ts", "status": "available", "blocking": true, "artifacts": ["axe and interaction results"] },
     { "id": "diff", "command": "git diff --check", "status": "available", "blocking": true, "artifacts": ["diff output"] },
     { "id": "link-health", "command": "npm run check:links", "status": "available", "blocking": true, "artifacts": ["internal and external link report"] },
-    { "id": "production-smoke", "command": null, "status": "planned", "blocking": true, "ownerIssue": 69, "artifacts": ["Sites version and route matrix"] }
+    { "id": "production-smoke", "command": "npm run check:production-smoke", "status": "available", "blocking": true, "ownerIssue": 69, "artifacts": ["Sites commit/version identity and route matrix"] }
   ],
   "testMappings": [
     {
@@ -186,7 +186,7 @@
     {
       "id": "validation-contract",
       "risks": ["content-integrity", "supply-chain", "deployment-operations"],
-      "files": ["tests/validation-manifest.test.ts"]
+      "files": ["tests/production-smoke.test.ts", "tests/validation-manifest.test.ts"]
     },
     {
       "id": "seo-link-health",
