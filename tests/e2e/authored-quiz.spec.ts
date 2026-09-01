@@ -8,7 +8,7 @@ const viewports = [
 for (const viewport of viewports) {
   test(`${viewport.name} assessment teaches, links, scores, and retries`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.route("**/api/learning-state**", (route) => route.fulfill({ json: { state: null } }));
+    await page.route("**/api/learning-state**", (route) => route.fulfill({ json: { state: null, revision: null } }));
     await page.goto("/book/5-apis-contracts-and-idempotency");
     await expect(page.getByText("Ready for your first save.")).toBeVisible();
     await page.getByRole("tab", { name: "Quiz" }).click();
@@ -29,7 +29,7 @@ for (const viewport of viewports) {
 }
 
 test("reference section explains its deliberate no-quiz policy", async ({ page }) => {
-  await page.route("**/api/learning-state**", (route) => route.fulfill({ json: { state: null } }));
+  await page.route("**/api/learning-state**", (route) => route.fulfill({ json: { state: null, revision: null } }));
   await page.goto("/book/architecture-decision-record-short-template");
   await expect(page.getByText("Ready for your first save.")).toBeVisible();
   await page.getByRole("tab", { name: "Quiz" }).click();

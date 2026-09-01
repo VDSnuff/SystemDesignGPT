@@ -46,9 +46,10 @@ describe("authored quiz interaction", () => {
   });
 
   it("retries answers without discarding the saved note or diagram", async () => {
+    const revision = "2026-08-25T12:00:00.000Z";
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(Response.json({ state: { note: "keep me", diagram: initialDiagram, quizAnswers: [1, 0] } }))
-      .mockResolvedValueOnce(Response.json({ saved: true }));
+      .mockResolvedValueOnce(Response.json({ state: { note: "keep me", diagram: initialDiagram, quizAnswers: [1, 0] }, revision }))
+      .mockResolvedValueOnce(Response.json({ saved: true, updatedAt: "2026-08-25T12:01:00.000Z" }));
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<LearningLab pageSlug="sample" quizPolicy={policy} />);
@@ -59,9 +60,10 @@ describe("authored quiz interaction", () => {
     await user.click(screen.getByRole("button", { name: "Save learning work" }));
 
     const request = fetchMock.mock.calls[1][1] as RequestInit;
-    const body = JSON.parse(request.body as string) as { note: string; diagram: typeof initialDiagram; quizAnswers: number[] };
+    const body = JSON.parse(request.body as string) as { note: string; diagram: typeof initialDiagram; quizAnswers: number[]; expectedUpdatedAt: string };
     expect(body.note).toBe("keep me");
     expect(body.diagram).toEqual(initialDiagram);
     expect(body.quizAnswers).toEqual([]);
+    expect(body.expectedUpdatedAt).toBe(revision);
   });
 });

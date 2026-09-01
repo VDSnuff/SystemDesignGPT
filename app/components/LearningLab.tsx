@@ -20,6 +20,7 @@ const emptyPayload: LearningPayload = { note: "", diagram: initialDiagram, quizA
 export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
   const [tab, setTab] = useState<LearningTab>("diagram");
   const [payload, setPayload] = useState<LearningPayload>(emptyPayload);
+  const [revision, setRevision] = useState<string | null>(null);
   const [status, setStatus] = useState("Loading saved work…");
   const [hasError, setHasError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -28,8 +29,9 @@ export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
   useEffect(() => {
     const controller = new AbortController();
     loadLearningState(pageSlug, controller.signal)
-      .then(({ state, warning }) => {
+      .then(({ state, warning, revision: loadedRevision }) => {
         if (state) setPayload(state);
+        setRevision(loadedRevision);
         setHasError(false);
         setStatus(warning ?? (state ? "Saved work loaded." : "Ready for your first save."));
       })
@@ -64,7 +66,8 @@ export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
     setStatus("Saving…");
     try {
       const parsedPayload = learningPayloadSchema.parse(payload);
-      await saveLearningState(pageSlug, parsedPayload);
+      const savedRevision = await saveLearningState(pageSlug, parsedPayload, revision);
+      setRevision(savedRevision);
       setStatus("All learning work for this page is saved.");
     } catch (error) {
       setHasError(true);

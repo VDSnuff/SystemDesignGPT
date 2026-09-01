@@ -5,6 +5,7 @@ import { diagramStateSchema, initialDiagram } from "./diagram-model";
 import type { LearningStateRecord, LearningStateRepository } from "./learning-state-contract";
 import { learningStateInputSchema } from "./learning-types";
 import { readJsonRequest } from "./json-request";
+import { nextPersistenceRevision } from "./persistence-revision";
 import { decodeQuizAnswers } from "./quiz-persistence";
 
 const maximumRequestBytes = 32 * 1_024;
@@ -44,7 +45,7 @@ export async function handleLearningStateGet(request: Request, repository: Learn
   if (!isLearningPage(pageSlug)) return json({ message: "That learning page does not exist." }, 400);
   try {
     const row = await repository.find(user.id, pageSlug);
-    return json(row ? decodeStoredState(row) : { state: null });
+    return json(row ? { ...decodeStoredState(row), revision: row.updatedAt } : { state: null, revision: null });
   } catch {
     console.error("learning_state.read_failed", { userId: user.id, pageSlug });
     return json({ message: "Learning work is temporarily unavailable." }, 503);
@@ -60,9 +61,10 @@ export async function handleLearningStatePut(request: Request, repository: Learn
   const parsed = learningStateInputSchema.safeParse(body.value);
   if (!parsed.success) return json({ message: "The learning work is not valid." }, 400);
   if (!isLearningPage(parsed.data.pageSlug)) return json({ message: "That learning page does not exist." }, 400);
-  const updatedAt = new Date().toISOString();
+  const updatedAt = nextPersistenceRevision(parsed.data.expectedUpdatedAt);
   try {
-    await repository.save({ ...parsed.data, userId: user.id, updatedAt });
+    const saved = await repository.save({ ...parsed.data, userId: user.id, updatedAt });
+    if (!saved) return json({ message: "Learning work changed in another session. Reload before saving again." }, 409);
     return json({ saved: true, updatedAt });
   } catch {
     console.error("learning_state.write_failed", { userId: user.id, pageSlug: parsed.data.pageSlug });

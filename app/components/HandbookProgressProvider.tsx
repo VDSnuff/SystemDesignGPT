@@ -27,13 +27,15 @@ function useLoadedProgress() {
   const [status, setStatus] = useState<ProgressStatus>("loading");
   const [message, setMessage] = useState("Loading saved handbook progress…");
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
+  const [revision, setRevision] = useState<string | null>(null);
   useEffect(() => {
     const controller = new AbortController();
-    loadHandbookProgress(controller.signal).then(({ state, warning }) => {
+    loadHandbookProgress(controller.signal).then(({ state, warning, revision: loadedRevision }) => {
       if (state) {
         setProgress(state);
       }
       setHasSavedProgress(Boolean(state));
+      setRevision(loadedRevision);
       setStatus("ready");
       setMessage(warning ?? (state ? "Saved progress loaded." : "No saved progress yet. Choose where to begin."));
     }).catch((error: Error) => {
@@ -46,22 +48,26 @@ function useLoadedProgress() {
     });
     return () => controller.abort();
   }, []);
-  return { progress, setProgress, status, setStatus, message, setMessage, hasSavedProgress, setHasSavedProgress };
+  return { progress, setProgress, status, setStatus, message, setMessage, hasSavedProgress, setHasSavedProgress, revision, setRevision };
 }
 
 interface ProgressUpdaterOptions {
   readonly status: ProgressStatus;
   readonly progress: HandbookProgress;
+  readonly revision: string | null;
   readonly setProgress: Dispatch<SetStateAction<HandbookProgress>>;
   readonly setStatus: Dispatch<SetStateAction<ProgressStatus>>;
   readonly setMessage: Dispatch<SetStateAction<string>>;
   readonly setHasSavedProgress: Dispatch<SetStateAction<boolean>>;
+  readonly setRevision: Dispatch<SetStateAction<string | null>>;
 }
 
 function useProgressUpdater(options: ProgressUpdaterOptions) {
   const progressRef = useRef(options.progress);
+  const revisionRef = useRef(options.revision);
   const saveQueue = useRef(Promise.resolve());
   useEffect(() => { progressRef.current = options.progress; }, [options.progress]);
+  useEffect(() => { revisionRef.current = options.revision; }, [options.revision]);
   return useCallback((update: (current: HandbookProgress) => HandbookProgress) => {
     const current = progressRef.current;
     const next = update(current);
@@ -70,13 +76,18 @@ function useProgressUpdater(options: ProgressUpdaterOptions) {
     options.setProgress(next);
     if (options.status !== "ready") return;
     options.setMessage("Saving progress…");
-    saveQueue.current = saveQueue.current.then(() => saveHandbookProgress(next)).then(() => {
+    saveQueue.current = saveQueue.current.then(() => saveHandbookProgress(next, revisionRef.current)).then((savedRevision) => {
+      revisionRef.current = savedRevision;
+      options.setRevision(savedRevision);
       options.setHasSavedProgress(true);
       options.setStatus("ready");
       options.setMessage("Progress saved.");
-    }).catch(() => {
+    }).catch((error: unknown) => {
       options.setStatus("error");
-      options.setMessage("Reading stays available, but progress could not be saved.");
+      const message = error instanceof HandbookProgressRequestError && error.status === 409
+        ? `${error.message} Your current progress remains on this page.`
+        : "Reading stays available, but progress could not be saved.";
+      options.setMessage(message);
     });
   }, [options]);
 }
@@ -101,7 +112,7 @@ function useProgressActions(updateProgress: (update: (current: HandbookProgress)
 
 export function HandbookProgressProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const state = useLoadedProgress();
-  const options = useMemo(() => ({ status: state.status, progress: state.progress, setProgress: state.setProgress, setStatus: state.setStatus, setMessage: state.setMessage, setHasSavedProgress: state.setHasSavedProgress }), [state.status, state.progress, state.setProgress, state.setStatus, state.setMessage, state.setHasSavedProgress]);
+  const options = useMemo(() => ({ status: state.status, progress: state.progress, revision: state.revision, setProgress: state.setProgress, setStatus: state.setStatus, setMessage: state.setMessage, setHasSavedProgress: state.setHasSavedProgress, setRevision: state.setRevision }), [state.status, state.progress, state.revision, state.setProgress, state.setStatus, state.setMessage, state.setHasSavedProgress, state.setRevision]);
   const updateProgress = useProgressUpdater(options);
   const { recordLocation, toggleChecklistItem, toggleSection } = useProgressActions(updateProgress);
   const value = useMemo(() => ({

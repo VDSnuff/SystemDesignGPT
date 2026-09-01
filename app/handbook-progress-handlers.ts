@@ -3,11 +3,15 @@ import { bookChecklistIds, bookLearningSections } from "./book-learning.generate
 import type { HandbookProgressRecord, HandbookProgressRepository } from "./handbook-progress-contract";
 import { emptyHandbookProgress, handbookProgressSchema, type HandbookProgress } from "./handbook-progress";
 import { readJsonRequest } from "./json-request";
+import { nextPersistenceRevision, persistenceRevisionSchema } from "./persistence-revision";
 
 const maximumRequestBytes = 16 * 1_024;
 
 const sectionSlugs = new Set(bookLearningSections.map((section) => section.slug));
 const checklistIds = new Set<string>(bookChecklistIds);
+const handbookProgressInputSchema = handbookProgressSchema.extend({
+  expectedUpdatedAt: persistenceRevisionSchema.nullable().default(null),
+});
 
 function json(body: Record<string, unknown>, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -60,7 +64,7 @@ export async function handleHandbookProgressGet(request: Request, repository: Ha
   if (!user) return json({ message: "Sign in to load handbook progress." }, 401);
   try {
     const row = await repository.find(user.id);
-    return json(row ? decodeStoredProgress(row) : { state: null });
+    return json(row ? { ...decodeStoredProgress(row), revision: row.updatedAt } : { state: null, revision: null });
   } catch {
     console.error("handbook_progress.read_failed", { userId: user.id });
     return json({ message: "Saved handbook progress is temporarily unavailable." }, 503);
@@ -73,13 +77,14 @@ export async function handleHandbookProgressPut(request: Request, repository: Ha
   if (!user) return json({ message: "Sign in to save handbook progress." }, 401);
   const body = await readJsonRequest(request, maximumRequestBytes);
   if (!body.ok) return json({ message: body.status === 415 ? "Send handbook progress as JSON." : "The handbook progress is not valid for this edition." }, body.status);
-  const parsed = handbookProgressSchema.safeParse(body.value);
+  const parsed = handbookProgressInputSchema.safeParse(body.value);
   if (!parsed.success || !isKnownProgress(parsed.data)) {
     return json({ message: "The handbook progress is not valid for this edition." }, 400);
   }
   try {
-    const updatedAt = new Date().toISOString();
-    await repository.save({ ...parsed.data, userId: user.id, updatedAt });
+    const updatedAt = nextPersistenceRevision(parsed.data.expectedUpdatedAt);
+    const saved = await repository.save({ ...parsed.data, userId: user.id, updatedAt });
+    if (!saved) return json({ message: "Handbook progress changed in another session. Reload before saving again." }, 409);
     return json({ saved: true, updatedAt });
   } catch {
     console.error("handbook_progress.write_failed", { userId: user.id });

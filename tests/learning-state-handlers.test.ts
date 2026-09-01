@@ -13,6 +13,8 @@ import type {
 } from "../app/learning-state-contract";
 import { serializeQuizAnswers } from "../app/quiz-persistence";
 
+const revision = "2026-08-25T12:00:00.000Z";
+
 function record(userId: string, label: string): LearningStateRecord {
   return {
     userId,
@@ -23,7 +25,7 @@ function record(userId: string, label: string): LearningStateRecord {
       nodes: initialDiagram.nodes.map((node, index) => index === 0 ? { ...node, label } : node),
     }),
     quizPayload: serializeQuizAnswers([]),
-    updatedAt: "2026-08-25T12:00:00.000Z",
+    updatedAt: revision,
   };
 }
 
@@ -51,7 +53,7 @@ describe("learning-state persistence handlers", () => {
     const repository: LearningStateRepository = {
       deleteForUser: async () => { wasAccessed = true; },
       find: async () => { wasAccessed = true; return null; },
-      save: async () => { wasAccessed = true; },
+      save: async () => { wasAccessed = true; return true; },
     };
     const read = new Request("http://localhost/api/learning-state?page=diagram-workshop");
     const write = new Request("http://localhost/api/learning-state", {
@@ -61,7 +63,7 @@ describe("learning-state persistence handlers", () => {
         "oai-authenticated-user-email": "user-a@example.com",
         "oai-authenticated-user-id": "user-a",
       },
-      body: JSON.stringify({ pageSlug: "diagram-workshop", note: "", diagram: initialDiagram, quizAnswers: [] }),
+      body: JSON.stringify({ pageSlug: "diagram-workshop", note: "", diagram: initialDiagram, quizAnswers: [], expectedUpdatedAt: null }),
     });
 
     expect((await handleLearningStateGet(read, repository)).status).toBe(401);
@@ -75,7 +77,7 @@ describe("learning-state persistence handlers", () => {
     const repository: LearningStateRepository = {
       deleteForUser: async () => undefined,
       find: async (userId, pageSlug) => rows.get(`${userId}:${pageSlug}`) ?? null,
-      save: async (value) => { writes.push(value); },
+      save: async (value) => { writes.push(value); return true; },
     };
 
     const responseA = await handleLearningStateGet(request("GET", "user-a"), repository);
@@ -83,10 +85,26 @@ describe("learning-state persistence handlers", () => {
     expect((await body(responseA)).state?.diagram.nodes[0].label).toBe("A private diagram");
     expect((await body(responseB)).state?.diagram.nodes[0].label).toBe("B private diagram");
 
-    const payload = { pageSlug: "diagram-workshop", note: "", diagram: initialDiagram, quizAnswers: [] };
+    const payload = { pageSlug: "diagram-workshop", note: "", diagram: initialDiagram, quizAnswers: [], expectedUpdatedAt: revision };
     expect((await handleLearningStatePut(request("PUT", "user-a", payload), repository)).status).toBe(200);
     expect(writes).toHaveLength(1);
-    expect(writes[0]).toMatchObject({ userId: "user-a", pageSlug: "diagram-workshop" });
+    expect(writes[0]).toMatchObject({ userId: "user-a", pageSlug: "diagram-workshop", expectedUpdatedAt: revision });
+  });
+
+  it("rejects a stale write without overwriting the stored learning work", async () => {
+    const repository: LearningStateRepository = {
+      deleteForUser: async () => undefined,
+      find: async () => record("user-a", "Current diagram"),
+      save: async () => false,
+    };
+    const payload = { pageSlug: "diagram-workshop", note: "stale", diagram: initialDiagram, quizAnswers: [], expectedUpdatedAt: revision };
+
+    const response = await handleLearningStatePut(request("PUT", "user-a", payload), repository);
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ message: expect.stringContaining("another session") });
+    const legacyPayload = { pageSlug: "diagram-workshop", note: "stale", diagram: initialDiagram, quizAnswers: [] };
+    expect((await handleLearningStatePut(request("PUT", "user-a", legacyPayload), repository)).status).toBe(409);
   });
 
   it("deletes every learning-state row only for the authenticated user", async () => {
@@ -94,7 +112,7 @@ describe("learning-state persistence handlers", () => {
     const repository: LearningStateRepository = {
       deleteForUser: async (userId) => { deletedUsers.push(userId); },
       find: async () => null,
-      save: async () => undefined,
+      save: async () => true,
     };
 
     expect((await handleLearningStateDelete(request("DELETE", "user-a"), repository)).status).toBe(200);

@@ -22,15 +22,14 @@ async function save(value: LearningStateWrite) {
     quizPayload: serializeQuizAnswers(value.quizAnswers),
     updatedAt: value.updatedAt,
   };
-  await getDb().insert(learningPageState).values(row).onConflictDoUpdate({
-    target: [learningPageState.userId, learningPageState.pageSlug],
-    set: {
-      note: row.note,
-      diagramPayload: row.diagramPayload,
-      quizPayload: row.quizPayload,
-      updatedAt: row.updatedAt,
-    },
-  });
+  const saved = value.expectedUpdatedAt === null
+    ? await getDb().insert(learningPageState).values(row).onConflictDoNothing().returning()
+    : await getDb().update(learningPageState).set(row).where(and(
+      eq(learningPageState.userId, value.userId),
+      eq(learningPageState.pageSlug, value.pageSlug),
+      eq(learningPageState.updatedAt, value.expectedUpdatedAt),
+    )).returning();
+  return saved.length === 1;
 }
 
 async function deleteForUser(userId: string) {

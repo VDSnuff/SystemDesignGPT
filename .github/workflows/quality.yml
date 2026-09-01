@@ -32,6 +32,7 @@ jobs:
       - run: npm run check:supply-chain
       - run: npm run build
       - run: npm run check:performance:d1
+      - run: npm run check:recovery:d1
       - run: git diff --check
       - name: Upload supply-chain evidence
         if: always()
@@ -39,6 +40,14 @@ jobs:
         with:
           name: supply-chain-${{ github.run_id }}
           path: outputs/supply-chain/
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Upload D1 validation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: d1-validation-${{ github.run_id }}
+          path: performance-results/local-d1-*.json
           if-no-files-found: ignore
           retention-days: 30
 

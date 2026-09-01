@@ -10,11 +10,7 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
 const CONFIG_PATH = "dist/server/wrangler.json";
 const BUDGET_PATH = "docs/validation/performance-budgets.json";
 const OUTPUT_PATH = "performance-results/local-d1-load.json";
-const MIGRATIONS = [
-  "drizzle/0000_demonic_deadpool.sql",
-  "drizzle/0001_careful_master_mold.sql",
-  "drizzle/0002_glamorous_chat.sql",
-];
+const MIGRATION_JOURNAL = "drizzle/meta/_journal.json";
 const PAGE_SLUGS = [
   "diagram-workshop",
   "1-requirements-frs-nfrs-constraints-and-assumptions",
@@ -48,6 +44,11 @@ function applyMigration(file, persistencePath) {
     "--config", CONFIG_PATH, "--persist-to", persistencePath, "--file", file,
   ], { encoding: "utf8", stdio: "pipe" });
   if (result.status !== 0) throw new Error(result.stderr || result.stdout);
+}
+
+async function migrationFiles() {
+  const journal = JSON.parse(await readFile(MIGRATION_JOURNAL, "utf8"));
+  return journal.entries.map(({ tag }) => `drizzle/${tag}.sql`);
 }
 
 async function waitForServer(server) {
@@ -89,12 +90,13 @@ function authenticatedInit(method, body) {
   };
 }
 
-function learningPayload(pageSlug, marker) {
+function learningPayload(pageSlug, marker, expectedUpdatedAt = null) {
   return {
     pageSlug,
     note: marker,
     diagram: { version: 1, nodes: [], connections: [] },
     quizAnswers: [],
+    expectedUpdatedAt,
   };
 }
 
@@ -113,6 +115,73 @@ async function exerciseLearningState() {
     ok: sample.ok && sample.body.state?.note === `perf-${index}`,
   }))));
   return { reads: summarize(reads), writes: summarize(writes) };
+}
+
+function singleRaceResult(writes) {
+  const saved = writes.filter(({ status }) => status === 200);
+  const conflicts = writes.filter(({ status }) => status === 409);
+  if (saved.length !== 1 || conflicts.length !== 1) {
+    throw new Error(`Expected one save and one conflict, got ${saved.length}/${conflicts.length}`);
+  }
+  const winner = writes.findIndex(({ status }) => status === 200);
+  return { winner, saved, conflicts };
+}
+
+function assertLearningRace(writes, state) {
+  const result = singleRaceResult(writes);
+  const { winner, saved } = result;
+  if (state.body.state?.note !== `race-${winner}` || state.body.revision !== saved[0].body.updatedAt) {
+    throw new Error("The concurrent write winner did not match the stored state");
+  }
+  return result;
+}
+
+async function exerciseConcurrency() {
+  const pageSlug = "3-concurrency";
+  const loaded = await timedRequest(`/api/learning-state?page=${pageSlug}`, authenticatedInit("GET"), [200]);
+  const writes = await Promise.all([0, 1].map((index) => timedRequest(
+    "/api/learning-state",
+    authenticatedInit("PUT", learningPayload(pageSlug, `race-${index}`, loaded.body.revision)),
+    [200, 409],
+  )));
+  const afterRace = await timedRequest(`/api/learning-state?page=${pageSlug}`, authenticatedInit("GET"), [200]);
+  const { winner, conflicts } = assertLearningRace(writes, afterRace);
+  const retryMarker = `retry-${winner === 0 ? 1 : 0}`;
+  const retry = await timedRequest("/api/learning-state", authenticatedInit(
+    "PUT", learningPayload(pageSlug, retryMarker, afterRace.body.revision),
+  ), [200]);
+  const afterRetry = await timedRequest(`/api/learning-state?page=${pageSlug}`, authenticatedInit("GET"), [200]);
+  if (!retry.ok || afterRetry.body.state?.note !== retryMarker) throw new Error("Explicit conflict retry did not persist");
+  return { conflictStatus: conflicts[0].status, retryStatus: retry.status, lostUpdates: 0 };
+}
+
+function progressPayload(sectionSlug, expectedUpdatedAt) {
+  return {
+    lastRead: { sectionSlug, headingId: null },
+    completedSections: [sectionSlug],
+    checkedItems: [],
+    expectedUpdatedAt,
+  };
+}
+
+async function exerciseProgressConcurrency() {
+  const sections = ["9-security", "3-concurrency"];
+  const writes = await Promise.all(sections.map((section) => timedRequest(
+    "/api/handbook-progress", authenticatedInit("PUT", progressPayload(section, null)), [200, 409],
+  )));
+  const afterRace = await timedRequest("/api/handbook-progress", authenticatedInit("GET"), [200]);
+  const { winner, saved, conflicts } = singleRaceResult(writes);
+  if (afterRace.body.state?.completedSections[0] !== sections[winner]
+      || afterRace.body.revision !== saved[0].body.updatedAt) {
+    throw new Error("The concurrent progress winner did not match the stored state");
+  }
+  const retry = await timedRequest("/api/handbook-progress", authenticatedInit(
+    "PUT", progressPayload(sections[winner === 0 ? 1 : 0], afterRace.body.revision),
+  ), [200]);
+  const deletion = await timedRequest("/api/handbook-progress", authenticatedInit("DELETE"), [200]);
+  const empty = await timedRequest("/api/handbook-progress", authenticatedInit("GET"), [200]);
+  if (!retry.ok || !deletion.ok || empty.body.state !== null) throw new Error("Progress retry or cleanup failed");
+  return { conflictStatus: conflicts[0].status, retryStatus: retry.status, lostUpdates: 0 };
 }
 
 async function exerciseRateLimit() {
@@ -170,7 +239,8 @@ async function main() {
   const budgets = JSON.parse(await readFile(BUDGET_PATH, "utf8"));
   let server;
   try {
-    for (const migration of MIGRATIONS) applyMigration(migration, persistencePath);
+    const migrations = await migrationFiles();
+    for (const migration of migrations) applyMigration(migration, persistencePath);
     server = spawn("npx", [
       "wrangler", "dev", "--config", CONFIG_PATH,
       "--port", String(PORT), "--persist-to", persistencePath,
@@ -183,7 +253,12 @@ async function main() {
       measuredAt: new Date().toISOString(),
       target: "built Worker with isolated local Miniflare D1",
       concurrency: budgets.d1.concurrency,
+      migrations,
       learning: await exerciseLearningState(),
+      optimisticConcurrency: {
+        learning: await exerciseConcurrency(),
+        progress: await exerciseProgressConcurrency(),
+      },
       rateLimit: await exerciseRateLimit(),
       recovery: await cleanupLearningState(),
     };

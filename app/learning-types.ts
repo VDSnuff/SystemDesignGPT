@@ -1,5 +1,6 @@
 import { z } from "./zod-config";
 import { diagramStateSchema } from "./diagram-model";
+import { persistenceRevisionSchema } from "./persistence-revision";
 
 export {
   diagramStateSchema,
@@ -20,6 +21,7 @@ export const learningPayloadSchema = z.object({
 
 export const learningStateInputSchema = learningPayloadSchema.extend({
   pageSlug: z.string().trim().min(1).max(100),
+  expectedUpdatedAt: persistenceRevisionSchema.nullable().default(null),
 });
 
 export const commentInputSchema = z.object({

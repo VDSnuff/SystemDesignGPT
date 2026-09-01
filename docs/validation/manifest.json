@@ -75,7 +75,7 @@
       "actors": ["guest", "user-a", "user-b", "owner"],
       "environments": ["unit-component", "mocked-browser", "ci", "hosted-production", "real-account", "bounded-provider"],
       "risks": ["persistence", "provider-ai", "security-privacy", "performance", "deployment-operations"],
-      "testTypes": ["unit", "integration", "security", "load", "production-smoke"],
+      "testTypes": ["unit", "integration", "security", "load", "recovery", "production-smoke"],
       "ownerIssues": [60, 61, 62, 66, 69],
       "artifacts": ["contract output", "sanitized actor matrix", "load report", "production API matrix"],
       "routes": [
@@ -115,6 +115,7 @@
     { "id": "client-js", "command": "CLIENT_MEASURE_BASE_URL=http://127.0.0.1:4173 npm run measure:client-js", "status": "available", "blocking": false, "artifacts": ["raw and gzip route totals"] },
     { "id": "performance-browser", "command": "npm run check:performance", "status": "available", "blocking": true, "artifacts": ["route and interaction budgets", "Core Web Vitals lab evidence", "public load percentiles"] },
     { "id": "performance-d1-load", "command": "npm run check:performance:d1", "status": "available", "blocking": true, "artifacts": ["isolated D1 latency percentiles", "rate-limit and recovery evidence"] },
+    { "id": "d1-recovery", "command": "npm run check:recovery:d1", "status": "available", "blocking": true, "ownerIssue": 61, "artifacts": ["migration list", "sanitized table counts", "restored digest"] },
     { "id": "browser", "command": "npm run test:e2e", "status": "available", "blocking": true, "artifacts": ["test counts", "Playwright report on failure"] },
     { "id": "cross-browser", "command": "npm run test:e2e:cross-browser", "status": "available", "blocking": false, "artifacts": ["Chromium, Firefox, and WebKit reports"] },
     { "id": "accessibility", "command": "npx playwright test tests/e2e/accessibility.spec.ts", "status": "available", "blocking": true, "artifacts": ["axe and interaction results"] },
