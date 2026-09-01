@@ -1,12 +1,16 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { isChatAnswerBody, isChatErrorBody, isChatStatusBody, type ChatErrorCode } from "../chat-contract";
+import { isChatAnswerBody, isChatErrorBody, isChatStatusBody, type ChatAnswerMetadata, type ChatErrorCode } from "../chat-contract";
 import { canRecheck, statusForError, statusPresentation, type CopilotStatus } from "../copilot-status";
 import { CopilotFallbacks } from "./CopilotFallbacks";
 import { ResponsiveChatShell } from "./ResponsiveChatShell";
 
-interface ChatMessage { readonly role: "user" | "assistant"; readonly content: string }
+interface ChatMessage {
+  readonly content: string;
+  readonly metadata?: ChatAnswerMetadata;
+  readonly role: "user" | "assistant";
+}
 
 interface ChatPanelProps {
   readonly fallbackHref: string;
@@ -104,7 +108,7 @@ export function ChatPanel(props: ChatPanelProps) {
       const result = await readJson(response);
       if (!response.ok && isChatErrorBody(result)) return showFailure(result.error.code, result.error.message);
       if (!isChatAnswerBody(result)) return showFailure("malformed_response", "The copilot returned an invalid response.");
-      setMessages((current) => [...current, { role: "assistant", content: result.answer }]);
+      setMessages((current) => [...current, { role: "assistant", content: result.answer, metadata: result.metadata }]);
       setStatus("ready");
       setAnnouncement(`Copilot response: ${result.answer}`);
     } catch {
@@ -151,7 +155,12 @@ export function ChatPanel(props: ChatPanelProps) {
           <div className="message-assistant">I’m reading <strong>{props.pageLabel}</strong>. Ask me to test a decision, expose a risk, or guide you to the right chapter.</div>
           {messages.map((message, index) => (
             <div className={message.role === "user" ? "message-user" : "message-assistant"} key={`${message.role}-${index}`}>
-              {message.content}
+              <p>{message.content}</p>
+              {message.metadata ? (
+                <p className="mt-2 text-[10px] leading-4 text-muted">
+                  {message.metadata.model} · {message.metadata.inputTokens} input · {message.metadata.outputTokens} output · {message.metadata.latencyMs} ms
+                </p>
+              ) : null}
             </div>
           ))}
           {status === "sending" && <div className="message-assistant animate-pulse">Thinking with this page’s context…</div>}

@@ -4,6 +4,7 @@ import { bookSections } from "../../app/book-content.generated";
 import { guidePages } from "../../app/content";
 
 const SITE_ORIGIN = "https://system-design-studio.v-dovnich.chatgpt.site";
+const METADATA_CRAWL_TIMEOUT_MS = 60_000;
 
 const indexableRoutes = [
   "/",
@@ -33,6 +34,7 @@ function canonicalUrl(path: string) {
 }
 
 test("every public page has unique canonical server-rendered metadata", async ({ request }) => {
+  test.setTimeout(METADATA_CRAWL_TIMEOUT_MS);
   const titles = new Set<string>();
   for (const path of indexableRoutes) {
     const document = await documentFor(request, path);

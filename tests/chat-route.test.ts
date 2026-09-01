@@ -28,7 +28,11 @@ function chatRequest(userId: string, overrides: ChatRequestOverrides = {}) {
 }
 
 function providerAnswer(text = "Review complete.") {
-  return Response.json({ output: [{ content: [{ type: "output_text", text }] }] });
+  return Response.json({
+    model: "gpt-5.4-2026-08-01",
+    output: [{ content: [{ type: "output_text", text }] }],
+    usage: { input_tokens: 120, output_tokens: 24, total_tokens: 144 },
+  });
 }
 
 async function responseBody(response: Response) {
@@ -109,8 +113,19 @@ describe("chat route service contract", () => {
     const providerBody = JSON.parse(String(requestInit.body)) as { store?: unknown };
 
     expect(response.status).toBe(200);
-    expect(await responseBody(response)).toEqual({ answer: "Review complete.", status: "ready" });
+    expect(await responseBody(response)).toEqual({
+      answer: "Review complete.",
+      metadata: {
+        inputTokens: 120,
+        latencyMs: expect.any(Number),
+        model: "gpt-5.4-2026-08-01",
+        outputTokens: 24,
+        totalTokens: 144,
+      },
+      status: "ready",
+    });
     expect(providerBody.store).toBe(false);
+    expect(requestInit.signal).toBeInstanceOf(AbortSignal);
   });
 
   it("keeps only valid bounded history and supplies trusted page context", async () => {
@@ -231,12 +246,41 @@ describe("chat route service contract", () => {
     });
   });
 
+  it("maps provider timeout failures to a temporary service error", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-key");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new DOMException("Timed out", "TimeoutError")));
+    consumeMock.mockResolvedValue(1);
+
+    const response = await POST(chatRequest("provider-timeout"));
+
+    expect(response.status).toBe(503);
+    expect(await responseBody(response)).toEqual({
+      error: { code: "provider_unavailable", message: "The copilot provider is temporarily unavailable." },
+    });
+  });
+
   it("maps a successful provider response without answer text to malformed-response", async () => {
     vi.stubEnv("OPENAI_API_KEY", "test-key");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ output: [] })));
     consumeMock.mockResolvedValue(1);
 
     const response = await POST(chatRequest("malformed"));
+
+    expect(response.status).toBe(502);
+    expect(await responseBody(response)).toEqual({
+      error: { code: "malformed_response", message: "The copilot returned an invalid response." },
+    });
+  });
+
+  it("maps missing provider usage metadata to malformed-response", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-key");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+      model: "gpt-5.4-2026-08-01",
+      output: [{ content: [{ type: "output_text", text: "Incomplete evidence." }] }],
+    })));
+    consumeMock.mockResolvedValue(1);
+
+    const response = await POST(chatRequest("missing-usage"));
 
     expect(response.status).toBe(502);
     expect(await responseBody(response)).toEqual({

@@ -1,5 +1,5 @@
 import { bookSiteMap, findBookSection } from "../../book-content.generated";
-import { chatErrors, type ChatAnswerBody, type ChatErrorCode, type ChatStatusBody } from "../../chat-contract";
+import { chatErrors, type ChatAnswerBody, type ChatAnswerMetadata, type ChatErrorCode, type ChatStatusBody } from "../../chat-contract";
 import { findGuidePage, siteMap } from "../../content";
 import { readJsonRequest } from "../../json-request";
 import { rateLimitRepository, rateLimitScopes } from "../../rate-limit-repository";
@@ -11,6 +11,7 @@ const maxRequestsPerWindow = 14;
 const maxGlobalRequestsPerWindow = 240;
 const maximumRequestBytes = 32 * 1_024;
 const maximumHistoryCandidates = 16;
+const providerTimeoutMs = 30_000;
 const globalRateKey = "all-users";
 
 interface ChatTurn { readonly role: "user" | "assistant"; readonly content: string }
@@ -83,6 +84,22 @@ function responseText(value: unknown) {
   }).join("\n").trim();
 }
 
+function providerMetadata(value: unknown, latencyMs: number): ChatAnswerMetadata | null {
+  if (!value || typeof value !== "object") return null;
+  const response = value as { model?: unknown; usage?: unknown };
+  if (typeof response.model !== "string" || !response.usage || typeof response.usage !== "object") return null;
+  const usage = response.usage as Record<string, unknown>;
+  const tokens = [usage.input_tokens, usage.output_tokens, usage.total_tokens];
+  if (!tokens.every((item) => Number.isInteger(item) && Number(item) >= 0)) return null;
+  return {
+    inputTokens: Number(usage.input_tokens),
+    latencyMs,
+    model: response.model,
+    outputTokens: Number(usage.output_tokens),
+    totalTokens: Number(usage.total_tokens),
+  };
+}
+
 function guideInstructions(pageId: string) {
   const page = findGuidePage(pageId);
   if (!page) return null;
@@ -129,16 +146,21 @@ function providerPayload(chat: ChatRequest, pageInstructions: string) {
 }
 
 async function providerAnswer(apiKey: string, chat: ChatRequest, pageInstructions: string) {
+  const startedAt = performance.now();
   try {
     const response = await fetch(providerUrl, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify(providerPayload(chat, pageInstructions)),
+      signal: AbortSignal.timeout(providerTimeoutMs),
     });
     if (!response.ok) return errorJson(response.status === 429 ? "usage_limited" : "provider_unavailable");
-    const answer = responseText(await response.json());
-    const body: ChatAnswerBody = { answer, status: "ready" };
-    return answer ? json(body) : errorJson("malformed_response");
+    const result = await response.json() as unknown;
+    const metadata = providerMetadata(result, Math.round(performance.now() - startedAt));
+    const answer = responseText(result);
+    if (!answer || !metadata) return errorJson("malformed_response");
+    const body: ChatAnswerBody = { answer, metadata, status: "ready" };
+    return json(body);
   } catch {
     return errorJson("provider_unavailable");
   }
