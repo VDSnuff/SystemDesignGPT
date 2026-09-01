@@ -26,6 +26,7 @@
     "measure:client-js": "node scripts/measure-client-js.mjs",
     "check:performance": "playwright test --config playwright.performance.config.ts",
     "check:performance:d1": "node scripts/check-local-d1-load.mjs",
+    "check:production-smoke": "node scripts/check-production-smoke.mjs",
     "check:supply-chain": "node scripts/check-supply-chain.mjs",
     "test:e2e:cross-browser": "node scripts/run-cross-browser.mjs"
   },
