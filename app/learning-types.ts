@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod-config";
 import { diagramStateSchema } from "./diagram-model";
 
 export {

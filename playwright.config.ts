@@ -5,12 +5,12 @@ const port = 4174;
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0,
   reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "line",
   use: {
     baseURL: `http://localhost:${port}`,
     screenshot: "only-on-failure",
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
   },
   webServer: {
     command: `npm run dev -- --port ${port}`,

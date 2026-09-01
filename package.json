@@ -16,30 +16,33 @@
     "check:external-links": "node scripts/check-external-links.mjs",
     "check:links": "npm run check:external-links && vitest run tests/seo-links.test.ts && playwright test tests/e2e/seo-links.spec.ts",
     "start": "vinext start",
+    "start:built-worker": "node scripts/start-built-worker.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:seo": "playwright test tests/e2e/seo-links.spec.ts",
     "test:e2e:diagram": "playwright test tests/e2e/diagram-workshop.spec.ts",
     "test:e2e:quiz": "playwright test tests/e2e/authored-quiz.spec.ts",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern outputs --ignore-pattern performance-results --ignore-pattern playwright-report --ignore-pattern test-results",
     "measure:client-js": "node scripts/measure-client-js.mjs",
     "check:performance": "playwright test --config playwright.performance.config.ts",
-    "check:performance:d1": "node scripts/check-local-d1-load.mjs"
+    "check:performance:d1": "node scripts/check-local-d1-load.mjs",
+    "check:supply-chain": "node scripts/check-supply-chain.mjs",
+    "test:e2e:cross-browser": "node scripts/run-cross-browser.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
     "mermaid": "11.17.1",
     "next": "16.3.2",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-markdown": "10.1.0",
     "remark-gfm": "4.0.1",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@cloudflare/vite-plugin": "1.37.1",
-    "@cloudflare/workers-types": "4.20260515.1",
+    "@cloudflare/vite-plugin": "1.54.2",
+    "@cloudflare/workers-types": "5.20260901.1",
     "@openai/sites-vite-plugin": "^0.1.0 || ^0.2.0",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "4.2.1",
@@ -55,13 +58,13 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.3.2",
     "jsdom": "27.4.0",
-    "react-server-dom-webpack": "19.2.6",
+    "react-server-dom-webpack": "19.2.8",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "vinext": "1.0.0-beta.8",
-    "vite": "8.0.13",
+    "vite": "8.2.2",
     "vitest": "4.1.11",
-    "wrangler": "4.92.0"
+    "wrangler": "4.127.1"
   },
   "type": "module"
 }

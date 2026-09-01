@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod-config";
 
 export const quizReferenceSchema = z.object({
   label: z.string().trim().min(1).max(120),

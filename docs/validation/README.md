@@ -17,6 +17,9 @@ and the
 Performance thresholds and the latest measured evidence are recorded in
 [`performance-budgets.json`](./performance-budgets.json) and the
 [`29 August 2026 performance report`](./performance-2026-08-29.md).
+Supply-chain policy, audit remediation, and the required merge-governance
+settings are recorded in the
+[`1 September 2026 supply-chain report`](./supply-chain-2026-09-01.md).
 
 ## Evidence states
 
@@ -143,11 +146,13 @@ npm run lint
 npm run check:generated
 npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
+npm run check:supply-chain
 npm run build
 npm run check:performance
 npm run check:performance:d1
 npm run check:links
 npm run test:e2e
+npm run test:e2e:cross-browser
 git diff --check
 ```
 

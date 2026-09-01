@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod-config";
 
 export const nodeKinds = ["Client", "Service", "Database", "Queue"] as const;
 export const diagramVersion = 1 as const;
