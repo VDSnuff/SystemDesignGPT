@@ -15,6 +15,13 @@ async function geometry(locator: Locator): Promise<HandleGeometry> {
   return { x: box.x, y: box.y, width: box.width, height: box.height };
 }
 
+function expectGeometryClose(actual: HandleGeometry, expected: HandleGeometry) {
+  expect(actual.x).toBeCloseTo(expected.x, 4);
+  expect(actual.y).toBeCloseTo(expected.y, 4);
+  expect(actual.width).toBeCloseTo(expected.width, 4);
+  expect(actual.height).toBeCloseTo(expected.height, 4);
+}
+
 async function expectAnchored(
   handle: Locator,
   baseline: HandleGeometry,
@@ -28,7 +35,7 @@ async function expectAnchored(
       handleBox: { x: handleRect.x, y: handleRect.y, width: handleRect.width, height: handleRect.height },
     };
   });
-  expect(handleBox).toEqual({
+  expectGeometryClose(handleBox, {
     x: dividerX - baseline.width / 2,
     y: baseline.y,
     width: baseline.width,
@@ -96,7 +103,7 @@ async function expectDragStability(
   await expectAnchored(handle, baseline);
   await page.mouse.up();
   await expect(handle).not.toHaveAttribute("data-resizing", "true");
-  expect(await geometry(handle)).toEqual(dragging);
+  expectGeometryClose(await geometry(handle), dragging);
   await expectAnchored(handle, baseline);
 }
 

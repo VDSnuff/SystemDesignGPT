@@ -48,7 +48,10 @@ test("search opens an enriched Quick Guide heading anchor", async ({ page }) => 
 });
 
 test("search reports a lazy corpus loading failure", async ({ page }) => {
-  await page.route(/\/app\/book-search\.ts(?:\?|$)/, (route) => route.abort("failed"));
+  await page.route(
+    /\/(?:app\/book-search\.ts|_next\/static\/chunks\/book-search-[^/]+\.js)(?:\?|$)/,
+    (route) => route.abort("failed"),
+  );
   await mockSearchBoundaries(page);
   await page.goto("/");
 

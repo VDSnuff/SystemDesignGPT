@@ -311,7 +311,10 @@ test("every source-authored Mermaid diagram renders on approach", async ({ page 
     await page.goto(route);
     const loadingState = page.locator(".mermaid-loading");
     await expect(loadingState).toHaveCount(1);
-    await loadingState.scrollIntoViewIfNeeded();
+    await page.evaluate(() => {
+      document.querySelector<HTMLElement>(".mermaid-loading, .mermaid-diagram")
+        ?.scrollIntoView({ block: "center" });
+    });
     await expect(page.getByRole("img", { name: "Architecture diagram" })).toBeVisible({ timeout: 20_000 });
     await expect(page.locator(".mermaid-fallback")).toHaveCount(0);
   }

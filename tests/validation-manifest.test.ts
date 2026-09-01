@@ -65,7 +65,8 @@ describe("release validation manifest", () => {
   it("keeps executable commands and planned gaps explicit", () => {
     const requiredCommands = [
       "unit-component", "lint", "generated-content", "production-audit", "full-audit",
-      "build", "client-js", "performance-browser", "performance-d1-load", "browser",
+      "supply-chain", "build", "client-js", "performance-browser", "performance-d1-load", "browser",
+      "cross-browser",
       "accessibility", "diff", "link-health", "production-smoke",
     ];
     expect(manifest.commands.map(({ id }) => id)).toEqual(requiredCommands);
@@ -89,5 +90,15 @@ describe("release validation manifest", () => {
       "app/book-progress.generated.ts", "app/book-search.generated.ts",
     ]);
     expect([generated.source, ...generated.targets].every(fs.existsSync)).toBe(true);
+  });
+
+  it("keeps dependency and repository governance executable", () => {
+    expect(packageJson.scripts).toHaveProperty("check:supply-chain");
+    expect(packageJson.scripts).toHaveProperty("test:e2e:cross-browser");
+    expect(packageJson.scripts).toHaveProperty("start:built-worker");
+    expect(fs.existsSync("docs/validation/dependency-policy.json")).toBe(true);
+    expect(fs.existsSync(".github/dependabot.yml")).toBe(true);
+    expect(fs.existsSync(".github/branch-protection.json")).toBe(true);
+    expect(fs.existsSync("SECURITY.md")).toBe(true);
   });
 });

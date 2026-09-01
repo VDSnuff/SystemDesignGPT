@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod-config";
 import { quizAnswersSchema } from "./learning-types";
 
 export const QUIZ_STORAGE_VERSION = 2;

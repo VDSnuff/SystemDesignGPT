@@ -19,6 +19,7 @@ The OpenAI key is read only by the server route. It is never sent to the browser
 npm test
 npm run lint
 npm run check:generated
+npm run check:supply-chain
 npm run build
 npm run test:e2e
 ```
@@ -42,5 +43,9 @@ requests, and cover representative handbook routes, the mobile copilot, quizzes,
 and the workshop at mobile, tablet, and desktop widths. CI runs the same commands
 on pull requests and pushes to `main`; failed browser runs retain screenshots,
 traces, and an HTML report without production secrets or user content.
+
+The scheduled production-build matrix runs Chromium, Firefox, and WebKit with
+zero retries. Run it locally after `npm run build` with
+`npm run test:e2e:cross-browser`.
 
 The source handbook is preserved in `docs/System_Design_Checklist_Book.md`.
