@@ -2,9 +2,9 @@ import { spawnSync } from "node:child_process";
 
 const config = "playwright.cross-browser.config.ts";
 const projects = ["chromium", "firefox", "webkit"];
-const webkitBatches = [
+const browserBatches = [
+  ["tests/e2e/accessibility.spec.ts"],
   [
-    "tests/e2e/accessibility.spec.ts",
     "tests/e2e/agentic-systems-guide.spec.ts",
     "tests/e2e/authored-quiz.spec.ts",
     "tests/e2e/complete-journeys.spec.ts",
@@ -35,8 +35,8 @@ function run(project, files = [], port = 4176) {
 }
 
 function runProject(project) {
-  if (project === "webkit") {
-    for (const [index, batch] of webkitBatches.entries()) run(project, batch, 4176 + index);
+  if (project !== "chromium") {
+    for (const [index, batch] of browserBatches.entries()) run(project, batch, 4176 + index);
     return;
   }
   run(project);
