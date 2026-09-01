@@ -41,6 +41,8 @@ interface LabPerformance {
   readonly shifts: readonly { readonly value: number; readonly selectors: readonly string[] }[];
 }
 
+const persistenceRevision = "2026-09-01T12:00:00.000Z";
+
 export function percentile(values: number[], fraction: number) {
   const sorted = values.toSorted((left, right) => left - right);
   return sorted[Math.max(0, Math.ceil(sorted.length * fraction) - 1)] ?? 0;
@@ -199,9 +201,9 @@ async function installStateMock(page: Page) {
   await page.route("**/api/learning-state**", async (route) => {
     if (route.request().method() === "PUT") {
       savedState = route.request().postDataJSON();
-      return route.fulfill({ json: { saved: true } });
+      return route.fulfill({ json: { saved: true, updatedAt: persistenceRevision } });
     }
-    return route.fulfill({ json: { state: savedState } });
+    return route.fulfill({ json: { state: savedState, revision: savedState ? persistenceRevision : null } });
   });
 }
 

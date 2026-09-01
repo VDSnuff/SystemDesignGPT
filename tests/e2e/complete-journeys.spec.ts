@@ -21,6 +21,8 @@ interface LearnerStores {
   progress: HandbookProgress | null;
 }
 
+const revision = "2026-09-01T12:00:00.000Z";
+
 function isExpectedDevFontConsole(message: string) {
   return message.includes(DEV_FONT_ORIGIN) && message.includes("Content Security Policy");
 }
@@ -38,16 +40,16 @@ async function mockBoundaries(page: Page, stores: LearnerStores = { learning: nu
   await page.route("**/api/learning-state**", async (route) => {
     if (route.request().method() === "PUT") {
       stores.learning = route.request().postDataJSON() as LearningPayload;
-      return route.fulfill({ json: { saved: true } });
+      return route.fulfill({ json: { saved: true, updatedAt: revision } });
     }
-    return route.fulfill({ json: { state: stores.learning } });
+    return route.fulfill({ json: { state: stores.learning, revision: stores.learning ? revision : null } });
   });
   await page.route("**/api/handbook-progress", async (route) => {
     if (route.request().method() === "PUT") {
       stores.progress = route.request().postDataJSON() as HandbookProgress;
-      return route.fulfill({ json: { saved: true } });
+      return route.fulfill({ json: { saved: true, updatedAt: revision } });
     }
-    return route.fulfill({ json: { state: stores.progress } });
+    return route.fulfill({ json: { state: stores.progress, revision: stores.progress ? revision : null } });
   });
 }
 

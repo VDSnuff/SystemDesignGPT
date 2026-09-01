@@ -22,6 +22,7 @@ const emptyWorkshopPayload: LearningPayload = {
 
 export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
   const [diagram, setDiagram] = useState<DiagramState>(initialDiagram);
+  const [revision, setRevision] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [canSave, setCanSave] = useState(false);
   const [status, setStatus] = useState("Loading your workshop diagram…");
@@ -30,8 +31,9 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
   useEffect(() => {
     const controller = new AbortController();
     loadLearningState(pageSlug, controller.signal)
-      .then(({ state, warning }) => {
+      .then(({ state, warning, revision: loadedRevision }) => {
         if (state) setDiagram(state.diagram);
+        setRevision(loadedRevision);
         setHasError(false);
         setCanSave(true);
         setIsReady(true);
@@ -52,7 +54,8 @@ export function DiagramBuilder({ pageSlug }: DiagramBuilderProps) {
     setHasError(false);
     setStatus("Saving workshop diagram…");
     try {
-      await saveLearningState(pageSlug, { ...emptyWorkshopPayload, diagram });
+      const savedRevision = await saveLearningState(pageSlug, { ...emptyWorkshopPayload, diagram }, revision);
+      setRevision(savedRevision);
       setStatus("Workshop diagram saved for your next visit.");
     } catch (error) {
       setHasError(true);

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { handbookProgress } from "../db/schema";
 import type { HandbookProgressRepository, HandbookProgressWrite } from "./handbook-progress-contract";
@@ -18,16 +18,13 @@ async function save(value: HandbookProgressWrite) {
     checkedItemsPayload: JSON.stringify(value.checkedItems),
     updatedAt: value.updatedAt,
   };
-  await getDb().insert(handbookProgress).values(row).onConflictDoUpdate({
-    target: handbookProgress.userId,
-    set: {
-      lastPageSlug: row.lastPageSlug,
-      lastHeadingId: row.lastHeadingId,
-      completedSectionsPayload: row.completedSectionsPayload,
-      checkedItemsPayload: row.checkedItemsPayload,
-      updatedAt: row.updatedAt,
-    },
-  });
+  const saved = value.expectedUpdatedAt === null
+    ? await getDb().insert(handbookProgress).values(row).onConflictDoNothing().returning()
+    : await getDb().update(handbookProgress).set(row).where(and(
+      eq(handbookProgress.userId, value.userId),
+      eq(handbookProgress.updatedAt, value.expectedUpdatedAt),
+    )).returning();
+  return saved.length === 1;
 }
 
 async function deleteForUser(userId: string) {

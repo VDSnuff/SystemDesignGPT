@@ -9,6 +9,8 @@ import { HandbookProgressPanel } from "../app/components/HandbookProgressPanel";
 import { HandbookProgressProvider } from "../app/components/HandbookProgressProvider";
 import { SectionProgressControls } from "../app/components/SectionProgressControls";
 
+const revision = "2026-08-25T12:00:00.000Z";
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -21,8 +23,8 @@ function renderProgress(children: React.ReactNode) {
 describe("handbook progress states", () => {
   it("shows first-use guidance and saves user-controlled completion", async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(Response.json({ state: null }))
-      .mockResolvedValueOnce(Response.json({ saved: true }));
+      .mockResolvedValueOnce(Response.json({ state: null, revision: null }))
+      .mockResolvedValueOnce(Response.json({ saved: true, updatedAt: revision }));
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     renderProgress(<><HandbookProgressPanel /><SectionProgressControls sectionSlug="9-security" /></>);
@@ -31,7 +33,7 @@ describe("handbook progress states", () => {
     await user.click(screen.getByRole("button", { name: "Mark section complete" }));
     expect(screen.getByRole("button", { name: /Section complete/ }).getAttribute("aria-pressed")).toBe("true");
     const request = fetchMock.mock.calls[1][1] as RequestInit;
-    expect(JSON.parse(request.body as string)).toMatchObject({ completedSections: ["9-security"] });
+    expect(JSON.parse(request.body as string)).toMatchObject({ completedSections: ["9-security"], expectedUpdatedAt: null });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -44,6 +46,7 @@ describe("handbook progress states", () => {
         completedSections: bookProgressSections.map((section) => section.slug),
         checkedItems: [],
       },
+      revision,
     })));
     renderProgress(<HandbookProgressPanel />);
 

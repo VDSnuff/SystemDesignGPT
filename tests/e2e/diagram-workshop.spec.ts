@@ -5,15 +5,16 @@ const viewports = [
   { name: "tablet", width: 768, height: 1024 },
   { name: "desktop", width: 1440, height: 1000 },
 ] as const;
+const revision = "2026-09-01T12:00:00.000Z";
 
 async function mockLearningState(page: Page) {
   let savedBody: unknown;
   await page.route("**/api/learning-state**", async (route) => {
     if (route.request().method() === "PUT") {
       savedBody = route.request().postDataJSON();
-      return route.fulfill({ json: { saved: true } });
+      return route.fulfill({ json: { saved: true, updatedAt: revision } });
     }
-    return route.fulfill({ json: { state: null } });
+    return route.fulfill({ json: { state: null, revision: null } });
   });
   return () => savedBody;
 }

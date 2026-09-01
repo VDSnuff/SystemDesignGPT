@@ -20,6 +20,9 @@ Performance thresholds and the latest measured evidence are recorded in
 Supply-chain policy, audit remediation, and the required merge-governance
 settings are recorded in the
 [`1 September 2026 supply-chain report`](./supply-chain-2026-09-01.md).
+D1 optimistic concurrency, migration reproducibility, local recovery, and the
+hosted evidence boundary follow the
+[`D1 persistence and recovery contract`](./d1-persistence-recovery.md).
 Sites release, exact-revision proof, production smoke, rollback, and forward
 recovery follow the
 [`Sites release runbook`](../operations/sites-release-runbook.md).
@@ -153,6 +156,7 @@ npm run check:supply-chain
 npm run build
 npm run check:performance
 npm run check:performance:d1
+npm run check:recovery:d1
 npm run check:links
 npm run check:production-smoke
 npm run test:e2e

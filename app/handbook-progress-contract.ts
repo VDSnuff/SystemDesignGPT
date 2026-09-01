@@ -11,11 +11,12 @@ export interface HandbookProgressRecord {
 
 export interface HandbookProgressWrite extends HandbookProgress {
   readonly userId: string;
+  readonly expectedUpdatedAt: string | null;
   readonly updatedAt: string;
 }
 
 export interface HandbookProgressRepository {
   readonly deleteForUser: (userId: string) => Promise<void>;
   readonly find: (userId: string) => Promise<HandbookProgressRecord | null>;
-  readonly save: (value: HandbookProgressWrite) => Promise<void>;
+  readonly save: (value: HandbookProgressWrite) => Promise<boolean>;
 }

@@ -12,6 +12,8 @@ import type {
   HandbookProgressWrite,
 } from "../app/handbook-progress-contract";
 
+const revision = "2026-08-25T12:00:00.000Z";
+
 function record(userId: string, sectionSlug: string): HandbookProgressRecord {
   return {
     userId,
@@ -19,7 +21,7 @@ function record(userId: string, sectionSlug: string): HandbookProgressRecord {
     lastHeadingId: null,
     completedSectionsPayload: JSON.stringify([sectionSlug]),
     checkedItemsPayload: JSON.stringify([bookChecklistIds[0]]),
-    updatedAt: "2026-08-25T12:00:00.000Z",
+    updatedAt: revision,
   };
 }
 
@@ -47,7 +49,7 @@ describe("handbook progress persistence handlers", () => {
     const repository: HandbookProgressRepository = {
       deleteForUser: async () => { wasAccessed = true; },
       find: async () => { wasAccessed = true; return null; },
-      save: async () => { wasAccessed = true; },
+      save: async () => { wasAccessed = true; return true; },
     };
 
     expect((await handleHandbookProgressGet(request("GET"), repository)).status).toBe(401);
@@ -64,7 +66,7 @@ describe("handbook progress persistence handlers", () => {
     const repository: HandbookProgressRepository = {
       deleteForUser: async () => undefined,
       find: async (userId) => rows.get(userId) ?? null,
-      save: async (value) => { writes.push(value); },
+      save: async (value) => { writes.push(value); return true; },
     };
 
     const userA = await responseBody(await handleHandbookProgressGet(request("GET", "user-a"), repository));
@@ -72,19 +74,35 @@ describe("handbook progress persistence handlers", () => {
     expect(userA.state?.completedSections).toEqual(["9-security"]);
     expect(userB.state?.completedSections).toEqual(["3-concurrency"]);
 
-    const state = { lastRead: null, completedSections: ["9-security"], checkedItems: [bookChecklistIds[0]] };
+    const state = { lastRead: null, completedSections: ["9-security"], checkedItems: [bookChecklistIds[0]], expectedUpdatedAt: revision };
     expect((await handleHandbookProgressPut(request("PUT", "user-a", state), repository)).status).toBe(200);
     expect(writes).toHaveLength(1);
-    expect(writes[0]).toMatchObject({ userId: "user-a", completedSections: ["9-security"] });
+    expect(writes[0]).toMatchObject({ userId: "user-a", completedSections: ["9-security"], expectedUpdatedAt: revision });
+  });
+
+  it("rejects stale progress without overwriting the stored record", async () => {
+    const repository: HandbookProgressRepository = {
+      deleteForUser: async () => undefined,
+      find: async () => record("user-a", "9-security"),
+      save: async () => false,
+    };
+    const state = { lastRead: null, completedSections: ["9-security"], checkedItems: [], expectedUpdatedAt: revision };
+
+    const response = await handleHandbookProgressPut(request("PUT", "user-a", state), repository);
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ message: expect.stringContaining("another session") });
+    const legacyState = { lastRead: null, completedSections: ["9-security"], checkedItems: [] };
+    expect((await handleHandbookProgressPut(request("PUT", "user-a", legacyState), repository)).status).toBe(409);
   });
 
   it("rejects stale generated mappings and removes them from legacy records", async () => {
     const repository: HandbookProgressRepository = {
       deleteForUser: async () => undefined,
       find: async () => null,
-      save: async () => undefined,
+      save: async () => true,
     };
-    const staleState = { lastRead: null, completedSections: ["removed-section"], checkedItems: ["removed-checklist"] };
+    const staleState = { lastRead: null, completedSections: ["removed-section"], checkedItems: ["removed-checklist"], expectedUpdatedAt: null };
 
     expect((await handleHandbookProgressPut(request("PUT", "user-a", staleState), repository)).status).toBe(400);
     const decoded = decodeStoredProgress({
@@ -102,7 +120,7 @@ describe("handbook progress persistence handlers", () => {
     const repository: HandbookProgressRepository = {
       deleteForUser: async (userId) => { deletedUsers.push(userId); },
       find: async () => null,
-      save: async () => undefined,
+      save: async () => true,
     };
 
     expect((await handleHandbookProgressDelete(request("DELETE", "user-a"), repository)).status).toBe(200);
