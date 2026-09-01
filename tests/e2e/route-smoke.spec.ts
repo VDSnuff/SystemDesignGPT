@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import type { HandbookProgress } from "../../app/handbook-progress";
+import { mockChatBoundary } from "./mock-chat";
 
 const handbookRoutes = [
   { path: "/", title: "System Design Checklist Book" },
@@ -22,10 +23,7 @@ const mermaidRoutes = [
 interface ProgressStore { state: HandbookProgress | null }
 
 async function mockReaderBoundaries(page: Page, progressStore: ProgressStore = { state: null }) {
-  await page.route("**/api/chat", async (route) => {
-    if (route.request().method() === "GET") return route.fulfill({ json: { status: "ready" } });
-    return route.fulfill({ json: { answer: "Review requirements first.", status: "ready" } });
-  });
+  await mockChatBoundary(page, "Review requirements first.");
   await page.route("**/api/learning-state**", (route) => route.fulfill({ json: { state: null } }));
   await page.route("**/api/handbook-progress", async (route) => {
     if (route.request().method() === "GET") return route.fulfill({ json: { state: progressStore.state } });

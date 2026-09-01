@@ -22,6 +22,14 @@ function errorResponse(code: string, message: string, status: number) {
   return Response.json({ error: { code, message } }, { status });
 }
 
+function answerResponse(answer = "Use a bounded retry budget.") {
+  return Response.json({
+    answer,
+    metadata: { inputTokens: 120, latencyMs: 850, model: "gpt-5.4-2026-08-01", outputTokens: 24, totalTokens: 144 },
+    status: "ready",
+  });
+}
+
 function useMobileViewport() {
   vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({
     matches: false,
@@ -58,7 +66,7 @@ describe("ChatPanel service states", () => {
   it("shows ready after a configuration-only check and renders successful answers", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(statusResponse("ready"))
-      .mockResolvedValueOnce(Response.json({ answer: "Use a bounded retry budget.", status: "ready" }));
+      .mockResolvedValueOnce(answerResponse());
     vi.stubGlobal("fetch", fetchMock);
     render(<ChatPanel {...panelProps} />);
 
@@ -66,13 +74,14 @@ describe("ChatPanel service states", () => {
     await sendQuestion();
 
     expect(await screen.findByText("Use a bounded retry budget.")).toBeTruthy();
+    expect(screen.getByText("gpt-5.4-2026-08-01 · 120 input · 24 output · 850 ms")).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("announces only the new chat state instead of replaying the transcript", async () => {
     vi.stubGlobal("fetch", vi.fn()
       .mockResolvedValueOnce(statusResponse("ready"))
-      .mockResolvedValueOnce(Response.json({ answer: "Use a bounded retry budget.", status: "ready" })));
+      .mockResolvedValueOnce(answerResponse()));
     render(<ChatPanel {...panelProps} />);
 
     await sendQuestion();

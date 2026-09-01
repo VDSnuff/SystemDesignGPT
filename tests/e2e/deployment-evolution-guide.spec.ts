@@ -1,14 +1,8 @@
-import { expect, test, type Page } from "@playwright/test";
-
-async function mockChatBoundary(page: Page) {
-  await page.route("**/api/chat", async (route) => {
-    if (route.request().method() === "GET") return route.fulfill({ json: { status: "ready" } });
-    return route.fulfill({ json: { answer: "Start with mixed-version compatibility.", status: "ready" } });
-  });
-}
+import { expect, test } from "@playwright/test";
+import { mockChatBoundary } from "./mock-chat";
 
 test("the Deployment & evolution guide renders at desktop and mobile widths", async ({ page }) => {
-  await mockChatBoundary(page);
+  await mockChatBoundary(page, "Start with mixed-version compatibility.");
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(viewport);
     expect((await page.goto("/chapter/deployment-evolution"))?.status()).toBe(200);

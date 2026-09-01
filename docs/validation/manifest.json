@@ -107,6 +107,7 @@
     { "id": "unit-component", "command": "npm test", "status": "available", "blocking": true, "artifacts": ["test counts", "failure output"] },
     { "id": "lint", "command": "npm run lint", "status": "available", "blocking": true, "artifacts": ["lint output"] },
     { "id": "generated-content", "command": "npm run check:generated", "status": "available", "blocking": true, "artifacts": ["section count", "git diff"] },
+    { "id": "copilot-evaluation", "command": "npm run check:copilot-evaluation", "status": "available", "blocking": true, "ownerIssue": 62, "artifacts": ["versioned case contract", "provider boundary tests"] },
     { "id": "production-audit", "command": "npm audit --omit=dev --audit-level=high", "status": "available", "blocking": true, "artifacts": ["audit summary"] },
     { "id": "full-audit", "command": "npm audit --audit-level=high", "status": "available", "blocking": true, "artifacts": ["advisory triage"] },
     { "id": "supply-chain", "command": "npm run check:supply-chain", "status": "available", "blocking": true, "artifacts": ["audit JSON", "CycloneDX SBOM", "license inventory"] },
@@ -137,7 +138,7 @@
       "id": "api-contracts",
       "risks": ["persistence", "provider-ai", "security-privacy"],
       "files": [
-        "tests/chat-route.test.ts", "tests/handbook-progress-handlers.test.ts",
+        "tests/chat-route.test.ts", "tests/copilot-evaluation.test.ts", "tests/handbook-progress-handlers.test.ts",
         "tests/learning-comments-route.test.ts", "tests/learning-state-handlers.test.ts",
         "tests/security-contracts.test.ts"
       ]

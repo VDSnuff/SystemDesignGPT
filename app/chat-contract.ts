@@ -41,7 +41,16 @@ export interface ChatErrorBody {
 
 export interface ChatAnswerBody {
   readonly answer: string;
+  readonly metadata: ChatAnswerMetadata;
   readonly status: "ready";
+}
+
+export interface ChatAnswerMetadata {
+  readonly inputTokens: number;
+  readonly latencyMs: number;
+  readonly model: string;
+  readonly outputTokens: number;
+  readonly totalTokens: number;
 }
 
 export interface ChatStatusBody {
@@ -50,8 +59,14 @@ export interface ChatStatusBody {
 
 export function isChatAnswerBody(value: unknown): value is ChatAnswerBody {
   if (!value || typeof value !== "object") return false;
-  const candidate = value as { answer?: unknown; status?: unknown };
-  return typeof candidate.answer === "string" && candidate.status === "ready";
+  const candidate = value as { answer?: unknown; metadata?: unknown; status?: unknown };
+  if (!candidate.metadata || typeof candidate.metadata !== "object") return false;
+  const metadata = candidate.metadata as Record<string, unknown>;
+  return typeof candidate.answer === "string"
+    && candidate.status === "ready"
+    && typeof metadata.model === "string"
+    && [metadata.inputTokens, metadata.outputTokens, metadata.totalTokens, metadata.latencyMs]
+      .every((item) => Number.isInteger(item) && Number(item) >= 0);
 }
 
 export function isChatErrorBody(value: unknown): value is ChatErrorBody {
