@@ -3,8 +3,8 @@ import { spawnSync } from "node:child_process";
 const config = "playwright.cross-browser.config.ts";
 const projects = ["chromium", "firefox", "webkit"];
 const webkitBatches = [
+  ["tests/e2e/accessibility.spec.ts"],
   [
-    "tests/e2e/accessibility.spec.ts",
     "tests/e2e/agentic-systems-guide.spec.ts",
     "tests/e2e/authored-quiz.spec.ts",
     "tests/e2e/complete-journeys.spec.ts",
