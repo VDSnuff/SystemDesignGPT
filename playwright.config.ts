@@ -4,6 +4,7 @@ const port = 4174;
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  testIgnore: "**/visual-regression.spec.ts",
   fullyParallel: false,
   retries: 0,
   reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "line",

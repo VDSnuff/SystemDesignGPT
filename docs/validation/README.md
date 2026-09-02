@@ -20,6 +20,11 @@ Performance thresholds and the latest measured evidence are recorded in
 Supply-chain policy, audit remediation, and the required merge-governance
 settings are recorded in the
 [`1 September 2026 supply-chain report`](./supply-chain-2026-09-01.md).
+Stable Chromium visual baselines cover the home, guide, handbook, Mermaid,
+workshop, owner, search, and mobile-copilot surfaces at phone and desktop
+breakpoints. The scheduled cross-browser workflow retains those baselines and
+failure diffs; responsive contracts cover 320, 390, 768, 1024, and 1440 pixel
+widths across Chromium, Firefox, and WebKit production builds.
 D1 optimistic concurrency, migration reproducibility, local recovery, and the
 hosted evidence boundary follow the
 [`D1 persistence and recovery contract`](./d1-persistence-recovery.md).

@@ -118,6 +118,7 @@
     { "id": "d1-recovery", "command": "npm run check:recovery:d1", "status": "available", "blocking": true, "ownerIssue": 61, "artifacts": ["migration list", "sanitized table counts", "restored digest"] },
     { "id": "browser", "command": "npm run test:e2e", "status": "available", "blocking": true, "artifacts": ["test counts", "Playwright report on failure"] },
     { "id": "cross-browser", "command": "npm run test:e2e:cross-browser", "status": "available", "blocking": false, "artifacts": ["Chromium, Firefox, and WebKit reports"] },
+    { "id": "visual-regression", "command": "npm run test:e2e:visual", "status": "available", "blocking": true, "ownerIssue": 65, "artifacts": ["stable Chromium baselines and diffs"] },
     { "id": "accessibility", "command": "npx playwright test tests/e2e/accessibility.spec.ts", "status": "available", "blocking": true, "artifacts": ["axe and interaction results"] },
     { "id": "diff", "command": "git diff --check", "status": "available", "blocking": true, "artifacts": ["diff output"] },
     { "id": "link-health", "command": "npm run check:links", "status": "available", "blocking": true, "artifacts": ["internal and external link report"] },
@@ -179,6 +180,11 @@
       "id": "browser-workshop",
       "risks": ["functional-ui", "persistence", "accessibility", "browser-compatibility"],
       "files": ["tests/e2e/diagram-workshop.spec.ts"]
+    },
+    {
+      "id": "browser-compatibility",
+      "risks": ["browser-compatibility", "functional-ui"],
+      "files": ["tests/e2e/responsive-compatibility.spec.ts", "tests/e2e/visual-regression.spec.ts"]
     },
     {
       "id": "performance",

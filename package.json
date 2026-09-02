@@ -23,6 +23,7 @@
     "test:e2e:seo": "playwright test tests/e2e/seo-links.spec.ts",
     "test:e2e:diagram": "playwright test tests/e2e/diagram-workshop.spec.ts",
     "test:e2e:quiz": "playwright test tests/e2e/authored-quiz.spec.ts",
+    "test:e2e:visual": "playwright test --config playwright.visual.config.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern outputs --ignore-pattern performance-results --ignore-pattern playwright-report --ignore-pattern test-results",
     "measure:client-js": "node scripts/measure-client-js.mjs",
     "check:performance": "playwright test --config playwright.performance.config.ts",
