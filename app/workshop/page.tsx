@@ -16,7 +16,7 @@ export default function WorkshopPage() {
   return (
     <>
       <AppHeader />
-      <main className="mx-auto grid min-h-screen max-w-[1600px] bg-paper text-ink xl:grid-cols-[230px_minmax(0,1fr)_380px] lg:grid-cols-[minmax(0,1fr)_360px]" id="main-content" tabIndex={-1}>
+      <main className="mx-auto grid min-h-screen max-w-[1600px] bg-paper text-ink lg:grid-cols-[minmax(0,1fr)_auto] xl:grid-cols-[230px_minmax(0,1fr)_auto]" id="main-content" tabIndex={-1}>
         <ChapterNav activeSlug={workshopPage.slug} />
         <article className="min-w-0 px-5 py-10 sm:px-10 lg:px-12 lg:py-14">
           <p className="kicker">Lab · Interactive architecture task</p>

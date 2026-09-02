@@ -16,6 +16,7 @@ const browserBatches = [
     "tests/e2e/messaging-guide.spec.ts",
     "tests/e2e/observability-guide.spec.ts",
     "tests/e2e/realtime-work-guide.spec.ts",
+    "tests/e2e/responsive-compatibility.spec.ts",
     "tests/e2e/resilience-guide.spec.ts",
   ],
   [
