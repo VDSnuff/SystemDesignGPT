@@ -153,7 +153,7 @@ The manifest distinguishes executable commands from planned release gaps. The
 available foundation is:
 
 ```bash
-npm ci
+npm ci --no-audit
 npm test
 npm run typecheck
 npm run lint

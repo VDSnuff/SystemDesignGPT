@@ -195,7 +195,10 @@
     {
       "id": "validation-contract",
       "risks": ["content-integrity", "supply-chain", "deployment-operations"],
-      "files": ["tests/production-smoke.test.ts", "tests/validation-manifest.test.ts"]
+      "files": [
+        "tests/production-smoke.test.ts", "tests/supply-chain-runner.test.ts",
+        "tests/validation-manifest.test.ts"
+      ]
     },
     {
       "id": "seo-link-health",
