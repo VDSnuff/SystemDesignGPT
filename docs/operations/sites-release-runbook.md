@@ -111,10 +111,10 @@ The temporary provenance file must be no more than 15 minutes old:
 ```json
 {
   "lookupTime": "2026-09-04T12:00:00.000Z",
-  "site": { "projectId": "...", "origin": "https://...chatgpt.site", "latestVersion": 49 },
-  "version": { "id": "...", "number": 49, "commitSha": "40-character SHA" },
+  "site": { "projectId": "...", "status": "active", "origin": "https://...chatgpt.site", "latestVersion": 49 },
+  "version": { "id": "...", "projectId": "...", "number": 49, "commitSha": "40-character SHA" },
   "deployment": {
-    "id": "...", "versionId": "...", "status": "succeeded",
+    "id": "...", "projectId": "...", "versionId": "...", "status": "succeeded",
     "origin": "https://...chatgpt.site", "updatedAt": "2026-09-04T11:59:00.000Z"
   }
 }
@@ -124,8 +124,8 @@ Expected: JSON result `PASS` for home, guide, handbook, Mermaid source page,
 workshop, owner page, signed-out chat and persistence APIs, browser/security
 headers, API no-store/noindex headers, and both intentional 404s. Preserve the
 output in the release record, then delete the temporary provenance file. The
-command fails before route checks when origin, active version, source SHA,
-deployment status, or cross-linked version IDs disagree. The Mermaid browser
+command fails before route checks when project, origin, active version, source
+SHA, deployment status, or cross-linked version IDs disagree. The Mermaid browser
 test and synthetic authenticated persistence matrix remain separate gates.
 
 After smoke, inspect sanitized worker logs for the deployment window. Record

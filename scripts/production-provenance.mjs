@@ -58,12 +58,15 @@ function resolvedProvenance(snapshot) {
   return {
     lookupTime: requireTimestamp(snapshot.lookupTime, "provenance lookup time"),
     projectId: requireString(snapshot.site?.projectId, "site project ID"),
+    siteStatus: requireString(snapshot.site?.status, "site status"),
     origin: requireOrigin(snapshot.site?.origin, "site origin"),
     latestVersion: requirePositiveInteger(snapshot.site?.latestVersion, "site latest version"),
     versionId: requireString(snapshot.version?.id, "saved version ID"),
+    versionProjectId: requireString(snapshot.version?.projectId, "saved version project ID"),
     sitesVersion: requirePositiveInteger(snapshot.version?.number, "saved version number"),
     commitSha: requireString(snapshot.version?.commitSha, "saved version commit SHA"),
     deploymentId: requireString(snapshot.deployment?.id, "deployment ID"),
+    deploymentProjectId: requireString(snapshot.deployment?.projectId, "deployment project ID"),
     deployedVersionId: requireString(snapshot.deployment?.versionId, "deployed version ID"),
     deploymentStatus: requireString(snapshot.deployment?.status, "deployment status"),
     deploymentOrigin: requireOrigin(snapshot.deployment?.origin, "deployment origin"),
@@ -75,7 +78,11 @@ function validateResolved(config, resolved, now) {
   if (now - Date.parse(resolved.lookupTime) > provenanceMaxAgeMs || Date.parse(resolved.lookupTime) > now + 60_000) {
     throw new Error("Sites provenance lookup is stale or in the future; resolve the active deployment again");
   }
+  if (resolved.siteStatus !== "active") throw new Error(`site status is ${resolved.siteStatus}, expected active`);
   if (resolved.deploymentStatus !== "succeeded") throw new Error(`deployment status is ${resolved.deploymentStatus}, expected succeeded`);
+  if (resolved.projectId !== resolved.versionProjectId || resolved.projectId !== resolved.deploymentProjectId) {
+    throw new Error("site, saved version, and deployment project IDs do not match");
+  }
   if (resolved.versionId !== resolved.deployedVersionId) throw new Error("deployed version ID does not match the resolved saved version");
   if (resolved.latestVersion !== resolved.sitesVersion) throw new Error("active site version does not match the resolved saved version");
   if (resolved.origin !== resolved.deploymentOrigin || resolved.origin !== new URL(config.origin).origin) {

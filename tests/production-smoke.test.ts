@@ -12,10 +12,10 @@ const lookupTime = "2026-09-04T12:00:00.000Z";
 const now = Date.parse(lookupTime);
 const provenance = {
   lookupTime,
-  site: { projectId: "site-1", origin: config.origin, latestVersion: 42 },
-  version: { id: "version-42", number: 42, commitSha: config.commitSha },
+  site: { projectId: "site-1", status: "active", origin: config.origin, latestVersion: 42 },
+  version: { id: "version-42", projectId: "site-1", number: 42, commitSha: config.commitSha },
   deployment: {
-    id: "deployment-42", versionId: "version-42", status: "succeeded",
+    id: "deployment-42", projectId: "site-1", versionId: "version-42", status: "succeeded",
     origin: config.origin, updatedAt: "2026-09-04T11:59:00.000Z",
   },
 };
@@ -60,6 +60,15 @@ describe("production smoke", () => {
     const unsafe = { ...provenance, site: { ...provenance.site, token: "do-not-store" } };
 
     await expect(runProductionSmoke(config, { provenance: unsafe, now })).rejects.toThrow("forbidden secret field");
+  });
+
+  it("rejects provenance assembled from different Sites projects", async () => {
+    const mixedProject = {
+      ...provenance,
+      deployment: { ...provenance.deployment, projectId: "site-2" },
+    };
+
+    await expect(runProductionSmoke(config, { provenance: mixedProject, now })).rejects.toThrow("project IDs do not match");
   });
 
   it("fails when a required response differs from the contract", async () => {
