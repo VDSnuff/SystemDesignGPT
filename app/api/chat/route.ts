@@ -17,7 +17,7 @@ const globalRateKey = "all-users";
 interface ChatTurn { readonly role: "user" | "assistant"; readonly content: string }
 interface ChatRequest { readonly pageId: string; readonly question: string; readonly history: readonly ChatTurn[] }
 
-function json(body: Record<string, unknown>, status = 200) {
+function json(body: object, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
 

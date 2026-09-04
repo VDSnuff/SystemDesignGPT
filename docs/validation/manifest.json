@@ -105,6 +105,7 @@
   ],
   "commands": [
     { "id": "unit-component", "command": "npm test", "status": "available", "blocking": true, "artifacts": ["test counts", "failure output"] },
+    { "id": "typecheck", "command": "npm run typecheck", "status": "available", "blocking": true, "artifacts": ["TypeScript compiler output"] },
     { "id": "lint", "command": "npm run lint", "status": "available", "blocking": true, "artifacts": ["lint output"] },
     { "id": "generated-content", "command": "npm run check:generated", "status": "available", "blocking": true, "artifacts": ["section count", "git diff"] },
     { "id": "copilot-evaluation", "command": "npm run check:copilot-evaluation", "status": "available", "blocking": true, "ownerIssue": 62, "artifacts": ["versioned case contract", "provider boundary tests"] },
