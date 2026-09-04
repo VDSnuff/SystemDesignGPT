@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  npmEnvironment,
   parseNpmResult,
   runSupplyChain,
   supplyChainCommandTimeoutMs,
@@ -25,13 +24,6 @@ const evidence = {
 };
 
 describe("supply-chain command runner", () => {
-  it("preserves Node options while preferring reachable registry addresses", () => {
-    const environment = npmEnvironment({ NODE_OPTIONS: "--trace-warnings" });
-
-    expect(environment.NODE_OPTIONS)
-      .toBe("--trace-warnings --dns-result-order=ipv4first");
-  });
-
   it("reports a bounded timeout with a registry recovery action", () => {
     const error = Object.assign(new Error("timed out"), { code: "ETIMEDOUT" });
 

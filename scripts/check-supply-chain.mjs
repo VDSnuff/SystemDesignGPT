@@ -6,12 +6,6 @@ import { pathToFileURL } from "node:url";
 const outputDirectory = "outputs/supply-chain";
 const policyPath = "docs/validation/dependency-policy.json";
 export const supplyChainCommandTimeoutMs = 60_000;
-const npmDnsOption = "--dns-result-order=ipv4first";
-
-export function npmEnvironment(environment = process.env) {
-  const nodeOptions = [environment.NODE_OPTIONS, npmDnsOption].filter(Boolean).join(" ");
-  return { ...environment, NODE_OPTIONS: nodeOptions };
-}
 
 export function parseNpmResult(args, result) {
   const command = `npm ${args.join(" ")}`;
@@ -39,7 +33,6 @@ function runNpm(args) {
     maxBuffer: 10 * 1024 * 1024,
     shell: process.platform === "win32",
     timeout: supplyChainCommandTimeoutMs,
-    env: npmEnvironment(),
   });
   return parseNpmResult(args, result);
 }
