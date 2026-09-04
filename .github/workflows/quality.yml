@@ -30,6 +30,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run check:generated
+      - run: npm run check:evidence-freshness
       - run: npm run check:supply-chain
       - run: npm run build
       - run: npm run check:performance:d1

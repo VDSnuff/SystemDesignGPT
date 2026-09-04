@@ -2106,11 +2106,13 @@ All resources used by the handbook are linked below. Verification on **24 August
 
 `PASS / PASS` means both checks succeeded. A note is shown where a redirect or lifecycle caveat matters.
 
+This is a dated edition snapshot, not a claim that semantic support is permanently current. `docs/evidence-freshness.json` records separate automated URL, browser, and human editorial reviews for fast-moving sources and chapters 15–17. Follow `docs/evidence-freshness.md` when a review date or source-change trigger is reached.
+
 ## Primary, official, government, and research sources
 
 | ID | Resource | Type / note | Verification |
 |---|---|---|---|
-| S1 | [ISO: ISO/IEC 25010:2023 — Product quality model](https://www.iso.org/standard/78176.html) | Primary standard | PASS / PASS |
+| S1 | [ISO: ISO/IEC 25010:2023 — Product quality model](https://www.iso.org/standard/78176.html) | Paid standard; public abstract | PASS / PASS |
 | S2 | [Microsoft: What is the Azure Well-Architected Framework?](https://learn.microsoft.com/en-us/azure/well-architected/what-is-well-architected-framework) | Official guidance | PASS / PASS |
 | S3 | [Microsoft: Design Principles for Azure Applications](https://learn.microsoft.com/en-us/azure/architecture/guide/design-principles/) | Official guidance | PASS / PASS |
 | S4 | [Microsoft .NET: Managed Threading Best Practices](https://learn.microsoft.com/en-us/dotnet/standard/threading/managed-threading-best-practices) | Official documentation | PASS / PASS |
@@ -2155,7 +2157,7 @@ All resources used by the handbook are linked below. Verification on **24 August
 | S43 | [Microsoft: Multitenancy and Azure Storage — direct client access and SAS](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/service/storage) | Official guidance | PASS / PASS |
 | S44 | [Microsoft: Architecture strategies for capacity planning](https://learn.microsoft.com/en-us/azure/well-architected/performance-efficiency/capacity-planning) | Official guidance | PASS / PASS |
 | S45 | [Microsoft: Rate Limiting Pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/rate-limiting-pattern) | Official guidance | PASS / PASS |
-| S46 | [ISO: ISO/IEC/IEEE 29148:2018 — Requirements engineering](https://www.iso.org/standard/72089.html) | Current published standard; revision is underway | PASS / PASS |
+| S46 | [ISO: ISO/IEC/IEEE 29148:2018 — Requirements engineering](https://www.iso.org/standard/72089.html) | Paid standard; public abstract; current edition with revision underway | PASS / PASS |
 | S47 | [Microsoft: Develop an architecture design specification](https://learn.microsoft.com/en-us/azure/well-architected/architect-role/architecture-design-specification) | Official guidance | PASS / PASS |
 | S48 | [Microsoft: Maintain an architecture decision record (ADR)](https://learn.microsoft.com/en-us/azure/well-architected/architect-role/architecture-decision-record) | Official guidance | PASS / PASS |
 | S49 | [Microsoft: Architecture strategies for formalizing development practices](https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/formalize-development-practices) | Official guidance | PASS / PASS |

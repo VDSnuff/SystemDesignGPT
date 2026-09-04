@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "reviewedChapters": [
+    { "chapter": 15, "owner": "handbook-editor", "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agent SDK, protocol, security guidance, or cited model behavior changes", "semanticStatus": "CURRENT" },
+    { "chapter": 16, "owner": "handbook-editor", "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agent Skills, AGENTS.md, Spec Kit, or specification workflow changes", "semanticStatus": "CURRENT" },
+    { "chapter": 17, "owner": "handbook-editor", "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agent security, approval, tracing, or evaluation guidance changes", "semanticStatus": "CURRENT" }
+  ],
+  "sources": [
+    {
+      "id": "S1", "url": "https://www.iso.org/standard/78176.html", "chapters": [1, 14],
+      "owner": "handbook-editor", "reasons": ["paid-standard-abstract", "bot-protected"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-12-03", "nextReviewTrigger": "ISO publication status, edition, or public abstract changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "UNVERIFIED", "detail": "HTTP 403; browser verification required" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "ISO/IEC 25010:2023 remains published and its public abstract supports the quality-model citation." }
+    },
+    {
+      "id": "S46", "url": "https://www.iso.org/standard/72089.html", "chapters": [14],
+      "owner": "handbook-editor", "reasons": ["paid-standard-abstract", "bot-protected", "revision-underway"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "ISO revision stage, replacement edition, or public abstract changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "UNVERIFIED", "detail": "HTTP 403; browser verification required" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "ISO/IEC/IEEE 29148:2018 remains current while a replacement edition is under development." }
+    },
+    {
+      "id": "S63", "url": "https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/", "chapters": [15, 17],
+      "owner": "handbook-editor", "reasons": ["agent-guidance", "bot-protected"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agent architecture, orchestration, or guardrail guidance changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The guide still supports the cited agent design, orchestration, and guardrail practices." }
+    },
+    {
+      "id": "S64", "url": "https://openai.github.io/openai-agents-python/", "chapters": [15, 17],
+      "owner": "handbook-editor", "reasons": ["sdk-docs"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agents SDK primitives, sessions, guardrails, handoffs, or tracing change",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The SDK documentation still supports the handbook's core agent runtime concepts." }
+    },
+    {
+      "id": "S71", "url": "https://blog.modelcontextprotocol.io/posts/mcp-roadmap/", "chapters": [15],
+      "owner": "handbook-editor", "reasons": ["roadmap"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Roadmap item ships, is withdrawn, or moves into a released MCP specification",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The source remains directional; the handbook correctly avoids treating roadmap items as released protocol." }
+    },
+    {
+      "id": "S72", "url": "https://a2a-protocol.org/latest/", "chapters": [15],
+      "owner": "handbook-editor", "reasons": ["latest-specification"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "A2A latest-version target or task and artifact semantics change",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "A2A v1.0 remains compatible with the cited agent-to-agent discovery and exchange role." }
+    },
+    {
+      "id": "S73", "url": "https://spec.openapis.org/oas/latest.html", "chapters": [15, 16],
+      "owner": "handbook-editor", "reasons": ["latest-specification"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "The OpenAPI latest alias changes edition or contract semantics",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "OpenAPI 3.2.0 remains the latest edition and supports the cited contract guidance." }
+    },
+    {
+      "id": "S77", "url": "https://github.com/open-telemetry/semantic-conventions-genai", "chapters": [15, 17],
+      "owner": "handbook-editor", "reasons": ["in-development"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Generative AI semantic conventions stabilize, relocate, or change span attributes",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The project remains active and in development, matching the handbook caveat." }
+    },
+    {
+      "id": "S78", "url": "https://agents.md/", "chapters": [16],
+      "owner": "handbook-editor", "reasons": ["living-convention"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "AGENTS.md ownership, format, scope, or precedence guidance changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The open AGENTS.md convention still supports repository-scoped agent instructions." }
+    },
+    {
+      "id": "S79", "url": "https://github.com/agentskills/agentskills/blob/main/docs/specification.mdx", "chapters": [16],
+      "owner": "handbook-editor", "reasons": ["living-specification"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agent Skills frontmatter, discovery, or loading requirements change on main",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The specification still supports the cited skill packaging and progressive-loading model." }
+    },
+    {
+      "id": "S80", "url": "https://github.github.com/spec-kit/", "chapters": [16],
+      "owner": "handbook-editor", "reasons": ["active-project"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Spec Kit workflow, commands, phases, or supported agents change",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The expanded documentation continues to support the cited spec-driven-development workflow." }
+    },
+    {
+      "id": "S82", "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/", "chapters": [17],
+      "owner": "handbook-editor", "reasons": ["release-pointer"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "OWASP changes the legacy entry point, current release, or risk taxonomy",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The entry point is now marked legacy but still links the current 2026 release, matching the handbook note." }
+    },
+    {
+      "id": "S83", "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/", "chapters": [17],
+      "owner": "handbook-editor", "reasons": ["active-security-guidance"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "OWASP agentic threat taxonomy or control guidance changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The resource still supports the handbook's agentic threat and mitigation guidance." }
+    },
+    {
+      "id": "S84", "url": "https://learn.microsoft.com/en-us/agents/architecture/threat-models", "chapters": [17],
+      "owner": "handbook-editor", "reasons": ["active-security-guidance"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Agent threat boundaries, data flows, or mitigation guidance changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The current guidance still supports explicit boundaries, data flows, threats, and controls." }
+    },
+    {
+      "id": "S89", "url": "https://openai.github.io/openai-agents-python/human_in_the_loop/", "chapters": [17],
+      "owner": "handbook-editor", "reasons": ["sdk-docs"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Approval, pause, rejection, or resumable-run semantics change",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The expanded HITL documentation still supports pause, approve, reject, and resume guidance." }
+    },
+    {
+      "id": "S90", "url": "https://openai.github.io/openai-agents-python/tracing/", "chapters": [17],
+      "owner": "handbook-editor", "reasons": ["sdk-docs"],
+      "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "Tracing defaults, span types, privacy controls, or export behavior changes",
+      "automated": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "browser": { "checkedAt": "2026-09-04", "result": "PASS" },
+      "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "Tracing documentation still supports the cited observability and sensitive-data controls." }
+    }
+  ]
+}
