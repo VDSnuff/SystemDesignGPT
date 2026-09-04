@@ -47,8 +47,6 @@ Each npm audit/SBOM command has a 60-second timeout. Registry, timeout, malforme
 JSON, and policy failures exit nonzero before the previous complete evidence is
 replaced. CI installs with `npm ci --no-audit`; the explicit supply-chain command
 is the only audit gate, so install-time registry work cannot hide or duplicate it.
-Both audits use `--package-lock-only`, matching the graph installed by `npm ci`
-without relying on npm's registry-backed installed-tree traversal.
 
 Khroma 2.1.0 omits its license field from the registry metadata and lockfile;
 its packaged `LICENSE` file is MIT. The exact name/version override is recorded
