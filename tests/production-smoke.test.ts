@@ -24,7 +24,16 @@ async function passingResponse(input: URL | RequestInfo) {
   const url = new URL(input instanceof URL ? input : String(input));
   const route = smokeRoutes.find(({ path }) => path === `${url.pathname}${url.search}`);
   if (!route) return new Response("unexpected route", { status: 500 });
-  return new Response(route.body, { status: route.status, headers: route.headers });
+  const nonce = "production-smoke-nonce";
+  const headers = new Headers(route.headers);
+  headers.set(
+    "Content-Security-Policy",
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}'; style-src 'self' 'nonce-${nonce}'; frame-ancestors 'self' https://chatgpt.com`,
+  );
+  const body = route.document
+    ? `${route.body}<script nonce="${nonce}">hydrate()</script><style nonce="${nonce}">body{}</style>`
+    : route.body;
+  return new Response(body, { status: route.status, headers });
 }
 
 describe("production smoke", () => {
@@ -81,5 +90,19 @@ describe("production smoke", () => {
 
     expect(report.result).toBe("FAIL");
     expect(report.results.find(({ id }) => id === "route-404")?.failures).toContain("status 200, expected 404");
+  });
+
+  it("fails when production allows inline scripts or omits element nonces", async () => {
+    const fetchWithUnsafeCsp = async (input: URL | RequestInfo) => {
+      const response = await passingResponse(input);
+      const headers = new Headers(response.headers);
+      headers.set("Content-Security-Policy", "script-src 'self' 'unsafe-inline'");
+      return new Response(await response.text(), { status: response.status, headers });
+    };
+    const report = await runProductionSmoke(config, { fetchImpl: fetchWithUnsafeCsp, provenance, now });
+
+    expect(report.result).toBe("FAIL");
+    expect(report.results[0]?.failures).toContain("content-security-policy missing script nonce");
+    expect(report.results[0]?.failures).toContain("script-src allows unsafe-inline");
   });
 });

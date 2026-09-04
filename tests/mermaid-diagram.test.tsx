@@ -44,4 +44,17 @@ describe("MermaidDiagram", () => {
 
     expect((await screen.findByText("not valid mermaid")).className).toContain("mermaid-fallback");
   });
+
+  it("propagates the page nonce to Mermaid style elements", async () => {
+    const script = document.createElement("script");
+    script.nonce = "page-nonce";
+    document.head.appendChild(script);
+    mermaid.render.mockResolvedValue({ svg: "<svg><style>.node { fill: white; }</style></svg>" });
+
+    render(<MermaidDiagram chart="flowchart LR\nA-->B" />);
+
+    const diagram = await screen.findByRole("img", { name: "Architecture diagram" });
+    expect(diagram.querySelector("style")?.nonce).toBe("page-nonce");
+    script.remove();
+  });
 });
