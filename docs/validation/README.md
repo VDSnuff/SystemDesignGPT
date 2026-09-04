@@ -192,10 +192,12 @@ errors, internal links, and public images. A non-successful `HEAD` response is
 retried with `GET` before classification. HTTP 401, 403, 429, 5xx responses,
 and network failures remain `UNVERIFIED` with `BROWSER_REQUIRED` verification;
 other terminal 4xx responses fail the gate. Production smoke is executable
-under #69 and requires an HTTPS origin, exact 40-character Git SHA, and numeric
-Sites version. It checks the public signed-out route/API/header matrix and fails
-closed on any mismatch. The Sites control-plane record must independently prove
-that the supplied SHA maps to the deployed version; authenticated persistence,
+under #69 and requires an HTTPS origin, exact 40-character Git SHA, numeric
+Sites version, and a sanitized Sites control-plane snapshot no more than 15
+minutes old. It verifies the active Site, saved-version source SHA, successful
+deployment, origin, and cross-linked version IDs before checking the public
+signed-out route/API/header matrix. Secret-bearing snapshots and any identity
+mismatch fail before route checks; authenticated persistence,
 Mermaid browser rendering, D1 restore, and alert delivery remain separate gates.
 
 ## Report workflow

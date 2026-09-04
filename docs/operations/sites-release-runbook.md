@@ -83,6 +83,10 @@ check is `UNVERIFIED`, not a pass.
    version ID, version number, access mode, and timestamps.
 6. Poll deployment status to a terminal success state. A timeout, missing
    version, or different version is a failed deployment.
+7. Immediately after success, resolve the Site, saved version, and deployment
+   again through the approved Sites API. Write only the allowlisted fields below
+   to a temporary JSON file; never serialize the full responses because they can
+   contain credentials or bypass tokens.
 
 The authoritative revision proof is the complete chain:
 
@@ -98,14 +102,31 @@ Run the committed fail-closed matrix with the identifiers verified above:
 PRODUCTION_SMOKE_ORIGIN=https://system-design-studio.v-dovnich.chatgpt.site \
 PRODUCTION_SMOKE_COMMIT_SHA="$CANDIDATE_SHA" \
 PRODUCTION_SMOKE_SITES_VERSION="$SITES_VERSION" \
+PRODUCTION_SMOKE_PROVENANCE_FILE="$SITES_PROVENANCE_FILE" \
 npm run check:production-smoke
+```
+
+The temporary provenance file must be no more than 15 minutes old:
+
+```json
+{
+  "lookupTime": "2026-09-04T12:00:00.000Z",
+  "site": { "projectId": "...", "origin": "https://...chatgpt.site", "latestVersion": 49 },
+  "version": { "id": "...", "number": 49, "commitSha": "40-character SHA" },
+  "deployment": {
+    "id": "...", "versionId": "...", "status": "succeeded",
+    "origin": "https://...chatgpt.site", "updatedAt": "2026-09-04T11:59:00.000Z"
+  }
+}
 ```
 
 Expected: JSON result `PASS` for home, guide, handbook, Mermaid source page,
 workshop, owner page, signed-out chat and persistence APIs, browser/security
 headers, API no-store/noindex headers, and both intentional 404s. Preserve the
-output in the release record. The Mermaid browser test and synthetic
-authenticated persistence matrix remain separate gates.
+output in the release record, then delete the temporary provenance file. The
+command fails before route checks when origin, active version, source SHA,
+deployment status, or cross-linked version IDs disagree. The Mermaid browser
+test and synthetic authenticated persistence matrix remain separate gates.
 
 After smoke, inspect sanitized worker logs for the deployment window. Record
 request failures and platform anomalies without user IDs, emails, prompts,
