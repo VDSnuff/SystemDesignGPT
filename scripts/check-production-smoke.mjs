@@ -1,4 +1,5 @@
 import { pathToFileURL } from "node:url";
+import { loadProductionProvenance, verifyProductionProvenance } from "./production-provenance.mjs";
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const SHA_PATTERN = /^[0-9a-f]{40}$/i;
@@ -39,14 +40,15 @@ export function productionConfig(argv = process.argv.slice(2), env = process.env
     origin: argument("origin", "PRODUCTION_SMOKE_ORIGIN", argv, env),
     commitSha: argument("commit-sha", "PRODUCTION_SMOKE_COMMIT_SHA", argv, env),
     sitesVersion: argument("sites-version", "PRODUCTION_SMOKE_SITES_VERSION", argv, env),
+    provenanceFile: argument("provenance-file", "PRODUCTION_SMOKE_PROVENANCE_FILE", argv, env),
   };
   validateConfig(config);
   return config;
 }
 
 export function validateConfig(config) {
-  if (!config.origin || !config.commitSha || !config.sitesVersion) {
-    throw new Error("origin, commit SHA, and Sites version are required");
+  if (!config.origin || !config.commitSha || !config.sitesVersion || !config.provenanceFile) {
+    throw new Error("origin, commit SHA, Sites version, and provenance file are required");
   }
   const origin = new URL(config.origin);
   if (origin.protocol !== "https:" || origin.pathname !== "/" || origin.search || origin.hash) {
@@ -86,14 +88,22 @@ async function fetchRoute(origin, route, fetchImpl) {
   }
 }
 
-export async function runProductionSmoke(config, fetchImpl = fetch) {
+export async function runProductionSmoke(config, { fetchImpl = fetch, provenance = {}, now = Date.now() } = {}) {
+  const resolved = verifyProductionProvenance(config, provenance, now);
   const results = [];
   for (const route of smokeRoutes) results.push(await fetchRoute(config.origin, route, fetchImpl));
   return {
     checkedAt: new Date().toISOString(),
     origin: config.origin,
-    commitSha: config.commitSha,
-    sitesVersion: config.sitesVersion,
+    commitSha: resolved.commitSha,
+    sitesVersion: String(resolved.sitesVersion),
+    authoritativeProvenance: {
+      lookupTime: resolved.lookupTime,
+      projectId: resolved.projectId,
+      versionId: resolved.versionId,
+      deploymentId: resolved.deploymentId,
+      deploymentUpdatedAt: resolved.deploymentUpdatedAt,
+    },
     result: results.every((item) => item.result === "PASS") ? "PASS" : "FAIL",
     results,
     limitations: ["Mermaid browser rendering and authenticated persistence require their separate browser/real-account gates."],
@@ -102,7 +112,9 @@ export async function runProductionSmoke(config, fetchImpl = fetch) {
 
 async function main() {
   try {
-    const report = await runProductionSmoke(productionConfig());
+    const config = productionConfig();
+    const provenance = loadProductionProvenance(config.provenanceFile);
+    const report = await runProductionSmoke(config, { provenance });
     console.log(JSON.stringify(report, null, 2));
     if (report.result !== "PASS") process.exitCode = 1;
   } catch (error) {
