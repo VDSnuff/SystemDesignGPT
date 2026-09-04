@@ -1,8 +1,15 @@
 import { readFileSync } from "node:fs";
+import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 import { readJsonRequest } from "../app/json-request";
-import { noIndexHeaders, securityHeaders } from "../app/security-headers";
+import {
+  contentSecurityPolicy,
+  contentSecurityPolicyHeader,
+  noIndexHeaders,
+  securityHeaders,
+} from "../app/security-headers";
 import nextConfig from "../next.config";
+import { proxy } from "../proxy";
 
 function request(body: BodyInit, contentType = "application/json") {
   const init = {
@@ -52,8 +59,6 @@ describe("production response header policy", () => {
       { source: "/api/:path*", headers: [...noIndexHeaders] },
       { source: "/owner/:path*", headers: [...noIndexHeaders] },
     ]);
-    expect(values["Content-Security-Policy"]).toContain("frame-ancestors 'self' https://chatgpt.com");
-    expect(values["Content-Security-Policy"]).toContain("object-src 'none'");
     expect(values["Permissions-Policy"]).toBe("camera=(), geolocation=(), microphone=()");
     expect(values["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
     expect(values["Strict-Transport-Security"]).toBe("max-age=31536000");
@@ -65,5 +70,33 @@ describe("production response header policy", () => {
     for (const header of securityHeaders) {
       expect(assetHeaders).toContain(`${header.key.toLowerCase()}: ${header.value.toLowerCase()}`);
     }
+    expect(assetHeaders).not.toContain(contentSecurityPolicyHeader.toLowerCase());
+  });
+
+  it("allows only nonce-authorized inline scripts and style elements", () => {
+    const policy = contentSecurityPolicy("server-nonce");
+
+    expect(policy).toContain("frame-ancestors 'self' https://chatgpt.com https://*.chatgpt.com");
+    expect(policy).toContain("object-src 'none'");
+    expect(policy).toContain("script-src 'self' 'nonce-server-nonce'");
+    expect(policy).toMatch(/style-src-elem 'self' 'nonce-server-nonce'(?: 'sha256-[^']+')+/);
+    expect(policy).toContain("style-src-attr 'unsafe-inline'");
+    expect(policy.match(/unsafe-inline/g)).toHaveLength(1);
+  });
+
+  it("uses a fresh server nonce and rejects caller-selected policies", () => {
+    const request = new NextRequest("https://example.com/");
+    const first = proxy(request);
+    const second = proxy(request);
+    const firstPolicy = first.headers.get(contentSecurityPolicyHeader) ?? "";
+    const secondPolicy = second.headers.get(contentSecurityPolicyHeader) ?? "";
+    const attacker = proxy(new NextRequest("https://example.com/", {
+      headers: { "Content-Security-Policy": "script-src 'nonce-attacker'" },
+    }));
+
+    expect(first.headers.get("x-middleware-request-content-security-policy")).toBe(firstPolicy);
+    expect(firstPolicy).not.toBe(secondPolicy);
+    expect(attacker.status).toBe(400);
+    expect(attacker.headers.get(contentSecurityPolicyHeader)).not.toContain("attacker");
   });
 });

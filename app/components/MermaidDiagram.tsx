@@ -36,7 +36,7 @@ export function MermaidDiagram({ chart }: Readonly<{ chart: string }>) {
       .then(async ({ default: mermaid }) => {
         mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "neutral" });
         const result = await mermaid.render(diagramId, chart);
-        if (isActive) setSvg(result.svg);
+        if (isActive) setSvg(applyStyleNonce(result.svg));
       })
       .catch(() => {
         if (isActive) setError(true);
@@ -55,6 +55,12 @@ export function MermaidDiagram({ chart }: Readonly<{ chart: string }>) {
       </figcaption>
     </figure>
   );
+}
+
+function applyStyleNonce(svg: string) {
+  const nonce = document.querySelector<HTMLScriptElement>("script[nonce]")?.nonce;
+  if (!nonce) return svg;
+  return svg.replace(/<style(?=\s|>)/gi, `<style nonce="${nonce}"`);
 }
 
 function DiagramAlternative({ description, id }: Readonly<{ description: string; id?: string }>) {

@@ -106,10 +106,10 @@ provider or comment writes.
 
 ## Production header policy
 
-The application applies its shared header set through the Next/Vinext proxy and
-`next.config`, with a Cloudflare `_headers` fallback for static assets. The
-proxy is required because the Cloudflare asset path can bypass application
-route headers for a prerendered page. The application requires:
+The application applies fixed headers through `next.config`, the Next/Vinext
+proxy, and the Cloudflare `_headers` fallback for static assets. The proxy owns
+the document CSP because a matching nonce must be generated for every response.
+The application requires:
 
 - Content Security Policy: self by default; no objects; same-origin forms and
   connections; framed only by self or ChatGPT; HTTPS upgrades.
@@ -118,9 +118,16 @@ route headers for a prerendered page. The application requires:
   geolocation, and microphone capabilities.
 - `Cache-Control: no-store` on application API responses.
 
-The CSP retains inline script and style compatibility required by the current
-Next/Vinext runtime. Tightening that allowance requires nonce support and a
-separate browser compatibility change.
+The CSP authorizes framework scripts and style elements with a fresh server
+nonce. Vinext propagates that nonce to hydration, streamed Flight data, and
+font styles; the Mermaid boundary applies it to generated diagram styles. The
+nine source-authored Mermaid style blocks are also covered by pinned hashes
+because Mermaid inserts a temporary style before returning the nonce-stamped
+SVG. Browser tests render every hashed diagram and fail on CSP console errors.
+Inline script execution is otherwise denied. `style-src-attr` retains
+`unsafe-inline` because React panel sizing and Mermaid node and connector
+geometry use runtime style attributes. Nonce-bearing pages intentionally bypass
+HTML caching.
 
 ## Privacy and retention
 

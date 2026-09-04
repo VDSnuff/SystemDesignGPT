@@ -8,18 +8,6 @@ const handbookRoutes = [
   { path: "/book/practical-system-design-workflow", title: "Practical system-design workflow" },
 ] as const;
 
-const mermaidRoutes = [
-  "/book/practical-system-design-workflow",
-  "/book/2-boundaries-state-and-data",
-  "/book/2b-data-modeling-indexing-and-partitioning",
-  "/book/4-transactions-and-consistency",
-  "/book/6a-real-time-and-long-running-work",
-  "/book/7-failure-handling-and-resilience",
-  "/book/14-requirements-to-delivery-lifecycle-fr-nfr-constraints-adr-and-tip",
-  "/book/15-llm-and-agentic-systems",
-  "/book/16-spec-driven-development-for-agentic-systems",
-] as const;
-
 interface ProgressStore { state: HandbookProgress | null }
 const revision = "2026-09-01T12:00:00.000Z";
 
@@ -302,19 +290,4 @@ test("a non-diagram section does not load the Mermaid runtime", async ({ page })
   await page.waitForLoadState("networkidle");
 
   expect(mermaidRequests).toEqual([]);
-});
-
-test("every source-authored Mermaid diagram renders on approach", async ({ page }) => {
-  await mockReaderBoundaries(page);
-  for (const route of mermaidRoutes) {
-    await page.goto(route);
-    const loadingState = page.locator(".mermaid-loading");
-    await expect(loadingState).toHaveCount(1);
-    await page.evaluate(() => {
-      document.querySelector<HTMLElement>(".mermaid-loading, .mermaid-diagram")
-        ?.scrollIntoView({ block: "center" });
-    });
-    await expect(page.getByRole("img", { name: "Architecture diagram" })).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator(".mermaid-fallback")).toHaveCount(0);
-  }
 });

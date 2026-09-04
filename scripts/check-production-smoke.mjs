@@ -14,18 +14,18 @@ const browserHeaders = {
 const apiHeaders = { ...browserHeaders, "cache-control": "no-store", "x-robots-tag": "noindex" };
 
 export const smokeRoutes = [
-  { id: "home", path: "/", status: 200, body: "System Design Checklist Book", headers: browserHeaders },
-  { id: "guide", path: "/chapter/requirements", status: 200, body: "Design from requirements", headers: browserHeaders },
-  { id: "handbook", path: "/book/1-requirements-frs-nfrs-constraints-and-assumptions", status: 200, body: "Requirements: FRs", headers: browserHeaders },
-  { id: "mermaid-source", path: "/book/practical-system-design-workflow", status: 200, body: "Practical system-design workflow", headers: browserHeaders },
-  { id: "workshop", path: "/workshop", status: 200, body: "Diagram workshop", headers: browserHeaders },
-  { id: "owner", path: "/owner/comments", status: 200, body: "Learning comments", headers: { ...browserHeaders, "x-robots-tag": "noindex" } },
+  { id: "home", path: "/", status: 200, body: "System Design Checklist Book", headers: browserHeaders, document: true },
+  { id: "guide", path: "/chapter/requirements", status: 200, body: "Design from requirements", headers: browserHeaders, document: true },
+  { id: "handbook", path: "/book/1-requirements-frs-nfrs-constraints-and-assumptions", status: 200, body: "Requirements: FRs", headers: browserHeaders, document: true },
+  { id: "mermaid-source", path: "/book/practical-system-design-workflow", status: 200, body: "Practical system-design workflow", headers: browserHeaders, document: true },
+  { id: "workshop", path: "/workshop", status: 200, body: "Diagram workshop", headers: browserHeaders, document: true },
+  { id: "owner", path: "/owner/comments", status: 200, body: "Learning comments", headers: { ...browserHeaders, "x-robots-tag": "noindex" }, document: true },
   { id: "chat-status", path: "/api/chat", status: 200, body: "authentication-required", headers: apiHeaders },
   { id: "progress-auth", path: "/api/handbook-progress", status: 401, body: "Sign in", headers: apiHeaders },
   { id: "comments-auth", path: "/api/learning-comments", status: 401, body: "Sign in", headers: apiHeaders },
   { id: "learning-auth", path: "/api/learning-state?page=workshop", status: 401, body: "Sign in", headers: apiHeaders },
-  { id: "book-404", path: "/book/not-a-real-section", status: 404, body: "Page not found", headers: browserHeaders },
-  { id: "route-404", path: "/not-a-real-route", status: 404, body: "Page not found", headers: browserHeaders },
+  { id: "book-404", path: "/book/not-a-real-section", status: 404, body: "Page not found", headers: browserHeaders, document: true },
+  { id: "route-404", path: "/not-a-real-route", status: 404, body: "Page not found", headers: browserHeaders, document: true },
 ];
 
 function argument(name, envName, argv, env) {
@@ -65,6 +65,23 @@ function headerFailures(response, expected) {
   });
 }
 
+function contentSecurityPolicyFailures(response, body, isDocument) {
+  const policy = response.headers.get("content-security-policy") ?? "";
+  const scriptDirective = policy.match(/(?:^|;)\s*script-src\s+([^;]+)/i)?.[1] ?? "";
+  const nonce = scriptDirective.match(/'nonce-([^']+)'/i)?.[1];
+  const failures = [];
+  if (!nonce) failures.push("content-security-policy missing script nonce");
+  if (/\bunsafe-inline\b/i.test(scriptDirective)) failures.push("script-src allows unsafe-inline");
+  if (!isDocument || !nonce) return failures;
+
+  const inlineScripts = body.match(/<script\b(?![^>]*\bsrc=)[^>]*>/gi) ?? [];
+  const styles = body.match(/<style\b[^>]*>/gi) ?? [];
+  const nonceAttribute = new RegExp(`\\bnonce=["']${nonce}["']`, "i");
+  if (inlineScripts.some((tag) => !nonceAttribute.test(tag))) failures.push("inline script missing response nonce");
+  if (styles.some((tag) => !nonceAttribute.test(tag))) failures.push("style element missing response nonce");
+  return failures;
+}
+
 async function fetchRoute(origin, route, fetchImpl) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -79,6 +96,7 @@ async function fetchRoute(origin, route, fetchImpl) {
       ...(response.status === route.status ? [] : [`status ${response.status}, expected ${route.status}`]),
       ...(body.includes(route.body) ? [] : [`body missing ${route.body}`]),
       ...headerFailures(response, route.headers),
+      ...contentSecurityPolicyFailures(response, body, route.document === true),
     ];
     return { id: route.id, path: route.path, status: response.status, result: failures.length ? "FAIL" : "PASS", failures };
   } catch (error) {

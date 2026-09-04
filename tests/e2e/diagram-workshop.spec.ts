@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mockBrowserBoundaries } from "./browser-boundaries";
 
 const viewports = [
   { name: "mobile", width: 390, height: 844 },
@@ -6,6 +7,17 @@ const viewports = [
   { name: "desktop", width: 1440, height: 1000 },
 ] as const;
 const revision = "2026-09-01T12:00:00.000Z";
+const mermaidRoutes = [
+  "/book/practical-system-design-workflow",
+  "/book/2-boundaries-state-and-data",
+  "/book/2b-data-modeling-indexing-and-partitioning",
+  "/book/4-transactions-and-consistency",
+  "/book/6a-real-time-and-long-running-work",
+  "/book/7-failure-handling-and-resilience",
+  "/book/14-requirements-to-delivery-lifecycle-fr-nfr-constraints-adr-and-tip",
+  "/book/15-llm-and-agentic-systems",
+  "/book/16-spec-driven-development-for-agentic-systems",
+] as const;
 
 async function mockLearningState(page: Page) {
   let savedBody: unknown;
@@ -47,6 +59,29 @@ for (const viewport of viewports) {
     }
   });
 }
+
+test("every source-authored Mermaid diagram passes CSP", async ({ page }) => {
+  await mockBrowserBoundaries(page);
+  const cspErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" && message.text().includes("Content Security Policy")) {
+      cspErrors.push(message.text());
+    }
+  });
+  for (const route of mermaidRoutes) {
+    cspErrors.length = 0;
+    await page.goto(route);
+    const loadingState = page.locator(".mermaid-loading");
+    await expect(loadingState).toHaveCount(1);
+    await page.evaluate(() => {
+      document.querySelector<HTMLElement>(".mermaid-loading, .mermaid-diagram")
+        ?.scrollIntoView({ block: "center" });
+    });
+    await expect(page.getByRole("img", { name: "Architecture diagram" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".mermaid-fallback")).toHaveCount(0);
+    expect(cspErrors, route).toEqual([]);
+  }
+});
 
 test("keyboard-only workflow edits, connects, deletes, undoes, and saves", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
