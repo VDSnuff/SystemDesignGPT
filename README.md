@@ -6,6 +6,10 @@ The product, handbook, and support contract are currently English-only.
 Localization is possible future work, not a committed requirement; the boundary
 and implications are documented in [the localization policy](docs/localization-policy.md).
 
+The product does not use page-view or behavioral analytics. Learning-outcome
+decisions and the privacy gate for any future measurement are defined in the
+[product metrics policy](docs/product-metrics.md).
+
 ## Run locally
 
 Requirements: Node.js 22.13 or newer and an `OPENAI_API_KEY` in `.env.local`.
