@@ -20,9 +20,9 @@ export default defineConfig({
   },
   use: {
     ...devices["Desktop Chrome"],
+    ...{ reducedMotion: "reduce" as const },
     baseURL: `http://127.0.0.1:${port}`,
     colorScheme: "light",
-    contextOptions: { reducedMotion: "reduce" },
     locale: "en-US",
     screenshot: "only-on-failure",
     timezoneId: "UTC",
