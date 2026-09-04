@@ -64,7 +64,7 @@ describe("release validation manifest", () => {
 
   it("keeps executable commands and planned gaps explicit", () => {
     const requiredCommands = [
-      "unit-component", "lint", "generated-content", "copilot-evaluation", "production-audit", "full-audit",
+      "unit-component", "typecheck", "lint", "generated-content", "copilot-evaluation", "production-audit", "full-audit",
       "supply-chain", "build", "client-js", "performance-browser", "performance-d1-load", "d1-recovery", "browser",
       "cross-browser",
       "visual-regression",
@@ -94,6 +94,7 @@ describe("release validation manifest", () => {
   });
 
   it("keeps dependency and repository governance executable", () => {
+    expect(packageJson.scripts).toHaveProperty("typecheck");
     expect(packageJson.scripts).toHaveProperty("check:supply-chain");
     expect(packageJson.scripts).toHaveProperty("test:e2e:cross-browser");
     expect(packageJson.scripts).toHaveProperty("test:e2e:visual");

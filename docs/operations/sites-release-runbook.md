@@ -45,6 +45,7 @@ state, operator, and start time. A missing identifier is `UNVERIFIED`.
    ```bash
    npm ci
    npm test
+   npm run typecheck
    npm run lint
    npm run check:generated
    npm audit --omit=dev --audit-level=high

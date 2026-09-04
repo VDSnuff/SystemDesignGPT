@@ -7,7 +7,7 @@ import { nextPersistenceRevision, persistenceRevisionSchema } from "./persistenc
 
 const maximumRequestBytes = 16 * 1_024;
 
-const sectionSlugs = new Set(bookLearningSections.map((section) => section.slug));
+const sectionSlugs = new Set<string>(bookLearningSections.map((section) => section.slug));
 const checklistIds = new Set<string>(bookChecklistIds);
 const handbookProgressInputSchema = handbookProgressSchema.extend({
   expectedUpdatedAt: persistenceRevisionSchema.nullable().default(null),

@@ -17,6 +17,7 @@ The OpenAI key is read only by the server route. It is never sent to the browser
 
 ```bash
 npm test
+npm run typecheck
 npm run lint
 npm run check:generated
 npm run check:supply-chain
