@@ -20,6 +20,7 @@ const browserBatches = [
     "tests/e2e/resilience-guide.spec.ts",
   ],
   [
+    "tests/e2e/guide-route-smoke.spec.ts",
     "tests/e2e/route-smoke.spec.ts",
     "tests/e2e/scale-performance-guide.spec.ts",
     "tests/e2e/search.spec.ts",

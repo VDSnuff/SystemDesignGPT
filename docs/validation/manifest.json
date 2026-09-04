@@ -170,7 +170,7 @@
         "tests/e2e/complete-journeys.spec.ts",
         "tests/e2e/cost-simplicity-guide.spec.ts", "tests/e2e/delivery-lifecycle-guide.spec.ts",
         "tests/e2e/deployment-evolution-guide.spec.ts", "tests/e2e/divider-handles.spec.ts",
-        "tests/e2e/messaging-guide.spec.ts",
+        "tests/e2e/guide-route-smoke.spec.ts", "tests/e2e/messaging-guide.spec.ts",
         "tests/e2e/observability-guide.spec.ts", "tests/e2e/realtime-work-guide.spec.ts",
         "tests/e2e/resilience-guide.spec.ts", "tests/e2e/route-smoke.spec.ts",
         "tests/e2e/scale-performance-guide.spec.ts", "tests/e2e/search.spec.ts",

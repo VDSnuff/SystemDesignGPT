@@ -62,7 +62,8 @@ jobs:
       - run: >-
           npx playwright test --config playwright.cross-browser.config.ts
           --project=chromium --repeat-each=3
-          tests/e2e/route-smoke.spec.ts tests/e2e/complete-journeys.spec.ts
+          tests/e2e/route-smoke.spec.ts tests/e2e/guide-route-smoke.spec.ts
+          tests/e2e/complete-journeys.spec.ts
       - name: Upload flake evidence
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
