@@ -41,6 +41,12 @@ interface LabPerformance {
   readonly shifts: readonly { readonly value: number; readonly selectors: readonly string[] }[];
 }
 
+declare global {
+  interface Window {
+    readonly __labPerformance: LabPerformance;
+  }
+}
+
 const persistenceRevision = "2026-09-01T12:00:00.000Z";
 
 export function percentile(values: number[], fraction: number) {
@@ -111,7 +117,7 @@ async function pageMetrics(page: Page) {
   return page.evaluate(() => {
     const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
     const resources = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
-    const lab = (window as Window & { __labPerformance: LabPerformance }).__labPerformance;
+    const lab = window.__labPerformance;
     return {
       cls: lab.cls,
       lcpMs: lab.lcp,

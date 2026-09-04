@@ -50,15 +50,16 @@ describe("SEO and link contracts", () => {
     expect(metadata.alternates?.canonical).toBe("/chapter/requirements");
     expect(metadata.openGraph?.url).toBe("/chapter/requirements");
     expect(metadata.openGraph?.title).toBe("Requirements · System Design Studio");
-    expect(metadata.twitter?.card).toBe("summary_large_image");
+    expect(metadata.twitter).toMatchObject({ card: "summary_large_image" });
     expect(metadata.robots).toEqual({ index: true, follow: true });
   });
 
   it("declares the real social-preview image dimensions", () => {
     const image = fs.readFileSync("public/og.png");
+    const view = new DataView(image.buffer, image.byteOffset, image.byteLength);
     expect(image.subarray(1, 4).toString()).toBe("PNG");
-    expect(image.readUInt32BE(16)).toBe(1731);
-    expect(image.readUInt32BE(20)).toBe(909);
+    expect(view.getUint32(16)).toBe(1731);
+    expect(view.getUint32(20)).toBe(909);
   });
 
   it("resolves every authored internal content link and heading anchor", () => {

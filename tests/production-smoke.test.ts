@@ -7,7 +7,7 @@ const config = {
   sitesVersion: "42",
 };
 
-function passingResponse(input: URL | RequestInfo) {
+async function passingResponse(input: URL | RequestInfo) {
   const url = new URL(input instanceof URL ? input : String(input));
   const route = smokeRoutes.find(({ path }) => path === `${url.pathname}${url.search}`);
   if (!route) return new Response("unexpected route", { status: 500 });
@@ -16,11 +16,11 @@ function passingResponse(input: URL | RequestInfo) {
 
 describe("production smoke", () => {
   it("fails closed unless exact deployment identity is supplied", () => {
-    expect(() => productionConfig([], {})).toThrow("origin, commit SHA, and Sites version are required");
+    expect(() => productionConfig([], { NODE_ENV: "test" })).toThrow("origin, commit SHA, and Sites version are required");
     expect(() => productionConfig([
       "--origin", "http://system-design.example", "--commit-sha", config.commitSha,
       "--sites-version", config.sitesVersion,
-    ], {})).toThrow("origin must be an HTTPS origin");
+    ], { NODE_ENV: "test" })).toThrow("origin must be an HTTPS origin");
   });
 
   it("checks the public route, signed-out API, header, and 404 matrix", async () => {
@@ -32,10 +32,10 @@ describe("production smoke", () => {
   });
 
   it("fails when a required response differs from the contract", async () => {
-    const fetchWithBroken404 = (input: URL | RequestInfo) => {
+    const fetchWithBroken404 = async (input: URL | RequestInfo) => {
       const url = new URL(input instanceof URL ? input : String(input));
-      if (url.pathname === "/not-a-real-route") return Promise.resolve(new Response("Page not found", { status: 200 }));
-      return Promise.resolve(passingResponse(input));
+      if (url.pathname === "/not-a-real-route") return new Response("Page not found", { status: 200 });
+      return passingResponse(input);
     };
     const report = await runProductionSmoke(config, fetchWithBroken404);
 

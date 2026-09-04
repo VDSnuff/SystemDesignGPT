@@ -263,7 +263,7 @@ describe("authored Quick Guide articles", () => {
   });
 
   it("keeps article handbook links and evidence IDs canonical", () => {
-    const bookSlugs = new Set(bookSections.map(({ slug }) => slug));
+    const bookSlugs = new Set<string>(bookSections.map(({ slug }) => slug));
     const referenceSection = bookSections.find(({ slug }) => slug === "references-and-verification-register");
     const evidenceIds = new Set(
       [...(referenceSection?.markdown.matchAll(/^\| (S\d+) \|/gm) ?? [])].map((match) => match[1]),
