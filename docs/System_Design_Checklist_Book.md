@@ -2136,7 +2136,7 @@ All resources used by the handbook are linked below. Verification on **24 August
 | S24 | [Google SRE: Launch Coordination Checklist](https://sre.google/sre-book/launch-checklist/) | Major engineering reference | PASS / PASS |
 | S25 | [Google SRE: Canarying Releases](https://sre.google/workbook/canarying-releases/) | Major engineering reference | PASS / PASS |
 | S26 | [Kubernetes: Liveness, Readiness, and Startup Probes](https://kubernetes.io/docs/concepts/workloads/pods/probes/) | Official project documentation | PASS / PASS |
-| S27 | [NIST: NIST SP 800-207 — Zero Trust Architecture](https://csrc.nist.gov/pubs/sp/800/207/final) | Government standard/guidance | PASS / PASS |
+| S27 | [NIST: NIST SP 800-207 — Zero Trust Architecture](https://doi.org/10.6028/NIST.SP.800-207) | Government standard/guidance | PASS / PASS |
 | S28 | [OWASP: Application Security Verification Standard (ASVS)](https://owasp.org/www-project-application-security-verification-standard/) | Industry security standard/project | PASS / PASS |
 | S29 | [Microsoft: Azure Well-Architected Security Checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist) | Official guidance | PASS / PASS |
 | S30 | [Microsoft: Azure Well-Architected Operational Excellence](https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/) | Official guidance | PASS / PASS |

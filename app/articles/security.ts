@@ -15,7 +15,7 @@ A compact security workflow is:
 4. Convert material threats into enforceable requirements and smallest-fit controls.
 5. Verify controls and assign remaining risk to an owner.
 
-*Evidence: [S27 — NIST Zero Trust Architecture](https://csrc.nist.gov/pubs/sp/800/207/final), [S29 — Microsoft Azure Well-Architected security checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist).*
+*Evidence: [S27 — NIST Zero Trust Architecture](https://doi.org/10.6028/NIST.SP.800-207), [S29 — Microsoft Azure Well-Architected security checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist).*
 
 ## Draw actors, entry points, and trust boundaries
 

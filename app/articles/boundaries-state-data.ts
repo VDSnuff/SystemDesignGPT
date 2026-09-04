@@ -15,7 +15,7 @@ Do not assume these are the same line. Two services inside one trusted network s
 
 Start with a system-context view: people, the system in scope, and directly connected external systems. Then use a container view to show applications, stores, responsibilities, and calls. Add deeper views only when they resolve a real decision. The diagram is a reasoning tool, not proof that isolation exists.
 
-*Evidence: [S3 — Azure application design principles](https://learn.microsoft.com/en-us/azure/architecture/guide/design-principles/), [S27 — NIST Zero Trust Architecture](https://csrc.nist.gov/pubs/sp/800/207/final), [S93 — C4 diagrams and notation](https://c4model.com/diagrams).*
+*Evidence: [S3 — Azure application design principles](https://learn.microsoft.com/en-us/azure/architecture/guide/design-principles/), [S27 — NIST Zero Trust Architecture](https://doi.org/10.6028/NIST.SP.800-207), [S93 — C4 diagrams and notation](https://c4model.com/diagrams).*
 
 ## Make every important fact answerable
 
