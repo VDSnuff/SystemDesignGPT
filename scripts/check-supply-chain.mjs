@@ -103,8 +103,8 @@ function auditSummary(audit) {
 function collectEvidence() {
   const policy = JSON.parse(fs.readFileSync(policyPath, "utf8"));
   const lockfile = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
-  const productionAudit = runNpm(["audit", "--omit=dev", "--json"]);
-  const fullAudit = runNpm(["audit", "--json"]);
+  const productionAudit = runNpm(["audit", "--package-lock-only", "--omit=dev", "--json"]);
+  const fullAudit = runNpm(["audit", "--package-lock-only", "--json"]);
   const sbom = runNpm(["sbom", "--sbom-format", "cyclonedx"]);
   const licenses = licenseInventory(lockfile, policy);
   const approvedLicenses = new Set(policy.approvedLicenseExpressions);
