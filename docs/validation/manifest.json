@@ -134,7 +134,8 @@
         "tests/cost-simplicity-guide-article.test.ts", "tests/deployment-evolution-guide-article.test.ts",
         "tests/observability-guide-article.test.ts", "tests/resilience-guide-article.test.ts",
         "tests/scale-performance-guide-article.test.ts", "tests/security-guide-article.test.ts",
-        "tests/quiz-persistence.test.ts", "tests/section-quiz.test.ts"
+        "tests/localization-policy.test.ts", "tests/quiz-persistence.test.ts",
+        "tests/section-quiz.test.ts"
       ]
     },
     {
