@@ -40,7 +40,7 @@ DNS is part of runtime behavior. Record the names used, resolution path, caching
 
 Proxies and load balancers can change the effective contract. Verify request and response size limits, buffering, streaming support, connection and idle timeouts, health-based routing, retry behavior, and whether a persistent connection remains pinned to one backend. For regional routing, show where the client enters, where state is authoritative, what crosses regions, and what happens when one region or the route between regions is unavailable.
 
-*Evidence: [S24 — Google SRE launch checklist](https://sre.google/sre-book/launch-checklist/), [S27 — NIST Zero Trust Architecture](https://csrc.nist.gov/pubs/sp/800/207/final), [S31 — Azure performance efficiency](https://learn.microsoft.com/en-us/azure/well-architected/performance-efficiency/).*
+*Evidence: [S24 — Google SRE launch checklist](https://sre.google/sre-book/launch-checklist/), [S27 — NIST Zero Trust Architecture](https://doi.org/10.6028/NIST.SP.800-207), [S31 — Azure performance efficiency](https://learn.microsoft.com/en-us/azure/well-architected/performance-efficiency/).*
 
 ## Worked example: export progress
 

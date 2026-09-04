@@ -188,8 +188,9 @@ measurements without creating production data or provider traffic.
 
 Link health is executable under #67. It checks the canonical source URLs,
 route/anchor contracts, server-rendered metadata, robots, sitemap, aliases,
-errors, internal links, and public images. HTTP 401, 403, 429, 5xx responses,
-and network failures remain `UNVERIFIED` instead of being mislabeled as broken;
+errors, internal links, and public images. A non-successful `HEAD` response is
+retried with `GET` before classification. HTTP 401, 403, 429, 5xx responses,
+and network failures remain `UNVERIFIED` with `BROWSER_REQUIRED` verification;
 other terminal 4xx responses fail the gate. Production smoke is executable
 under #69 and requires an HTTPS origin, exact 40-character Git SHA, and numeric
 Sites version. It checks the public signed-out route/API/header matrix and fails
