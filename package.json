@@ -14,6 +14,7 @@
     "build": "vinext build",
     "check:generated": "npm run generate:book && git diff --exit-code -- app/book-content.generated.ts app/book-learning.generated.ts app/book-progress.generated.ts app/book-search.generated.ts",
     "check:copilot-evaluation": "vitest run tests/copilot-evaluation.test.ts tests/chat-route.test.ts tests/chat-panel.test.tsx",
+    "check:evidence-freshness": "node scripts/check-evidence-freshness.mjs",
     "check:external-links": "node scripts/check-external-links.mjs",
     "check:links": "npm run check:external-links && vitest run tests/seo-links.test.ts && playwright test tests/e2e/seo-links.spec.ts",
     "start": "vinext start",

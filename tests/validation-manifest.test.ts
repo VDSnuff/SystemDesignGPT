@@ -64,7 +64,7 @@ describe("release validation manifest", () => {
 
   it("keeps executable commands and planned gaps explicit", () => {
     const requiredCommands = [
-      "unit-component", "typecheck", "lint", "generated-content", "copilot-evaluation", "production-audit", "full-audit",
+      "unit-component", "typecheck", "lint", "generated-content", "evidence-freshness", "copilot-evaluation", "production-audit", "full-audit",
       "supply-chain", "build", "client-js", "performance-browser", "performance-d1-load", "d1-recovery", "browser",
       "cross-browser",
       "visual-regression",

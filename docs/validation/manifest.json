@@ -108,6 +108,7 @@
     { "id": "typecheck", "command": "npm run typecheck", "status": "available", "blocking": true, "artifacts": ["TypeScript compiler output"] },
     { "id": "lint", "command": "npm run lint", "status": "available", "blocking": true, "artifacts": ["lint output"] },
     { "id": "generated-content", "command": "npm run check:generated", "status": "available", "blocking": true, "artifacts": ["section count", "git diff"] },
+    { "id": "evidence-freshness", "command": "npm run check:evidence-freshness", "status": "available", "blocking": true, "ownerIssue": 110, "artifacts": ["automated, browser, and semantic review matrix", "expired or actionable source failures"] },
     { "id": "copilot-evaluation", "command": "npm run check:copilot-evaluation", "status": "available", "blocking": true, "ownerIssue": 62, "artifacts": ["versioned case contract", "provider boundary tests"] },
     { "id": "production-audit", "command": "npm audit --omit=dev --audit-level=high", "status": "available", "blocking": true, "artifacts": ["audit summary"] },
     { "id": "full-audit", "command": "npm audit --audit-level=high", "status": "available", "blocking": true, "artifacts": ["advisory triage"] },
@@ -134,7 +135,7 @@
         "tests/cost-simplicity-guide-article.test.ts", "tests/deployment-evolution-guide-article.test.ts",
         "tests/observability-guide-article.test.ts", "tests/resilience-guide-article.test.ts",
         "tests/scale-performance-guide-article.test.ts", "tests/security-guide-article.test.ts",
-        "tests/localization-policy.test.ts", "tests/product-metrics-policy.test.ts",
+        "tests/evidence-freshness.test.ts", "tests/localization-policy.test.ts", "tests/product-metrics-policy.test.ts",
         "tests/quiz-persistence.test.ts", "tests/section-quiz.test.ts"
       ]
     },
