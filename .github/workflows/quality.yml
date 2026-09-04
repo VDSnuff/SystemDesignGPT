@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - run: npm ci
+      - run: npm ci --no-audit
       - run: npm test
       - run: npm run lint
       - run: npm run check:generated
@@ -63,7 +63,7 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - run: npm ci
+      - run: npm ci --no-audit
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run check:links

@@ -1,25 +1,45 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const outputDirectory = "outputs/supply-chain";
 const policyPath = "docs/validation/dependency-policy.json";
+export const supplyChainCommandTimeoutMs = 60_000;
+
+export function parseNpmResult(args, result) {
+  const command = `npm ${args.join(" ")}`;
+  if (result.error?.code === "ETIMEDOUT") {
+    throw new Error(`${command} timed out after ${supplyChainCommandTimeoutMs / 1_000} seconds; retry when the npm registry is reachable`);
+  }
+  if (result.error) throw new Error(`${command} failed to start: ${result.error.message}`);
+  if (!result.stdout) throw new Error(`${command} produced no JSON output: ${result.stderr}`);
+  let output;
+  try { output = JSON.parse(result.stdout); } catch { throw new Error(`${command} produced invalid JSON`); }
+  if (output.error) {
+    const detail = output.error.summary || output.error.detail || result.stderr || "unknown registry error";
+    throw new Error(`${command} could not establish an audit result: ${detail}`);
+  }
+  const isAuditFindingExit = args[0] === "audit" && result.status === 1;
+  if (result.status !== 0 && !isAuditFindingExit) {
+    throw new Error(`${command} failed with exit code ${result.status}: ${result.stderr}`);
+  }
+  return output;
+}
 
 function runNpm(args) {
   const result = spawnSync("npm", args, {
     encoding: "utf8",
     maxBuffer: 10 * 1024 * 1024,
     shell: process.platform === "win32",
+    timeout: supplyChainCommandTimeoutMs,
   });
-  if (!result.stdout) {
-    throw new Error(`npm ${args.join(" ")} produced no output: ${result.stderr}`);
-  }
-  return result.stdout;
+  return parseNpmResult(args, result);
 }
 
-function writeJson(fileName, value) {
+function writeJson(directory, fileName, value) {
   fs.writeFileSync(
-    path.join(outputDirectory, fileName),
+    path.join(directory, fileName),
     `${JSON.stringify(value, null, 2)}\n`,
   );
 }
@@ -83,9 +103,9 @@ function auditSummary(audit) {
 function collectEvidence() {
   const policy = JSON.parse(fs.readFileSync(policyPath, "utf8"));
   const lockfile = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
-  const productionAudit = JSON.parse(runNpm(["audit", "--omit=dev", "--json"]));
-  const fullAudit = JSON.parse(runNpm(["audit", "--json"]));
-  const sbom = JSON.parse(runNpm(["sbom", "--sbom-format", "cyclonedx"]));
+  const productionAudit = runNpm(["audit", "--omit=dev", "--json"]);
+  const fullAudit = runNpm(["audit", "--json"]);
+  const sbom = runNpm(["sbom", "--sbom-format", "cyclonedx"]);
   const licenses = licenseInventory(lockfile, policy);
   const approvedLicenses = new Set(policy.approvedLicenseExpressions);
   const unapprovedLicenses = licenses.filter(({ license }) => !approvedLicenses.has(license));
@@ -93,14 +113,13 @@ function collectEvidence() {
   return { productionAudit, fullAudit, sbom, licenses, unapprovedLicenses, unaccepted };
 }
 
-function writeEvidence(evidence) {
+function writeEvidenceFiles(directory, evidence) {
   const { productionAudit, fullAudit, sbom, licenses, unapprovedLicenses, unaccepted } = evidence;
-  fs.mkdirSync(outputDirectory, { recursive: true });
-  writeJson("production-audit.json", productionAudit);
-  writeJson("full-audit.json", fullAudit);
-  writeJson("licenses.json", licenses);
-  writeJson("sbom.cdx.json", sbom);
-  writeJson("summary.json", {
+  writeJson(directory, "production-audit.json", productionAudit);
+  writeJson(directory, "full-audit.json", fullAudit);
+  writeJson(directory, "licenses.json", licenses);
+  writeJson(directory, "sbom.cdx.json", sbom);
+  writeJson(directory, "summary.json", {
     production: auditSummary(productionAudit),
     full: auditSummary(fullAudit),
     licenseCount: licenses.length,
@@ -109,8 +128,35 @@ function writeEvidence(evidence) {
   });
 }
 
+function writeEvidence(evidence) {
+  fs.mkdirSync(path.dirname(outputDirectory), { recursive: true });
+  const stagingDirectory = fs.mkdtempSync(`${outputDirectory}.staging-`);
+  const previousDirectory = `${outputDirectory}.previous-${process.pid}`;
+  try {
+    writeEvidenceFiles(stagingDirectory, evidence);
+    if (fs.existsSync(outputDirectory)) fs.renameSync(outputDirectory, previousDirectory);
+    fs.renameSync(stagingDirectory, outputDirectory);
+    if (fs.existsSync(previousDirectory)) fs.rmSync(previousDirectory, { recursive: true });
+  } catch (error) {
+    if (!fs.existsSync(outputDirectory) && fs.existsSync(previousDirectory)) fs.renameSync(previousDirectory, outputDirectory);
+    if (fs.existsSync(stagingDirectory)) fs.rmSync(stagingDirectory, { recursive: true });
+    throw error;
+  }
+}
+
+function validateAuditReport(audit, label) {
+  if (!audit.metadata?.vulnerabilities || !audit.metadata.dependencies || !audit.vulnerabilities) {
+    throw new Error(`${label} returned an incomplete report without vulnerability and dependency metadata`);
+  }
+}
+
 function validateEvidence(evidence) {
-  const { fullAudit, licenses, unapprovedLicenses, unaccepted } = evidence;
+  const { productionAudit, fullAudit, licenses, unapprovedLicenses, unaccepted } = evidence;
+  validateAuditReport(productionAudit, "npm production audit");
+  validateAuditReport(fullAudit, "npm full audit");
+  if (evidence.sbom.bomFormat !== "CycloneDX") {
+    throw new Error("npm sbom returned an invalid CycloneDX document");
+  }
   if (unapprovedLicenses.length || unaccepted.length) {
     throw new Error(
       `Supply-chain policy failed: ${unapprovedLicenses.length} license and ${unaccepted.length} vulnerability exception(s) require review`,
@@ -121,6 +167,21 @@ function validateEvidence(evidence) {
   );
 }
 
-const evidence = collectEvidence();
-writeEvidence(evidence);
-validateEvidence(evidence);
+export function runSupplyChain({
+  collect = collectEvidence,
+  validate = validateEvidence,
+  write = writeEvidence,
+} = {}) {
+  const evidence = collect();
+  validate(evidence);
+  write(evidence);
+}
+
+function main() {
+  try { runSupplyChain(); } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}
+
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main();

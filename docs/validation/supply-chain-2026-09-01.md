@@ -43,6 +43,11 @@ and fails CI if its source, severity, or dependency set changes.
 - a summary that fails on every high or critical finding, any unaccepted
   advisory, or any new license expression.
 
+Each npm audit/SBOM command has a 60-second timeout. Registry, timeout, malformed
+JSON, and policy failures exit nonzero before the previous complete evidence is
+replaced. CI installs with `npm ci --no-audit`; the explicit supply-chain command
+is the only audit gate, so install-time registry work cannot hide or duplicate it.
+
 Khroma 2.1.0 omits its license field from the registry metadata and lockfile;
 its packaged `LICENSE` file is MIT. The exact name/version override is recorded
 in the policy, so another missing-license package still fails the gate.

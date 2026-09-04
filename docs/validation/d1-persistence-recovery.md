@@ -51,7 +51,7 @@ Repository errors return `503` and do not replace local browser state.
 Run from a clean checkout after the production build:
 
 ```bash
-npm ci
+npm ci --no-audit
 npm test
 npm run build
 npm run check:performance:d1

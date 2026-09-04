@@ -43,7 +43,7 @@ state, operator, and start time. A missing identifier is `UNVERIFIED`.
 2. Install exactly the lockfile and run the blocking validation commands:
 
    ```bash
-   npm ci
+   npm ci --no-audit
    npm test
    npm run lint
    npm run check:generated
