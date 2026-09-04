@@ -200,7 +200,7 @@
     {
       "id": "seo-link-health",
       "risks": ["seo-link-health", "content-integrity", "functional-ui"],
-      "files": ["tests/seo-links.test.ts", "tests/e2e/seo-links.spec.ts"]
+      "files": ["tests/external-link-checker.test.ts", "tests/seo-links.test.ts", "tests/e2e/seo-links.spec.ts"]
     }
   ]
 }
