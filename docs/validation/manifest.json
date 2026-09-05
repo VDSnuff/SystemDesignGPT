@@ -131,7 +131,7 @@
       "id": "canonical-content",
       "risks": ["content-integrity", "functional-ui"],
       "files": [
-        "tests/book-generation.test.ts", "tests/book-search.test.ts", "tests/guide-articles.test.ts",
+        "tests/architecture-decisions.test.ts", "tests/book-generation.test.ts", "tests/book-search.test.ts", "tests/guide-articles.test.ts",
         "tests/guide-handbook-coverage.test.tsx",
         "tests/cost-simplicity-guide-article.test.ts", "tests/deployment-evolution-guide-article.test.ts",
         "tests/observability-guide-article.test.ts", "tests/resilience-guide-article.test.ts",
