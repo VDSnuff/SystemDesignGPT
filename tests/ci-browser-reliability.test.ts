@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { observeRoute } from "./e2e/route-diagnostics";
 
 const config = readFileSync("playwright.config.ts", "utf8");
+const seoLinks = readFileSync("tests/e2e/seo-links.spec.ts", "utf8");
 const workflow = readFileSync(".github/workflows/quality.yml", "utf8");
 
 describe("browser CI reliability", () => {
@@ -15,6 +16,11 @@ describe("browser CI reliability", () => {
   it("records resource use without requiring a missing performance artifact", () => {
     expect(workflow).toContain("/usr/bin/time --verbose npm run test:e2e");
     expect(workflow).toContain("always() && hashFiles('performance-results/**') != ''");
+  });
+
+  it("gives only the aggregate internal-link crawl its measured route budget", () => {
+    expect(seoLinks).toContain("test.setTimeout(INTERNAL_LINK_CRAWL_TIMEOUT_MS)");
+    expect(seoLinks).toContain("const INTERNAL_LINK_CRAWL_TIMEOUT_MS = 60_000");
   });
 
   it("emits structured diagnostics for a slow route", async () => {

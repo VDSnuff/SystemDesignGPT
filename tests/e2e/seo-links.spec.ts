@@ -5,6 +5,7 @@ import { guidePages } from "../../app/content";
 import { observeRoute } from "./route-diagnostics";
 
 const SITE_ORIGIN = "https://system-design-studio.v-dovnich.chatgpt.site";
+const INTERNAL_LINK_CRAWL_TIMEOUT_MS = 60_000;
 const METADATA_CRAWL_TIMEOUT_MS = 60_000;
 
 const indexableRoutes = [
@@ -84,6 +85,7 @@ test("robots, sitemap, private routes, aliases, and errors match policy", async 
 });
 
 test("all rendered internal links, anchors, and public images resolve", async ({ request }) => {
+  test.setTimeout(INTERNAL_LINK_CRAWL_TIMEOUT_MS);
   const documents = new Map<string, Document>();
   const targets = new Map<string, URL>();
   for (const path of [...indexableRoutes, "/owner/comments"]) {
