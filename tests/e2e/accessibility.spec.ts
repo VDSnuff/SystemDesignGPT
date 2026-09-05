@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { guidePages } from "../../app/content";
+import { observeRoute } from "./route-diagnostics";
 
 const guideRoutes = guidePages.map(({ slug }) => `/chapter/${slug}`);
 const representativeRoutes = [
@@ -88,7 +89,7 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
     "/workshop",
   ];
   for (const route of reflowRoutes) {
-    await page.goto(route);
+    await observeRoute(route, () => page.goto(route));
     const hasPageOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(hasPageOverflow).toBe(false);
   }

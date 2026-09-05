@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext } from "@playwright/test";
 import { JSDOM } from "jsdom";
 import { bookSections } from "../../app/book-content.generated";
 import { guidePages } from "../../app/content";
+import { observeRoute } from "./route-diagnostics";
 
 const SITE_ORIGIN = "https://system-design-studio.v-dovnich.chatgpt.site";
 const METADATA_CRAWL_TIMEOUT_MS = 60_000;
@@ -14,7 +15,7 @@ const indexableRoutes = [
 ];
 
 async function documentFor(request: APIRequestContext, path: string) {
-  const response = await request.get(path);
+  const response = await observeRoute(path, () => request.get(path));
   expect(response.status(), path).toBe(200);
   return new JSDOM(await response.text()).window.document;
 }
