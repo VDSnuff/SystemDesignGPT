@@ -8,10 +8,10 @@ test("the Agentic systems guide article renders at desktop and mobile widths", a
     expect((await page.goto("/chapter/agentic-systems"))?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 2, name: "Worked example: a bounded order-cancellation agent" })).toBeVisible();
     await expect(page.getByRole("table")).toContainText("Single bounded agent");
-    await expect(page.getByRole("link", { name: "15. LLM and Agentic Systems" })).toHaveAttribute(
-      "href",
-      "/book/15-llm-and-agentic-systems",
-    );
+    const coverage = page.getByRole("region", { name: "This Quick Guide summarizes" });
+    await expect(coverage.getByRole("link", { name: "Canonical handbook chapter 15: LLM and Agentic Systems" })).toHaveAttribute("href", "/book/15-llm-and-agentic-systems");
+    await expect(coverage.getByRole("link", { name: "Canonical handbook chapter 16: Spec-Driven Development for Agentic Systems" })).toHaveAttribute("href", "/book/16-spec-driven-development-for-agentic-systems");
+    await expect(coverage.getByRole("link", { name: "Canonical handbook chapter 17: Agent-System Design Review Checklist" })).toHaveAttribute("href", "/book/17-agent-system-design-review-checklist");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 });
