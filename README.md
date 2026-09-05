@@ -10,6 +10,9 @@ The product does not use page-view or behavioral analytics. Learning-outcome
 decisions and the privacy gate for any future measurement are defined in the
 [product metrics policy](docs/product-metrics.md).
 
+Significant runtime, trust, data, generation, provider, and rendering choices
+are preserved in the [architecture decision records](docs/adr/README.md).
+
 ## Run locally
 
 Requirements: Node.js 22.13 or newer and an `OPENAI_API_KEY` in `.env.local`.
