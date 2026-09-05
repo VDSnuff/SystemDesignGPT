@@ -94,6 +94,20 @@ test("core pages reflow without page-level horizontal scrolling", async ({ page 
   }
 });
 
+test("mobile Quick Guide navigation exposes canonical and handbook-only coverage", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockAccessibilityBoundaries(page);
+  await page.goto("/chapter/requirements");
+  await page.waitForLoadState("networkidle");
+  await page.getByText("Quick Guides · Requirements", { exact: true }).click();
+
+  const navigation = page.getByRole("navigation", { name: "Quick Guides" });
+  await expect(navigation.getByRole("link", { name: "01 Requirements", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "13. Master System Design Review Checklist" }).first()).toBeVisible();
+  await expect(page.getByRole("region", { name: "This Quick Guide summarizes" })).toBeVisible();
+  expect(await seriousViolations(page)).toEqual([]);
+});
+
 test("interactive controls retain visible focus and 44 pixel targets", async ({ browserName, page }) => {
   await mockAccessibilityBoundaries(page);
   await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");

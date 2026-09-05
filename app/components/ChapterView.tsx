@@ -6,6 +6,7 @@ import { BookMarkdown } from "./BookMarkdown";
 import { ChapterNav } from "./ChapterNav";
 import { ChatPanel } from "./ChatPanel";
 import { Checklist } from "./Checklist";
+import { GuideHandbookCoverage } from "./GuideHandbookCoverage";
 
 export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
   const article = findGuideArticle(page.slug);
@@ -15,7 +16,7 @@ export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
       <main className="reader-layout reader-layout-guide mx-auto grid min-h-screen max-w-[1600px] bg-paper text-ink" id="main-content" tabIndex={-1}>
         <ChapterNav activeSlug={page.slug} />
         <article className="min-w-0 px-5 py-10 sm:px-10 lg:px-12 lg:py-14">
-          <p className="kicker">Chapter {page.number} · {page.label}</p>
+          <p className="kicker">Quick Guide {page.number} · {page.label}</p>
           <h1 className="page-title mt-5 max-w-4xl font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl 2xl:text-7xl">
             {page.title}
           </h1>
@@ -35,6 +36,8 @@ export function ChapterView({ page }: Readonly<{ page: GuidePage }>) {
               <span className="font-semibold group-hover:translate-x-1">Open canvas →</span>
             </Link>
           </section>
+
+          <GuideHandbookCoverage sections={page.handbookSections} />
 
           {article ? (
             <section aria-label={`${page.label} article`} className="mt-14">
