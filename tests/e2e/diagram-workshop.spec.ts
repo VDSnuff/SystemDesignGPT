@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mockBrowserBoundaries } from "./browser-boundaries";
+import { observeRoute } from "./route-diagnostics";
 
 const viewports = [
   { name: "mobile", width: 390, height: 844 },
@@ -70,7 +71,7 @@ test("every source-authored Mermaid diagram passes CSP", async ({ page }) => {
   });
   for (const route of mermaidRoutes) {
     cspErrors.length = 0;
-    await page.goto(route);
+    await observeRoute(route, () => page.goto(route));
     const loadingState = page.locator(".mermaid-loading");
     await expect(loadingState).toHaveCount(1);
     await page.evaluate(() => {

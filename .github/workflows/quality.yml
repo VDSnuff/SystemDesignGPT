@@ -67,13 +67,14 @@ jobs:
           cache: npm
       - run: npm ci --no-audit
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Run browser contracts with resource diagnostics
+        run: /usr/bin/time --verbose npm run test:e2e
       - run: npm run check:links
       - run: npm run build
       - run: npm run test:e2e:visual
       - run: npm run check:performance
       - name: Upload performance evidence
-        if: always()
+        if: ${{ always() && hashFiles('performance-results/**') != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: performance-${{ github.run_id }}
