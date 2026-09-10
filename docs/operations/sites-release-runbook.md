@@ -94,6 +94,16 @@ The authoritative revision proof is the complete chain:
 remote main SHA = tested SHA = saved-version source SHA = deployed version ID
 ```
 
+## GitHub release record
+
+After production smoke succeeds, publish a GitHub release from the deployed
+commit using the tag `sites-v<N>`, where `<N>` is the deployed Sites version.
+The release notes must record the production URL, full source SHA, Sites version,
+validation scope, and every known `UNVERIFIED` or `BLOCKED` boundary. Mark the
+release as a prerelease unless issue #70 has a terminal `READY` or
+`READY WITH ACCEPTED RISKS` verdict for that exact revision. A GitHub release is
+a deployment-provenance record and must not imply broader launch readiness.
+
 ## Postdeploy smoke
 
 Run the committed fail-closed matrix with the identifiers verified above:

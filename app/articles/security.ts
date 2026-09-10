@@ -33,7 +33,7 @@ Write threats before selecting products. Record the asset, actor, path, impact, 
 
 Controls prevent, detect, limit, or recover from harm. **Defense in depth** uses independent layers so one decision is not the only protection. Each layer must answer a named threat.
 
-*Evidence: [S28 — OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/), [S29 — Microsoft Azure Well-Architected security checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist).*
+*Evidence: [S28 — OWASP Application Security Verification Standard](https://github.com/OWASP/ASVS), [S29 — Microsoft Azure Well-Architected security checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist).*
 
 ## Separate identity from resource authorization
 
@@ -117,7 +117,7 @@ Combine review, automated tests, scans, artifact verification, and targeted pene
 
 For each material residual risk, record impact, evidence, owner, review date, incident signal, and treatment. Revisit after architecture, identity, data, vendor, deployment, or incident changes.
 
-*Evidence: [S28 — OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/), [S29 — Microsoft Azure Well-Architected security checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist).*
+*Evidence: [S28 — OWASP Application Security Verification Standard](https://github.com/OWASP/ASVS), [S29 — Microsoft Azure Well-Architected security checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist).*
 
 ## Security review checklist
 

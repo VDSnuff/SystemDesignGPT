@@ -95,7 +95,7 @@
       "semantic": { "checkedAt": "2026-09-04", "result": "CURRENT", "summary": "The expanded documentation continues to support the cited spec-driven-development workflow." }
     },
     {
-      "id": "S82", "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/", "chapters": [17],
+      "id": "S82", "url": "https://genai.owasp.org/initiatives/top-10-for-llm-and-genai/", "chapters": [17],
       "owner": "handbook-editor", "reasons": ["release-pointer"],
       "lastChecked": "2026-09-04", "reviewAfter": "2026-10-04", "nextReviewTrigger": "OWASP changes the legacy entry point, current release, or risk taxonomy",
       "automated": { "checkedAt": "2026-09-04", "result": "PASS" },

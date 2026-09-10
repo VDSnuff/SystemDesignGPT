@@ -2,6 +2,8 @@
 
 An interactive edition of the System Design Checklist Book. All 31 top-level sections are generated directly from the canonical Markdown, including tables, checklists, code, Mermaid diagrams, evidence references, and source links. Every handbook page includes a contextual design copilot that knows the current section and complete site map. The diagram workshop lets readers place components, connect dependencies, and reason about boundaries and failure paths.
 
+**Live application:** [system-design-studio.v-dovnich.chatgpt.site](https://system-design-studio.v-dovnich.chatgpt.site)
+
 The product, handbook, and support contract are currently English-only.
 Localization is possible future work, not a committed requirement; the boundary
 and implications are documented in [the localization policy](docs/localization-policy.md).
@@ -190,3 +192,16 @@ Use the same runbook's [rollback procedure](docs/operations/sites-release-runboo
 only after checking D1 schema compatibility. Application rollback does not
 rewind D1; data recovery requires the separately approved hosted backup/restore
 procedure.
+
+## License and releases
+
+The repository is available under the [MIT License](LICENSE).
+
+GitHub releases use the tag `sites-v<N>`, where `<N>` is the deployed Sites
+version number. Each release targets the exact deployed Git commit and records
+the production URL, full source SHA, Sites version, validation scope, and known
+unverified or blocked evidence. A deployment release is a provenance record; it
+does not claim launch readiness unless the release notes cite a terminal verdict
+from the [release-validation program](https://github.com/VDSnuff/SystemDesignGPT/issues/58).
+The operational steps are defined in the
+[Sites release runbook](docs/operations/sites-release-runbook.md#github-release-record).
