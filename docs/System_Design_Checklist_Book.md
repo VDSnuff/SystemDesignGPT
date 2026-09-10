@@ -2139,7 +2139,7 @@ This is a dated edition snapshot, not a claim that semantic support is permanent
 | S25 | [Google SRE: Canarying Releases](https://sre.google/workbook/canarying-releases/) | Major engineering reference | PASS / PASS |
 | S26 | [Kubernetes: Liveness, Readiness, and Startup Probes](https://kubernetes.io/docs/concepts/workloads/pods/probes/) | Official project documentation | PASS / PASS |
 | S27 | [NIST: NIST SP 800-207 — Zero Trust Architecture](https://doi.org/10.6028/NIST.SP.800-207) | Government standard/guidance | PASS / PASS |
-| S28 | [OWASP: Application Security Verification Standard (ASVS)](https://owasp.org/www-project-application-security-verification-standard/) | Industry security standard/project | PASS / PASS |
+| S28 | [OWASP: Application Security Verification Standard (ASVS)](https://github.com/OWASP/ASVS) | Industry security standard/project | PASS / PASS |
 | S29 | [Microsoft: Azure Well-Architected Security Checklist](https://learn.microsoft.com/en-us/azure/well-architected/security/checklist) | Official guidance | PASS / PASS |
 | S30 | [Microsoft: Azure Well-Architected Operational Excellence](https://learn.microsoft.com/en-us/azure/well-architected/operational-excellence/) | Official guidance | PASS / PASS |
 | S31 | [Microsoft: Azure Well-Architected Performance Efficiency](https://learn.microsoft.com/en-us/azure/well-architected/performance-efficiency/) | Official guidance | PASS / PASS |
@@ -2193,7 +2193,7 @@ This is a dated edition snapshot, not a claim that semantic support is permanent
 | S79 | [Agent Skills: specification](https://github.com/agentskills/agentskills/blob/main/docs/specification.mdx) | Official open specification | PASS / PASS |
 | S80 | [GitHub: Spec Kit documentation](https://github.github.com/spec-kit/) | Official spec-driven-development toolkit and workflow | PASS / PASS |
 | S81 | [NIST: AI RMF Generative AI Profile (NIST AI 600-1)](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence) | Government risk-management guidance | PASS / PASS |
-| S82 | [OWASP: Top 10 for Large Language Model Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/) | Industry security project; current release linked from page | PASS / PASS |
+| S82 | [OWASP: Top 10 for LLM and GenAI](https://genai.owasp.org/initiatives/top-10-for-llm-and-genai/) | Industry security project; current release linked from page | PASS / PASS |
 | S83 | [OWASP: Agentic AI — Threats and Mitigations](https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/) | Industry agent-security guidance | PASS / PASS |
 | S84 | [Microsoft: Threat modeling for AI agents](https://learn.microsoft.com/en-us/agents/architecture/threat-models) | Official architecture and security guidance | PASS / PASS |
 | S85 | [OpenAI: Model Spec, 12 September 2025](https://model-spec.openai.com/2025-09-12.html) | Official behavioral-specification example; dated snapshot | PASS / PASS |
