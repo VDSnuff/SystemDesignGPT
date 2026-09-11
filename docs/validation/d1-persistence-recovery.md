@@ -41,6 +41,14 @@ older application build can still read rows written by this version, but it
 does not enforce the new client conflict contract; rollback safety must be
 confirmed against the exact deployed build under #69 and #93.
 
+Migration `0003` only adds `learning_comments` indexes on `(created_at, id)`
+and `(user_id)`; it is additive and safe to roll back across. Owner comment
+pages order and cursor on `(created_at, id)`, so records that share a boundary
+timestamp are returned exactly once. `tests/learning-comments-queries.test.ts`
+applies every journal migration to an in-process SQLite database, pages 250
+colliding rows through the real handlers, and asserts `EXPLAIN QUERY PLAN`
+uses those indexes for pagination, retention deletes, and per-user counts.
+
 Malformed diagram, quiz, and handbook progress payloads are decoded through
 versioned schemas. Valid legacy data is migrated in memory, invalid structured
 fields reset with a visible warning, and unrelated valid fields remain intact.

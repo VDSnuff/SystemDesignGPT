@@ -27,7 +27,11 @@ export const learningComments = sqliteTable("learning_comments", {
   body: text("body").notNull(),
   status: text("status", { enum: ["new", "read"] }).notNull().default("new"),
   createdAt: text("created_at").notNull(),
-}, (table) => [index("learning_comments_status_created_idx").on(table.status, table.createdAt)]);
+}, (table) => [
+  index("learning_comments_status_created_idx").on(table.status, table.createdAt),
+  index("learning_comments_created_id_idx").on(table.createdAt, table.id),
+  index("learning_comments_user_idx").on(table.userId),
+]);
 
 export const apiRateLimits = sqliteTable("api_rate_limits", {
   scope: text("scope").notNull(),

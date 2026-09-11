@@ -9,12 +9,29 @@ vi.mock("../app/rate-limit-repository", () => ({
 
 import { DELETE, GET, PATCH, POST } from "../app/api/learning-comments/route";
 
+const commentId = "a4fe79cb-785a-43ef-a7f6-5516cd2af83e";
+
 interface RequestOptions {
   readonly body?: unknown;
   readonly email?: string;
   readonly method: "DELETE" | "GET" | "PATCH" | "POST";
   readonly origin?: string;
+  readonly search?: string;
   readonly userId?: string;
+}
+
+function ownerRequest(method: RequestOptions["method"], extra: Partial<RequestOptions> = {}) {
+  return request({ method, origin: "http://localhost", userId: "owner", email: "owner@example.com", ...extra });
+}
+
+function readableDb(rows: unknown[], where = vi.fn()) {
+  const limit = vi.fn().mockResolvedValue(rows);
+  where.mockReturnValue({ orderBy: () => ({ limit }) });
+  return { db: { delete: () => ({ where: vi.fn().mockResolvedValue(undefined) }), select: () => ({ from: () => ({ where }) }) }, limit };
+}
+
+function pageOf(size: number, createdAt: string) {
+  return Array.from({ length: size }, (_, index) => ({ id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`, createdAt }));
 }
 
 function request(options: RequestOptions) {
@@ -22,7 +39,7 @@ function request(options: RequestOptions) {
   if (options.userId) headers.set("oai-authenticated-user-id", options.userId);
   if (options.email) headers.set("oai-authenticated-user-email", options.email);
   if (options.origin) headers.set("origin", options.origin);
-  return new Request("http://localhost/api/learning-comments", {
+  return new Request(`http://localhost/api/learning-comments${options.search ?? ""}`, {
     method: options.method,
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -52,18 +69,43 @@ describe("learning comment authorization contract", () => {
 
   it("allows the configured owner to read comments", async () => {
     vi.stubEnv("SITE_OWNER_EMAIL", "owner@example.com");
-    const limit = vi.fn().mockResolvedValue([]);
-    const where = vi.fn().mockResolvedValue(undefined);
-    getDbMock.mockReturnValue({
-      delete: () => ({ where }),
-      select: () => ({ from: () => ({ orderBy: () => ({ limit }) }) }),
-    });
+    const where = vi.fn();
+    const { db, limit } = readableDb([], where);
+    getDbMock.mockReturnValue(db);
 
     const response = await GET(request({ method: "GET", userId: "owner", email: "OWNER@example.com" }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ comments: [] });
+    expect(where).toHaveBeenCalledWith(undefined);
     expect(limit).toHaveBeenCalledWith(100);
+  });
+
+  it("returns a composite cursor only for a full page and resumes from it", async () => {
+    vi.stubEnv("SITE_OWNER_EMAIL", "owner@example.com");
+    const fullPage = pageOf(100, "2026-09-01T12:00:00.000Z");
+    const where = vi.fn();
+    getDbMock.mockReturnValue(readableDb(fullPage, where).db);
+    const first = await (await GET(ownerRequest("GET"))).json() as { nextCursor?: string };
+    expect(first.nextCursor).toBe(`2026-09-01T12:00:00.000Z|${fullPage.at(-1)?.id}`);
+
+    getDbMock.mockReturnValue(readableDb(pageOf(3, "2026-09-01T12:00:00.000Z"), where).db);
+    const response = await GET(ownerRequest("GET", { search: `?before=${encodeURIComponent(first.nextCursor ?? "")}` }));
+    const second = await response.json() as { comments: unknown[]; nextCursor?: string };
+
+    expect(response.status).toBe(200);
+    expect(second.comments).toHaveLength(3);
+    expect(second.nextCursor).toBeUndefined();
+    expect(where).toHaveBeenLastCalledWith(expect.objectContaining({ queryChunks: expect.any(Array) }));
+  });
+
+  it("rejects a cursor that lacks the record id before touching the database", async () => {
+    vi.stubEnv("SITE_OWNER_EMAIL", "owner@example.com");
+    for (const before of ["2026-09-01T12:00:00.000Z", "not-a-date|" + commentId, `2026-09-01T12:00:00.000Z|nope`]) {
+      const response = await GET(ownerRequest("GET", { search: `?before=${encodeURIComponent(before)}` }));
+      expect(response.status).toBe(400);
+    }
+    expect(getDbMock).not.toHaveBeenCalled();
   });
 
   it("rejects cross-origin writes before authentication or database access", async () => {
@@ -126,11 +168,26 @@ describe("learning comment authorization contract", () => {
       origin: "http://localhost",
       userId: "reader",
       email: "reader@example.com",
-      body: { id: "a4fe79cb-785a-43ef-a7f6-5516cd2af83e", status: "read" },
+      body: { id: commentId, status: "read" },
     }));
 
     expect(response.status).toBe(403);
     expect(getDbMock).not.toHaveBeenCalled();
+  });
+
+  it("reports whether a status update changed a record", async () => {
+    vi.stubEnv("SITE_OWNER_EMAIL", "owner@example.com");
+    const returning = vi.fn().mockResolvedValueOnce([{ id: commentId }]).mockResolvedValueOnce([]);
+    getDbMock.mockReturnValue({ update: () => ({ set: () => ({ where: () => ({ returning }) }) }) });
+    const body = { id: commentId, status: "read" };
+
+    const changed = await PATCH(ownerRequest("PATCH", { body }));
+    const missing = await PATCH(ownerRequest("PATCH", { body }));
+
+    expect(changed.status).toBe(200);
+    expect(await changed.json()).toEqual({ updated: true });
+    expect(missing.status).toBe(404);
+    expect(await missing.json()).toEqual({ updated: false, message: "That comment no longer exists." });
   });
 
   it("enforces the durable comment quota before database writes", async () => {
@@ -151,7 +208,7 @@ describe("learning comment authorization contract", () => {
   });
 
   it("lets a learner delete only through the authenticated deletion path", async () => {
-    const returning = vi.fn().mockResolvedValue([{ id: "a4fe79cb-785a-43ef-a7f6-5516cd2af83e" }]);
+    const returning = vi.fn().mockResolvedValue([{ id: commentId }]);
     getDbMock.mockReturnValue({ delete: () => ({ where: () => ({ returning }) }) });
 
     const response = await DELETE(request({
@@ -159,7 +216,7 @@ describe("learning comment authorization contract", () => {
       origin: "http://localhost",
       userId: "reader",
       email: "reader@example.com",
-      body: { id: "a4fe79cb-785a-43ef-a7f6-5516cd2af83e" },
+      body: { id: commentId },
     }));
 
     expect(response.status).toBe(200);

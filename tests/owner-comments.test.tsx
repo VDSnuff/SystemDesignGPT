@@ -69,4 +69,17 @@ describe("owner comment review", () => {
     expect(screen.queryByText(firstComment.body)).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(5);
   });
+
+  it("drops a comment that no longer exists instead of pretending it was updated", async () => {
+    vi.stubGlobal("fetch", vi.fn()
+      .mockResolvedValueOnce(Response.json({ comments: [firstComment] }))
+      .mockResolvedValueOnce(Response.json({ updated: false, message: "That comment no longer exists." }, { status: 404 })));
+    const user = userEvent.setup();
+    render(<OwnerComments />);
+
+    await user.click(await screen.findByRole("button", { name: "Mark read" }));
+
+    expect((await screen.findByText("That comment no longer exists.")).getAttribute("role")).toBe("alert");
+    expect(screen.queryByText(firstComment.body)).toBeNull();
+  });
 });

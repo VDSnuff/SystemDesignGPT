@@ -1,8 +1,13 @@
-import { and, count, desc, eq, lt } from "drizzle-orm";
+import { and, count, eq, lt } from "drizzle-orm";
 import { authenticatedUser, isOwner, isSameOrigin, type AuthenticatedUser } from "../../authenticated-user";
 import { findBookSection } from "../../book-content.generated";
 import { readJsonRequest } from "../../json-request";
-import { commentDeleteSchema, commentInputSchema, commentStatusSchema } from "../../learning-types";
+import {
+  commentPageOrder, commentPageSize, commentsOlderThan, decodeCommentCursor, encodeCommentCursor,
+} from "../../learning-comments-queries";
+import {
+  commentDeleteSchema, commentInputSchema, commentStatusSchema, type CommentCursor,
+} from "../../learning-types";
 import { rateLimitRepository, rateLimitScopes } from "../../rate-limit-repository";
 import { getDb } from "../../../db";
 import { learningComments } from "../../../db/schema";
@@ -73,27 +78,34 @@ async function saveComment(user: AuthenticatedUser, pageSlug: string, body: stri
   }
 }
 
+async function listComments(cursor: CommentCursor | null) {
+  const comments = await getDb().select({
+    id: learningComments.id,
+    userEmail: learningComments.userEmail,
+    pageSlug: learningComments.pageSlug,
+    pageTitle: learningComments.pageTitle,
+    body: learningComments.body,
+    status: learningComments.status,
+    createdAt: learningComments.createdAt,
+  }).from(learningComments)
+    .where(cursor ? commentsOlderThan(cursor) : undefined)
+    .orderBy(...commentPageOrder())
+    .limit(commentPageSize);
+  const last = comments.at(-1);
+  const nextCursor = comments.length === commentPageSize && last ? encodeCommentCursor(last) : undefined;
+  return { comments, nextCursor };
+}
+
 export async function GET(request: Request) {
   const user = authenticatedUser(request);
   if (!user) return json({ message: "Sign in to review comments." }, 401);
   if (!isOwner(user)) return json({ message: "Owner access is required." }, 403);
+  const before = new URL(request.url).searchParams.get("before");
+  const cursor = before ? decodeCommentCursor(before) : null;
+  if (before && !cursor) return json({ message: "The comment cursor is not valid." }, 400);
   try {
     await removeExpiredComments();
-    const before = new URL(request.url).searchParams.get("before");
-    if (before && Number.isNaN(Date.parse(before))) return json({ message: "The comment cursor is not valid." }, 400);
-    const query = getDb().select({
-      id: learningComments.id,
-      userEmail: learningComments.userEmail,
-      pageSlug: learningComments.pageSlug,
-      pageTitle: learningComments.pageTitle,
-      body: learningComments.body,
-      status: learningComments.status,
-      createdAt: learningComments.createdAt,
-    }).from(learningComments);
-    const comments = await (before ? query.where(lt(learningComments.createdAt, before)) : query)
-      .orderBy(desc(learningComments.createdAt)).limit(100);
-    const nextCursor = comments.length === 100 ? comments.at(-1)?.createdAt : undefined;
-    return json({ comments, nextCursor });
+    return json(await listComments(cursor));
   } catch {
     console.error("learning_comments.read_failed", { userId: user.id });
     return json({ message: "Comments are temporarily unavailable." }, 503);
@@ -123,8 +135,9 @@ export async function PATCH(request: Request) {
   const parsed = commentStatusSchema.safeParse(body.value);
   if (!parsed.success) return json({ message: "The comment update is not valid." }, 400);
   try {
-    await getDb().update(learningComments).set({ status: parsed.data.status })
-      .where(eq(learningComments.id, parsed.data.id));
+    const updated = await getDb().update(learningComments).set({ status: parsed.data.status })
+      .where(eq(learningComments.id, parsed.data.id)).returning({ id: learningComments.id });
+    if (updated.length === 0) return json({ updated: false, message: "That comment no longer exists." }, 404);
     return json({ updated: true });
   } catch {
     console.error("learning_comments.update_failed", { userId: user.id, commentId: parsed.data.id });
