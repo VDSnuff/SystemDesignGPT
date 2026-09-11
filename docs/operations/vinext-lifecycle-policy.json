@@ -1,0 +1,25 @@
+{
+  "package": "vinext",
+  "pinnedVersion": "1.0.0-beta.8",
+  "upstream": "https://github.com/cloudflare/vinext",
+  "owner": "@VDSnuff",
+  "lastReviewed": "2026-09-11",
+  "reviewBy": "2026-10-11",
+  "latestObservedUpstream": "1.0.0-beta.9",
+  "exitCriteria": "A stable 1.x release, or the Sites toolchain documenting a supported App Router adapter that is not Vinext",
+  "upgradeMatrix": [
+    { "id": "build", "command": "npm run build", "proves": "Vite, RSC/SSR environments, and the Worker entry still compile from the App Router source" },
+    { "id": "unit", "command": "npm test", "proves": "Route handlers, identity derivation, and header policy contracts under the new adapter" },
+    { "id": "d1", "command": "npm run check:performance:d1 && npm run check:recovery:d1", "proves": "D1 binding, migrations, optimistic concurrency, and local recovery through the built Worker" },
+    { "id": "browser", "command": "npm run test:e2e", "proves": "Complete journeys, accessibility, and route smoke against the production build" },
+    { "id": "cross-browser", "command": "npm run test:e2e:cross-browser", "proves": "Chromium, Firefox, and WebKit responsive contracts on the built Worker" },
+    { "id": "visual", "command": "npm run test:e2e:visual", "proves": "Approved Linux Chromium baselines are unchanged by the adapter" },
+    { "id": "hosted-smoke", "command": "npm run check:production-smoke", "proves": "Sites identity headers, security and API headers, and signed-out route matrix on the deployed version" }
+  ],
+  "rollbackTriggers": [
+    "Any upgrade-matrix command fails on the exact candidate SHA",
+    "Hosted smoke fails on a required route, header, or provenance check",
+    "Sites identity headers are missing or mis-derived on the deployed version",
+    "A D1 write path returns errors or loses optimistic-concurrency behavior"
+  ]
+}
