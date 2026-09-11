@@ -200,7 +200,7 @@
       "risks": ["content-integrity", "supply-chain", "deployment-operations"],
       "files": [
         "tests/ci-browser-reliability.test.ts", "tests/developer-onboarding.test.ts", "tests/production-smoke.test.ts", "tests/project-metadata.test.ts", "tests/supply-chain-runner.test.ts",
-        "tests/validation-manifest.test.ts"
+        "tests/validation-manifest.test.ts", "tests/vinext-lifecycle-policy.test.ts"
       ]
     },
     {
