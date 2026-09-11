@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { bookSections } from "../app/book-content.generated";
 import { guidePages } from "../app/content";
+import branchProtection from "../.github/branch-protection.json";
 import manifest from "../docs/validation/manifest.json";
 import packageJson from "../package.json";
 
@@ -103,5 +104,35 @@ describe("release validation manifest", () => {
     expect(fs.existsSync(".github/dependabot.yml")).toBe(true);
     expect(fs.existsSync(".github/branch-protection.json")).toBe(true);
     expect(fs.existsSync("SECURITY.md")).toBe(true);
+  });
+
+  it("keeps the review policy payload aligned with ADR-0008", () => {
+    const adr = fs.readFileSync(
+      "docs/adr/0008-accept-single-maintainer-merges-under-automated-gates.md", "utf8",
+    );
+    const reviewBy = adr.match(/^- \*\*Review by:\*\* (\d{4}-\d{2}-\d{2})$/m)?.[1];
+    const riskOwner = adr.match(/^- \*\*Risk owner:\*\* (@\S+)$/m)?.[1];
+    const codeOwners = fs.readFileSync(".github/CODEOWNERS", "utf8");
+
+    expect(adr).toMatch(/^- \*\*Status:\*\* Accepted$/m);
+    expect(reviewBy).toBeTruthy();
+    expect(riskOwner).toBeTruthy();
+    expect(codeOwners).toContain(`* ${riskOwner}`);
+    expect(branchProtection.required_status_checks.strict).toBe(true);
+    expect(branchProtection.required_status_checks.contexts).toEqual([
+      "Test, lint, generated content, audit, and build",
+      "Responsive browser contracts",
+    ]);
+    expect(branchProtection.enforce_admins).toBe(true);
+    expect(branchProtection.required_linear_history).toBe(true);
+    expect(branchProtection.allow_force_pushes).toBe(false);
+    expect(branchProtection.allow_deletions).toBe(false);
+    expect(branchProtection.required_conversation_resolution).toBe(true);
+    expect(branchProtection.required_pull_request_reviews).toEqual({
+      dismiss_stale_reviews: true,
+      require_code_owner_reviews: false,
+      required_approving_review_count: 0,
+      require_last_push_approval: false,
+    });
   });
 });

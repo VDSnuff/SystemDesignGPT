@@ -16,6 +16,7 @@ documentation instead.
 | [0005](0005-keep-responses-api-access-server-side.md) | Accepted | Keep Responses API access server-side |
 | [0006](0006-enforce-a-nonce-based-content-security-policy.md) | Accepted | Enforce a nonce-based Content Security Policy |
 | [0007](0007-load-mermaid-near-the-viewport.md) | Accepted | Load Mermaid near the viewport through its public API |
+| [0008](0008-accept-single-maintainer-merges-under-automated-gates.md) | Accepted | Accept single-maintainer merges under strict automated gates |
 
 ## Lifecycle
 
