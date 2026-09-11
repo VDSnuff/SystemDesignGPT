@@ -145,7 +145,7 @@
       "risks": ["persistence", "provider-ai", "security-privacy"],
       "files": [
         "tests/chat-route.test.ts", "tests/copilot-evaluation.test.ts", "tests/handbook-progress-handlers.test.ts",
-        "tests/learning-comments-route.test.ts", "tests/learning-state-handlers.test.ts",
+        "tests/learning-comments-queries.test.ts", "tests/learning-comments-route.test.ts", "tests/learning-state-handlers.test.ts",
         "tests/security-contracts.test.ts"
       ]
     },

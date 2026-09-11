@@ -36,4 +36,11 @@ export const commentStatusSchema = z.object({
 
 export const commentDeleteSchema = z.object({ id: z.string().uuid() });
 
+export const commentCursorSchema = z.object({
+  createdAt: z.iso.datetime(),
+  id: z.string().uuid(),
+});
+
+export type CommentCursor = z.infer<typeof commentCursorSchema>;
+
 export type LearningPayload = z.infer<typeof learningPayloadSchema>;

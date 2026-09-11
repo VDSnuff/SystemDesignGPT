@@ -89,6 +89,7 @@ export function OwnerComments() {
         body: JSON.stringify({ id: comment.id, status: nextStatus }),
       });
       const body = await response.json() as { message?: string };
+      if (response.status === 404) setComments((current) => current.filter((item) => item.id !== comment.id));
       if (!response.ok) throw new Error(body.message ?? "Comment could not be updated.");
       setComments((current) => current.map((item) => item.id === comment.id ? { ...item, status: nextStatus } : item));
       setStatus(`${comment.pageTitle} marked ${nextStatus}.`);

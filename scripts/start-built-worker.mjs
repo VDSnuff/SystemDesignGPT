@@ -3,11 +3,8 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-const migrations = [
-  "drizzle/0000_demonic_deadpool.sql",
-  "drizzle/0001_careful_master_mold.sql",
-  "drizzle/0002_glamorous_chat.sql",
-];
+const journal = JSON.parse(readFileSync("drizzle/meta/_journal.json", "utf8"));
+const migrations = journal.entries.map(({ tag }) => `drizzle/${tag}.sql`);
 const runtimeRoot = mkdtempSync(path.join(tmpdir(), "system-design-browser-runtime-"));
 const runtimePath = path.join(runtimeRoot, "dist");
 const persistencePath = mkdtempSync(path.join(tmpdir(), "system-design-browser-d1-"));
