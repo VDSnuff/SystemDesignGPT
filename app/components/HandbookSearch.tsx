@@ -83,17 +83,22 @@ function SearchBox({ isHydrated, isOpen, onKeyDown, onQueryChange, onFocus, quer
   </>;
 }
 
+const RESULTS_PANEL_CLASS = "absolute right-0 z-50 mt-2 max-h-96 w-[min(92vw,32rem)] overflow-y-auto rounded-2xl border border-ink/15 bg-white shadow-soft";
+
 function SearchResults({ isOpen, message, onSelect, query, resultListRef, results }: Readonly<{ isOpen: boolean; message?: string; onSelect: () => void; query: string; resultListRef: RefObject<HTMLUListElement | null>; results: readonly BookSearchResult[] }>) {
   if (!isOpen || !query.trim()) return null;
-  return <ul className="absolute right-0 z-50 mt-2 max-h-96 w-[min(92vw,32rem)] overflow-y-auto rounded-2xl border border-ink/15 bg-white p-2 shadow-soft" id={SEARCH_RESULTS_ID} ref={resultListRef} role="listbox">
-    {message ? <li aria-live="polite" className="px-3 py-4 text-sm text-muted">{message}</li> : results.length ? results.map((result) => (
-      <li aria-selected="false" key={result.href} role="option">
-        <Link className="block rounded-xl px-3 py-2 hover:bg-paper" href={result.href} onClick={onSelect}>
+  if (message || results.length === 0) {
+    return <p aria-live={message ? "polite" : undefined} className={`${RESULTS_PANEL_CLASS} px-5 py-6 text-sm text-muted`} id={SEARCH_RESULTS_ID}>{message ?? "No matches. Try a shorter term."}</p>;
+  }
+  return <ul className={`${RESULTS_PANEL_CLASS} p-2`} id={SEARCH_RESULTS_ID} ref={resultListRef} role="listbox">
+    {results.map((result) => (
+      <li key={result.href} role="none">
+        <Link aria-selected="false" className="block rounded-xl px-3 py-2 hover:bg-paper" href={result.href} onClick={onSelect} role="option">
           <span className="block text-sm font-bold"><HighlightedText query={query} text={result.heading ?? result.sectionTitle} /></span>
           {result.heading ? <span className="mt-0.5 block text-xs text-muted"><HighlightedText query={query} text={result.sectionTitle} /></span> : null}
         </Link>
       </li>
-    )) : <li className="px-3 py-4 text-sm text-muted">No matches. Try a shorter term.</li>}
+    ))}
   </ul>;
 }
 

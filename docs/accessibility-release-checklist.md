@@ -10,6 +10,7 @@
 
 - `npm test` covers tab semantics, live-region isolation, Mermaid text alternatives, form recovery, quiz feedback, and persistence states.
 - `tests/e2e/accessibility.spec.ts` runs axe-core on the introduction, requirements, a Mermaid section, workshop, and owner comments. Serious and critical violations must be zero.
+- `tests/e2e/accessibility-states.spec.ts` runs the same axe gate on interactive states: quiz feedback, comment sent, signed-out save, signed-in save, learning and progress `409` conflicts, copilot checking/unconfigured/sign-in/rate-limited/usage-limited/provider-unavailable/sending/answered, open search results and the search-unavailable notice, the phone-width copilot dialog, owner comments loading/populated/failed, the Mermaid source fallback, the signed-out workshop, and the not-found route.
 - The browser suite verifies the skip link, tab arrow/Home/End behavior, 44 CSS-pixel controls, visible focus, reduced motion, and 320 CSS-pixel reflow (the 400% equivalent of a 1280-pixel viewport).
 - Existing route smoke tests submit mocked chat responses and exercise the notes/comments surfaces without production credentials.
 

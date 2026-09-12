@@ -1,6 +1,6 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { guidePages } from "../../app/content";
+import { seriousViolations } from "./axe";
 import { observeRoute } from "./route-diagnostics";
 
 const guideRoutes = guidePages.map(({ slug }) => `/chapter/${slug}`);
@@ -18,13 +18,6 @@ async function mockAccessibilityBoundaries(page: Page) {
   await page.route("**/api/learning-state**", (route) => route.fulfill({ json: { state: null, revision: null } }));
   await page.route("**/api/handbook-progress", (route) => route.fulfill({ json: { state: null, revision: null } }));
   await page.route("**/api/learning-comments", (route) => route.fulfill({ json: { comments: [] } }));
-}
-
-async function seriousViolations(page: Page) {
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
-  return results.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious");
 }
 
 async function waitForHydratedSurface(page: Page, route: string) {
