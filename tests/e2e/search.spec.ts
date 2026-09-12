@@ -39,7 +39,7 @@ test("search opens an enriched Quick Guide heading anchor", async ({ page }) => 
   const search = page.getByRole("combobox", { name: "Search the guide and handbook" });
   await expect(search).toBeEnabled({ timeout: 20_000 });
   await search.fill("bounded order cancellation agent");
-  const result = page.getByRole("option").first().getByRole("link");
+  const result = page.getByRole("option").first();
   await expect(result).toHaveAttribute(
     "href",
     "/chapter/agentic-systems#worked-example-a-bounded-order-cancellation-agent",

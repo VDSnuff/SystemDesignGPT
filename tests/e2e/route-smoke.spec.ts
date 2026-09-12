@@ -81,7 +81,7 @@ test("a mobile reader can open and use the contextual copilot without page clipp
   const search = page.getByRole("combobox", { name: "Search the guide and handbook" });
   await expect(search).toBeEnabled({ timeout: 20_000 });
   await search.fill("9 Security");
-  await page.getByRole("option").first().getByRole("link").click();
+  await page.getByRole("option").first().click();
   await expect(page).toHaveURL(/\/book\/9-security$/);
 });
 
