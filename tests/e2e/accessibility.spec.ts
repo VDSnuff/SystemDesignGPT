@@ -136,3 +136,53 @@ test("reduced-motion preference removes meaningful transitions", async ({ page }
   const duration = await page.getByRole("link", { name: /System Design Studio/ }).evaluate((element) => getComputedStyle(element).transitionDuration);
   expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.00001);
 });
+
+test("200 percent text zoom keeps core pages usable without page-level overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await mockAccessibilityBoundaries(page);
+  const zoomRoutes = ["/", "/chapter/requirements", "/book/1-requirements-frs-nfrs-constraints-and-assumptions", "/workshop"];
+  for (const route of zoomRoutes) {
+    await observeRoute(route, () => page.goto(route));
+    await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    await expect(page.getByRole("combobox", { name: "Search the guide and handbook" })).toBeEnabled({ timeout: 20_000 });
+    const rootFontSize = await page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).fontSize));
+    expect(rootFontSize).toBeGreaterThanOrEqual(32);
+    const hasPageOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    expect(hasPageOverflow).toBe(false);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  }
+});
+
+test("forced-colors mode keeps controls bounded and focus visible", async ({ browserName, page }) => {
+  test.skip(browserName !== "chromium", "forced-colors emulation is Chromium-only");
+  await page.emulateMedia({ forcedColors: "active" });
+  await mockAccessibilityBoundaries(page);
+  await page.goto("/book/1-requirements-frs-nfrs-constraints-and-assumptions");
+  await page.getByText("Ready for your first save.").waitFor();
+  expect(await page.evaluate(() => matchMedia("(forced-colors: active)").matches)).toBe(true);
+
+  const controls = page.locator("button.tool-button:visible, button.tool-button-dark:visible, button.compact-action:visible, input.search-control:visible");
+  const count = await controls.count();
+  expect(count).toBeGreaterThanOrEqual(5);
+  for (let index = 0; index < count; index += 1) {
+    const boundary = await controls.nth(index).evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { borderStyle: style.borderTopStyle, borderWidth: Number.parseFloat(style.borderTopWidth) };
+    });
+    expect(boundary.borderStyle).not.toBe("none");
+    expect(boundary.borderWidth).toBeGreaterThan(0);
+  }
+
+  await page.getByRole("combobox", { name: "Search the guide and handbook" }).focus();
+  await page.keyboard.press("Tab");
+  const focus = await page.evaluate(() => {
+    const active = document.activeElement;
+    if (!(active instanceof HTMLElement)) return null;
+    const style = getComputedStyle(active);
+    return { outline: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+  });
+  expect(focus?.outline).not.toBe("none");
+  expect(focus?.width).toBeGreaterThan(0);
+  // Forced colors replace author colors with the system palette, so axe contrast math is not meaningful here.
+  expect(await seriousViolations(page, { disableRules: ["color-contrast"] })).toEqual([]);
+});
