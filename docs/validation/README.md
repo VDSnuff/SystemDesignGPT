@@ -26,7 +26,9 @@ breakpoints. The scheduled cross-browser workflow retains those baselines and
 failure diffs; responsive contracts cover 320, 390, 768, 1024, and 1440 pixel
 widths across Chromium, Firefox, and WebKit production builds.
 The dated evidence and physical-device boundary are recorded in the
-[`2 September 2026 browser and visual report`](./browser-visual-2026-09-02.md).
+[`2 September 2026 browser and visual report`](./browser-visual-2026-09-02.md);
+the canonical rendering environment and baseline review rules follow the
+[`visual baseline contract`](./visual-baselines.md).
 D1 optimistic concurrency, migration reproducibility, local recovery, and the
 hosted evidence boundary follow the
 [`D1 persistence and recovery contract`](./d1-persistence-recovery.md).

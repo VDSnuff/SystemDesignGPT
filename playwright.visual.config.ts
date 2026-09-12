@@ -2,6 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 const port = 4177;
 
+if (process.platform !== "linux" && process.env.VISUAL_RUNTIME !== "native") {
+  throw new Error("Visual baselines are Linux Chromium only; run `npm run test:e2e:visual` to use the canonical container, or set VISUAL_RUNTIME=native for a diagnostic run that never writes snapshots.");
+}
+
 export default defineConfig({
   testDir: "./tests/e2e",
   testMatch: "visual-regression.spec.ts",

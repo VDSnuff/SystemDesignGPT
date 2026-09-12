@@ -52,6 +52,7 @@ Command-scoped verification variables are not application secrets:
 | `PRODUCTION_SMOKE_SITES_VERSION` | Declares the numeric saved Sites version expected to be active. |
 | `PRODUCTION_SMOKE_PROVENANCE_FILE` | Points to the recent, sanitized Sites control-plane snapshot required by production smoke. |
 | `EVIDENCE_CHECK_DATE` | Overrides the date used by evidence-freshness tests; normally leave unset. |
+| `VISUAL_RUNTIME` | Selects where `test:e2e:visual` runs: `auto` (Linux native, otherwise the canonical container), `container`, or `native` (a non-Linux diagnostic run that never writes snapshots). |
 
 The remaining environment names are managed by the repository's tools. `PORT`
 selects the temporary built-Worker port; `CI` and `TEST_WORKER_INDEX` are set by
@@ -129,7 +130,7 @@ Run boundary-specific checks when their evidence is required:
 | `CLIENT_MEASURE_BASE_URL=http://127.0.0.1:4173 npm run measure:client-js` | Measures client JavaScript for an already-running production build; it is not a hosted latency result. |
 | `npx playwright test tests/e2e/accessibility.spec.ts` | Runs automated axe and keyboard contracts; it does not replace assistive-technology review. |
 | `npm run test:e2e:cross-browser` | Exercises the built Worker in Chromium, Firefox, and WebKit; it is not physical-device proof. |
-| `npm run test:e2e:visual` | Compares stable Linux Chromium screenshots in CI; other platforms are diagnostic only. |
+| `npm run test:e2e:visual` | Compares stable Linux Chromium screenshots; on macOS or Windows it runs the same Ubuntu Playwright container through Docker. |
 | `npm run check:production-smoke` | Verifies the declared Sites revision and public/signed-out production contract; it requires fresh control-plane provenance. |
 
 `check:generated` regenerates the canonical handbook modules and fails when the
@@ -160,10 +161,14 @@ npm run build
 npm run test:e2e:cross-browser
 ```
 
-Stable visual snapshots are committed for Linux Chromium. The blocking visual
-result comes from the Linux CI runner; a different OS is useful for diagnosis
-but may render fonts and pixels differently and must not overwrite the canonical
-baselines:
+Stable visual snapshots are committed for Linux Chromium only. On Linux the
+command compares the already-built Worker natively; on macOS or Windows it copies the
+workspace into the pinned `mcr.microsoft.com/playwright` Ubuntu container,
+builds there, and copies reports and diffs back, so a contributor reproduces
+the CI environment instead of a platform mismatch. Baseline regeneration
+(`-- --update-snapshots`) is Linux-only for the same reason; the
+[visual baseline contract](docs/validation/visual-baselines.md) records the
+environment and the review rules:
 
 ```bash
 npm run build
