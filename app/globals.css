@@ -63,6 +63,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .tool-button-dark { background: #17201c; color: #d8ff73; }
 .tool-button:disabled,
 .tool-button-dark:disabled { cursor: not-allowed; opacity: 0.35; transform: none; }
+.tool-button-dark[aria-disabled="true"] { cursor: progress; }
 
 .diagram-scroll-region {
   max-width: 100%;

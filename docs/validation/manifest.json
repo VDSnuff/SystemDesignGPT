@@ -163,7 +163,7 @@
     {
       "id": "browser-accessibility",
       "risks": ["accessibility", "browser-compatibility", "functional-ui"],
-      "files": ["tests/e2e/accessibility.spec.ts", "tests/e2e/accessibility-states.spec.ts"]
+      "files": ["tests/e2e/accessibility.spec.ts", "tests/e2e/accessibility-states.spec.ts", "tests/e2e/keyboard-journeys.spec.ts"]
     },
     {
       "id": "browser-reader",

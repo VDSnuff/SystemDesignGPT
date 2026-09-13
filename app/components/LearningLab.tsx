@@ -61,6 +61,7 @@ export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
   }
 
   async function save() {
+    if (isSaving) return;
     setHasError(false);
     setIsSaving(true);
     setStatus("Saving…");
@@ -98,7 +99,7 @@ export function LearningLab({ pageSlug, quizPolicy }: LearningLabProps) {
         <LearningNotes note={payload.note} onNoteChange={(note) => setPayload((current) => ({ ...current, note }))} pageSlug={pageSlug} />
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button className="tool-button-dark" disabled={isSaving} onClick={save} type="button">{isSaving ? "Saving learning work…" : "Save learning work"}</button>
+        <button aria-disabled={isSaving} className="tool-button-dark" onClick={save} type="button">{isSaving ? "Saving learning work…" : "Save learning work"}</button>
         <AsyncStatus className="text-xs text-muted" isError={hasError} message={status} />
       </div>
     </section>

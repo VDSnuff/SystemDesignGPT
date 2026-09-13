@@ -13,6 +13,7 @@
 - `tests/e2e/accessibility-states.spec.ts` runs the same axe gate on interactive states: quiz feedback, comment sent, signed-out save, signed-in save, learning and progress `409` conflicts, copilot checking/unconfigured/sign-in/rate-limited/usage-limited/provider-unavailable/sending/answered, open search results and the search-unavailable notice, the phone-width copilot dialog, owner comments loading/populated/failed, the Mermaid source fallback, the signed-out workshop, and the not-found route.
 - The browser suite verifies the skip link, tab arrow/Home/End behavior, 44 CSS-pixel controls, visible focus, reduced motion, and 320 CSS-pixel reflow (the 400% equivalent of a 1280-pixel viewport).
 - `tests/e2e/accessibility.spec.ts` also sets the root font size to 200% on the home, Quick Guide, handbook, and workshop templates and requires no page-level horizontal overflow with the search and page heading still usable, and emulates `forced-colors: active` to prove buttons and the search field keep a real border, the focused control keeps an outline, and the axe gate (minus author-color contrast, which the system palette owns) stays clean.
+- `tests/e2e/keyboard-journeys.spec.ts` completes the critical journeys by keyboard alone in a real browser: the phone-width copilot dialog opens from its launcher, traps Tab/Shift+Tab, closes on Escape, and restores focus to the launcher; the search combobox reaches its first result with ArrowDown, activates it with Enter, and closes on Escape with focus kept in the field; the side-panel dividers resize with arrow keys and collapse/expand with Enter and Space as the dragging alternative; progress, quiz, comment, and save actions keep focus on the activated control after their status updates; and a full Tab traversal of the handbook template terminates without a keyboard trap.
 - Existing route smoke tests submit mocked chat responses and exercise the notes/comments surfaces without production credentials.
 
 ## Manual assistive-technology record
@@ -28,7 +29,7 @@ Safari was opened against the local candidate while macOS VoiceOver was active. 
 | Save | A signed-out save announced the recoverable error and confirmed that the learner’s work remained available to edit and retry. | Pass |
 | Chat | VoiceOver exposed the “Not configured” status, its explanatory alert, the labeled question field, the character instruction, and the disabled send state without treating the full transcript as a live region. | Pass |
 
-Keyboard traversal was also exercised by the Chromium browser suite at desktop and mobile/reflow widths. The mobile copilot test verifies its focus trap, Escape close, focus restoration, and visible question field above the viewport edge.
+Keyboard traversal was also exercised by the Chromium browser suite at desktop and mobile/reflow widths. The mobile copilot tests verify its focus trap, Escape close, focus restoration, and visible question field above the viewport edge.
 
 ## Contrast record
 

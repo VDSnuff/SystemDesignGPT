@@ -18,6 +18,7 @@ export function LearningNotes({ pageSlug, note, onNoteChange }: LearningNotesPro
 
   async function sendComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSending) return;
     setHasError(false);
     setIsSending(true);
     setStatus("Sending…");
@@ -76,7 +77,7 @@ export function LearningNotes({ pageSlug, note, onNoteChange }: LearningNotesPro
           <textarea aria-describedby="learning-comment-help" className="mt-4 min-h-56 w-full rounded-2xl border border-ink/20 bg-white p-4 text-sm leading-6" id="learning-comment" maxLength={4_000} onChange={(event) => setComment(event.target.value)} placeholder="Tell the owner what helped or what should improve…" required value={comment} />
         </label>
         <div className="mt-3 flex items-center gap-3">
-          <button className="tool-button-dark" disabled={isSending} type="submit">{isSending ? "Sending comment…" : "Send to owner"}</button>
+          <button aria-disabled={isSending} className="tool-button-dark" type="submit">{isSending ? "Sending comment…" : "Send to owner"}</button>
           {lastSentCommentId ? <button className="tool-button" onClick={() => void withdrawLastComment()} type="button">Withdraw last comment</button> : null}
           <AsyncStatus className="text-xs text-muted" isError={hasError} message={status} />
         </div>
