@@ -2184,7 +2184,7 @@ This is a dated edition snapshot, not a claim that semantic support is permanent
 | S70 | [Model Context Protocol: 28 July 2026 release](https://blog.modelcontextprotocol.io/posts/2026-07-28/) | Official release notice; current stateless core and extensions | PASS / PASS |
 | S71 | [Model Context Protocol: August 2026 roadmap](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) | Official roadmap; directional, not a released specification | PASS / PASS |
 | S72 | [Agent2Agent Protocol: latest specification](https://a2a-protocol.org/latest/) | Official protocol specification | PASS / PASS |
-| S73 | [OpenAPI Initiative: OpenAPI Specification 3.2.0](https://spec.openapis.org/oas/latest.html) | Official current OpenAPI specification | PASS / PASS |
+| S73 | [OpenAPI Initiative: OpenAPI Specification 3.2.1](https://spec.openapis.org/oas/latest.html) | Official current OpenAPI specification | PASS / PASS |
 | S74 | [JSON Schema: Draft 2020-12](https://json-schema.org/draft/2020-12) | Official current JSON Schema specification | PASS / PASS |
 | S75 | [IETF / RFC Editor: RFC 9728 — OAuth 2.0 Protected Resource Metadata](https://www.rfc-editor.org/rfc/rfc9728.html) | Internet standard | PASS / PASS |
 | S76 | [IETF / RFC Editor: RFC 8707 — Resource Indicators for OAuth 2.0](https://www.rfc-editor.org/rfc/rfc8707.html) | Internet standard | PASS / PASS |
