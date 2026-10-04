@@ -27,6 +27,7 @@ Owns test strategy, coverage gaps, and flake reduction. Test runner: **Vitest**.
 
 ## Hard rules
 
+- Match each test file to its actual runner; coverage must discover existing tests for included packages and load their required environment. Keep thresholds unchanged when repairing discovery.
 - **No skipped or commented-out tests** in a commit.
 - **Flaky tests are bugs** — fix the root cause (race, time dependency, shared state) or quarantine with a tracked follow-up ticket. Never just "rerun until green."
 - **Assert observable behaviour**, not implementation details (private state, exact log strings, internal call counts).
