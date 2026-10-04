@@ -14,7 +14,8 @@ CI workflows, build/release pipelines, infrastructure-as-code, container/runtime
 ## When invoked
 
 - Read `.github/workflows/`, deployment manifests, and CLAUDE.md ops sections.
-- Reproduce CI behaviour locally before pushing (`act` for Actions, or the equivalent dry-run for your platform).
+- Run mapped GitHub Actions validation through `~/Developer/GitHub/.local-actions/run.sh 'SystemDesignGPT'` after committing and before pushing. Use direct `act` for an unmapped Linux job and native tools for macOS or iOS jobs.
+- When adding a validation workflow without a local mapping, add safe targets to the launcher and its README before the first push.
 - Validate that workflow YAML is syntactically valid and that referenced actions exist.
 - Confirm cost impact of any new scheduled job, large runner, or resource size — surface it in the PR description.
 
@@ -31,6 +32,7 @@ CI workflows, build/release pipelines, infrastructure-as-code, container/runtime
 For Azure deploys: validate `azure.yaml` and Bicep/Terraform before `azd deploy`.
 For Vercel: confirm preview build succeeds before merging.
 For container builds: scan the image for HIGH/CRITICAL CVEs.
+For disposable Tauri QA apps: build with a distinct Tauri `identifier` and verify the actual app-data directory before granting sources or running tools. Changing only `Info.plist` does not isolate the profile.
 
 ## Strategy documentation sync
 
@@ -80,6 +82,18 @@ Strategy target: `none`
 - Never store passwords, tokens, recovery codes, payment data, exact identity
   numbers, or unnecessary third-party private data. If MeHub is unavailable or
   the evidence is insufficient, say so rather than inventing personal facts.
+
+## Git session lifecycle
+
+- Read-only work creates no branch. A writing task uses one identified writer and one persistent isolated worktree; reuse it when resuming the same task.
+- Verify the physical checkout root and common Git directory before editing. Open projects through `~/Developer/GitHub/`; compatibility links are for existing tooling.
+- Preserve unrelated dirty files, staged paths and active worktrees. Do not stash, reset, clean or commit another task's work to unblock your task.
+- Stage explicit owned paths and inspect the complete index before every commit, including after a failed hook. Run required guards with hooks enabled; never use `--no-verify` or silently skip a missing guard.
+- Record the revision and policy used for validation. Relevant changes invalidate that evidence; local, hosted, deployment and human checks remain separate.
+- Push and merge only within the user's existing authorization or an explicitly authorized delivery workflow. Verify GitHub's actual merge state and reviewed head before declaring delivery complete.
+- A pause or question does not trigger automatic commits, merges or cleanup. Hand off pending work with its branch, worktree, owner and next action.
+- Retire only task-owned disposable workspaces covered by authorization after verifying exact recovery refs and needed ignored files. Preserve protected/default/release refs, active chats, dirty worktrees and uncertain ownership.
+- Branch age or a matching merged PR alone never authorizes deletion. Use the read-only `Main/AgentHub/scripts/git_agent.py cleanup-plan` before separately authorized cleanup.
 
 ## Closeout pass
 

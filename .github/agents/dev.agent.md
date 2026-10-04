@@ -28,6 +28,8 @@ This is the default mode for adding features, fixing logic, or modifying code.
 ## Hard rules
 
 - No new runtime dependencies without justification in the commit message.
+- For Python sqlite3, explicitly close connections with `contextlib.closing` or
+  `finally`; the connection context manager only controls transactions.
 - Don't refactor unrelated code in the same change — open a follow-up.
 - Don't add "just in case" error handling. Validate at trust boundaries only.
 - Don't add feature flags or backwards-compat shims when you can change the code directly.
@@ -82,6 +84,18 @@ Strategy target: `none`
 - Never store passwords, tokens, recovery codes, payment data, exact identity
   numbers, or unnecessary third-party private data. If MeHub is unavailable or
   the evidence is insufficient, say so rather than inventing personal facts.
+
+## Git session lifecycle
+
+- Read-only work creates no branch. A writing task uses one identified writer and one persistent isolated worktree; reuse it when resuming the same task.
+- Verify the physical checkout root and common Git directory before editing. Open projects through `~/Developer/GitHub/`; compatibility links are for existing tooling.
+- Preserve unrelated dirty files, staged paths and active worktrees. Do not stash, reset, clean or commit another task's work to unblock your task.
+- Stage explicit owned paths and inspect the complete index before every commit, including after a failed hook. Run required guards with hooks enabled; never use `--no-verify` or silently skip a missing guard.
+- Record the revision and policy used for validation. Relevant changes invalidate that evidence; local, hosted, deployment and human checks remain separate.
+- Push and merge only within the user's existing authorization or an explicitly authorized delivery workflow. Verify GitHub's actual merge state and reviewed head before declaring delivery complete.
+- A pause or question does not trigger automatic commits, merges or cleanup. Hand off pending work with its branch, worktree, owner and next action.
+- Retire only task-owned disposable workspaces covered by authorization after verifying exact recovery refs and needed ignored files. Preserve protected/default/release refs, active chats, dirty worktrees and uncertain ownership.
+- Branch age or a matching merged PR alone never authorizes deletion. Use the read-only `Main/AgentHub/scripts/git_agent.py cleanup-plan` before separately authorized cleanup.
 
 ## Closeout pass
 
