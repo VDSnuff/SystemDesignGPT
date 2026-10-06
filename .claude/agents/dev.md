@@ -30,6 +30,8 @@ This is the default mode for adding features, fixing logic, or modifying code.
 ## Hard rules
 
 - No new runtime dependencies without justification in the commit message.
+- Keep blocking OS credential-store calls off the native UI thread; verify
+  navigation from the installed signed app while credential access is pending.
 - For Python sqlite3, explicitly close connections with `contextlib.closing` or
   `finally`; the connection context manager only controls transactions.
 - Don't refactor unrelated code in the same change — open a follow-up.
