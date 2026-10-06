@@ -45,5 +45,29 @@
       ],
       "control": "Drizzle Kit is development-only; CI and local instructions never expose its transient tooling server to untrusted networks."
     }
+  ],
+  "temporaryToolchainAdvisories": [
+    {
+      "source": 1240992,
+      "package": "braces",
+      "version": "3.0.3",
+      "severity": "high",
+      "advisory": "GHSA-vfj7-8cjw-p6xm",
+      "owner": "@VDSnuff",
+      "expiresAt": "2026-10-13T23:59:59+02:00",
+      "lockfileSha256": "8a01b1d17e4a5cb9ba61f091c484bcc6a19aa90ffdb8292168f9b291dca8db7b",
+      "upstream": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "affectedPackages": [
+        "@next/eslint-plugin-next",
+        "braces",
+        "eslint-config-next",
+        "fast-glob",
+        "micromatch",
+        "vinext",
+        "vite-plugin-commonjs",
+        "vite-plugin-dynamic-import"
+      ],
+      "control": "Owner-approved temporary development-toolchain availability risk; every reported node must remain development-only, the exact lock hash must match and the fresh production audit must be clean. No automatic renewal."
+    }
   ]
 }
