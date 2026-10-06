@@ -19,6 +19,7 @@ async function preparePage(page: Page, pathName: string, heading: string) {
   await mockBrowserBoundaries(page);
   await page.goto(pathName);
   await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Search the guide and handbook" })).toBeEnabled({ timeout: 20_000 });
   await page.evaluate(() => document.fonts.ready);
 }
 

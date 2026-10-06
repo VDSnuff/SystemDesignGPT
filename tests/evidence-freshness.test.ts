@@ -23,12 +23,12 @@ describe("evidence freshness", () => {
   });
 
   it("expires calendar reviews instead of silently preserving PASS", () => {
-    expect(validateFreshness(ledger, markdown, "2026-10-04")).toContain(
-      "S46 review due on 2026-10-04",
-    );
-    expect(validateFreshness(ledger, markdown, "2026-12-05")).toContain(
-      "S1 review due on 2026-12-03",
-    );
+    for (const id of ["S46", "S1"]) {
+      const source = ledger.sources.find((entry) => entry.id === id)!;
+      expect(validateFreshness(ledger, markdown, source.reviewAfter)).toContain(
+        `${id} review due on ${source.reviewAfter}`,
+      );
+    }
   });
 
   it("blocks material content work and requires an actionable issue", () => {

@@ -21,6 +21,7 @@ const evidence = {
   licenses: [],
   unapprovedLicenses: [],
   unaccepted: [],
+  acceptedHigh: [],
 };
 
 describe("supply-chain command runner", () => {
@@ -42,6 +43,19 @@ describe("supply-chain command runner", () => {
     const result = { status: 1, stdout: JSON.stringify(auditReport), stderr: "" };
 
     expect(parseNpmResult(["audit", "--json"], result)).toEqual(auditReport);
+  });
+
+  it("reports accepted high findings without claiming zero high findings", () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      runSupplyChain({ collect: () => ({ ...evidence,
+        fullAudit: { ...auditReport, metadata: { ...auditReport.metadata,
+          vulnerabilities: { ...auditReport.metadata.vulnerabilities, high: 8, total: 8 } } },
+        acceptedHigh: Array.from({ length: 8 }, () => ({ name: "braces", advisory: "GHSA-vfj7-8cjw-p6xm", expiresAt: "2026-10-13T23:59:59+02:00", owner: "@VDSnuff" })),
+      }), write: vi.fn() });
+      expect(log).toHaveBeenCalledWith(expect.stringContaining("8 temporarily accepted high"));
+      expect(log).not.toHaveBeenCalledWith(expect.stringContaining("0 high"));
+    } finally { log.mockRestore(); }
   });
 
   it("does not write evidence until collection and validation succeed", () => {

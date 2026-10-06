@@ -1,7 +1,10 @@
+import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+
+import { classifyVulnerabilities } from "./dependency-exceptions.mjs";
 
 const outputDirectory = "outputs/supply-chain";
 const policyPath = "docs/validation/dependency-policy.json";
@@ -68,31 +71,6 @@ function licenseInventory(lockfile, policy) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-function advisorySources(name, audit, seen = new Set()) {
-  if (seen.has(name)) return [];
-  seen.add(name);
-  return (audit.vulnerabilities?.[name]?.via ?? []).flatMap((item) =>
-    typeof item === "object" ? [item.source] : advisorySources(item, audit, seen));
-}
-
-function isAccepted(name, vulnerability, audit, policy, today) {
-  const sources = advisorySources(name, audit);
-  return policy.acceptedAdvisories.some((accepted) =>
-    accepted.affectedPackages.includes(name)
-      && accepted.severity === vulnerability.severity
-      && accepted.reviewBy >= today
-      && sources.length > 0
-      && sources.every((source) => source === accepted.source));
-}
-
-function unacceptedVulnerabilities(audit, policy) {
-  const today = new Date().toISOString().slice(0, 10);
-  return Object.entries(audit.vulnerabilities ?? {}).filter(([name, vulnerability]) => {
-    if (["high", "critical"].includes(vulnerability.severity)) return true;
-    return !isAccepted(name, vulnerability, audit, policy, today);
-  });
-}
-
 function auditSummary(audit) {
   return {
     vulnerabilities: audit.metadata.vulnerabilities,
@@ -102,19 +80,23 @@ function auditSummary(audit) {
 
 function collectEvidence() {
   const policy = JSON.parse(fs.readFileSync(policyPath, "utf8"));
-  const lockfile = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+  const lockfileContent = fs.readFileSync("package-lock.json", "utf8");
+  const lockfile = JSON.parse(lockfileContent);
+  const lockfileSha256 = createHash("sha256").update(lockfileContent).digest("hex");
   const productionAudit = runNpm(["audit", "--omit=dev", "--json"]);
   const fullAudit = runNpm(["audit", "--json"]);
   const sbom = runNpm(["sbom", "--sbom-format", "cyclonedx"]);
   const licenses = licenseInventory(lockfile, policy);
   const approvedLicenses = new Set(policy.approvedLicenseExpressions);
   const unapprovedLicenses = licenses.filter(({ license }) => !approvedLicenses.has(license));
-  const unaccepted = unacceptedVulnerabilities(fullAudit, policy);
-  return { productionAudit, fullAudit, sbom, licenses, unapprovedLicenses, unaccepted };
+  const { unaccepted, acceptedHigh } = classifyVulnerabilities({
+    productionAudit, fullAudit, policy, lockfile, lockfileSha256,
+  });
+  return { productionAudit, fullAudit, sbom, licenses, unapprovedLicenses, unaccepted, acceptedHigh };
 }
 
 function writeEvidenceFiles(directory, evidence) {
-  const { productionAudit, fullAudit, sbom, licenses, unapprovedLicenses, unaccepted } = evidence;
+  const { productionAudit, fullAudit, sbom, licenses, unapprovedLicenses, unaccepted, acceptedHigh } = evidence;
   writeJson(directory, "production-audit.json", productionAudit);
   writeJson(directory, "full-audit.json", fullAudit);
   writeJson(directory, "licenses.json", licenses);
@@ -125,6 +107,7 @@ function writeEvidenceFiles(directory, evidence) {
     licenseCount: licenses.length,
     unapprovedLicenses,
     unacceptedVulnerabilities: unaccepted.map(([name]) => name),
+    acceptedHighVulnerabilities: acceptedHigh,
   });
 }
 
@@ -151,7 +134,7 @@ function validateAuditReport(audit, label) {
 }
 
 function validateEvidence(evidence) {
-  const { productionAudit, fullAudit, licenses, unapprovedLicenses, unaccepted } = evidence;
+  const { productionAudit, fullAudit, licenses, unapprovedLicenses, unaccepted, acceptedHigh = [] } = evidence;
   validateAuditReport(productionAudit, "npm production audit");
   validateAuditReport(fullAudit, "npm full audit");
   if (evidence.sbom.bomFormat !== "CycloneDX") {
@@ -163,7 +146,7 @@ function validateEvidence(evidence) {
     );
   }
   console.log(
-    `Supply-chain policy passed: ${licenses.length} package instances, ${fullAudit.metadata.vulnerabilities.moderate} accepted moderate, 0 high/critical vulnerabilities`,
+    `Supply-chain policy passed: ${licenses.length} package instances, ${fullAudit.metadata.vulnerabilities.moderate} accepted moderate, ${acceptedHigh.length} temporarily accepted high, 0 critical vulnerabilities`,
   );
 }
 

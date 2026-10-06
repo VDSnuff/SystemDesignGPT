@@ -7,7 +7,7 @@ Operating manual for AI coding assistants in this repo.
 ## Unified agent roster
 
 This repo participates in the **unified SkepticFlow agent set**: 13 canonical
-roles shared across `~/Documents/GitHub/`, adapted for this stack (Vinext + React 19 + TypeScript on Cloudflare Workers with D1).
+roles shared across `~/Developer/GitHub/`, adapted for this stack (Vinext + React 19 + TypeScript on Cloudflare Workers with D1).
 This profile enables **13** role(s), listed below.
 
 Each role is materialized for three runtimes:
@@ -49,6 +49,28 @@ Each role is materialized for three runtimes:
 | Secrets | Sites environment variables and GitHub Actions secrets |
 | Profiler | Lighthouse / Chrome DevTools / Wrangler |
 | Strategy target | none |
+
+### Local GitHub Actions validation
+
+If this repo has GitHub Actions validation, run its mapped local targets through
+`~/Developer/GitHub/.local-actions/run.sh 'SystemDesignGPT'` after committing and
+before pushing. See the launcher README for targets and prerequisites. Record
+the source commit and results; local runs do not create GitHub PR checks or
+replace required checks.
+When adding a validation workflow with no local mapping, add safe launcher
+targets and document unsupported jobs before the first push.
+
+## Git session lifecycle
+
+- Read-only work creates no branch. A writing task uses one identified writer and one persistent isolated worktree; reuse it when resuming the same task.
+- Verify the physical checkout root and common Git directory before editing. Open projects through `~/Developer/GitHub/`; compatibility links are for existing tooling.
+- Preserve unrelated dirty files, staged paths and active worktrees. Do not stash, reset, clean or commit another task's work to unblock your task.
+- Stage explicit owned paths and inspect the complete index before every commit, including after a failed hook. Run required guards with hooks enabled; never use `--no-verify` or silently skip a missing guard.
+- Record the revision and policy used for validation. Relevant changes invalidate that evidence; local, hosted, deployment and human checks remain separate.
+- Push and merge only within the user's existing authorization or an explicitly authorized delivery workflow. Verify GitHub's actual merge state and reviewed head before declaring delivery complete.
+- A pause or question does not trigger automatic commits, merges or cleanup. Hand off pending work with its branch, worktree, owner and next action.
+- Retire only task-owned disposable workspaces covered by authorization after verifying exact recovery refs and needed ignored files. Preserve protected/default/release refs, active chats, dirty worktrees and uncertain ownership.
+- Branch age or a matching merged PR alone never authorizes deletion. Use the read-only `Main/AgentHub/scripts/git_agent.py cleanup-plan` before separately authorized cleanup.
 
 ## MeHub personal-context protocol
 
