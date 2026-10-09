@@ -7,3 +7,5 @@ GHSA-vfj7-8cjw-p6xm remains unresolved. This exception accepts eight development
 Every reported node must exist in the lockfile and be development-only. A fresh production audit must contain zero findings. Changed lock content, additional advisories or packages, production placement, critical findings, missing nodes, and expiry fail the gate. Existing license and moderate-advisory policies remain in force.
 
 This is an availability-risk acceptance for development tools, not a vulnerability fix or production deployment approval. Avoid untrusted glob patterns and do not expose development servers to untrusted networks. Before expiry, review upstream fixes and remove the exception after upgrading and verifying a clean audit. Any extension requires a new owner decision.
+
+On 9 October 2026, the owner approved rebinding the same exception to the Next.js 16.3.8 security-update lockfile. The Braces version, eight development package names and original expiry remain unchanged.

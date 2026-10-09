@@ -55,7 +55,7 @@
       "advisory": "GHSA-vfj7-8cjw-p6xm",
       "owner": "@VDSnuff",
       "expiresAt": "2026-10-13T23:59:59+02:00",
-      "lockfileSha256": "8a01b1d17e4a5cb9ba61f091c484bcc6a19aa90ffdb8292168f9b291dca8db7b",
+      "lockfileSha256": "b5deb44c13fc8dc666c548ac2de2dd33afceb20e4b50839d9730cdebadd26e79",
       "upstream": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
       "affectedPackages": [
         "@next/eslint-plugin-next",
