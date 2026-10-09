@@ -58,7 +58,7 @@ describe("supply-chain command runner", () => {
     } finally { log.mockRestore(); }
   });
 
-  it("does not write evidence until collection and validation succeed", () => {
+  it("retains failed evidence without publishing it as successful", () => {
     const events: string[] = [];
     const write = vi.fn(() => events.push("write"));
 
@@ -66,8 +66,9 @@ describe("supply-chain command runner", () => {
       collect: () => { events.push("collect"); return evidence; },
       validate: () => { events.push("validate"); throw new Error("invalid evidence"); },
       write,
+      writeFailed: () => { events.push("retain failure"); },
     })).toThrow("invalid evidence");
-    expect(events).toEqual(["collect", "validate"]);
+    expect(events).toEqual(["collect", "validate", "retain failure"]);
     expect(write).not.toHaveBeenCalled();
   });
 });

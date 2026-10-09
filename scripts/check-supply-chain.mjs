@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 import { classifyVulnerabilities } from "./dependency-exceptions.mjs";
 
 const outputDirectory = "outputs/supply-chain";
+const failureOutputDirectory = "outputs/supply-chain-failures";
 const policyPath = "docs/validation/dependency-policy.json";
 export const supplyChainCommandTimeoutMs = 60_000;
 
@@ -127,6 +128,26 @@ function writeEvidence(evidence) {
   }
 }
 
+export function writeFailedEvidence(evidence, error, directory = failureOutputDirectory) {
+  fs.mkdirSync(directory, { recursive: true });
+  const stagingPrefix = `${directory}.staging-`;
+  const stagingDirectory = fs.mkdtempSync(stagingPrefix);
+  const runDirectory = path.join(directory, `run-${stagingDirectory.slice(stagingPrefix.length)}`);
+  try {
+    writeJson(stagingDirectory, "evidence.json", evidence);
+    writeJson(stagingDirectory, "failure.json", {
+      status: "failed",
+      checkedAt: new Date().toISOString(),
+      message: error instanceof Error ? error.message : String(error),
+    });
+    fs.renameSync(stagingDirectory, runDirectory);
+    console.error(`Failed supply-chain evidence retained in ${runDirectory}`);
+  } catch (writeError) {
+    fs.rmSync(stagingDirectory, { recursive: true, force: true });
+    throw writeError;
+  }
+}
+
 function validateAuditReport(audit, label) {
   if (!audit.metadata?.vulnerabilities || !audit.metadata.dependencies || !audit.vulnerabilities) {
     throw new Error(`${label} returned an incomplete report without vulnerability and dependency metadata`);
@@ -154,9 +175,15 @@ export function runSupplyChain({
   collect = collectEvidence,
   validate = validateEvidence,
   write = writeEvidence,
+  writeFailed = writeFailedEvidence,
 } = {}) {
   const evidence = collect();
-  validate(evidence);
+  try { validate(evidence); } catch (error) {
+    try { writeFailed(evidence, error); } catch (writeError) {
+      console.error(`Failed supply-chain evidence could not be retained: ${writeError instanceof Error ? writeError.message : String(writeError)}`);
+    }
+    throw error;
+  }
   write(evidence);
 }
 

@@ -107,6 +107,8 @@ npm run test:e2e
 git diff --check
 ```
 
+Failed supply-chain policy checks retain raw audit, SBOM and license evidence in a unique `outputs/supply-chain-failures/run-*` directory, with a separate failed-status record. They keep the last successful report unchanged and still exit with the original policy error. Quality CI uploads both successful and failed evidence.
+
 The [release validation contract](docs/validation/README.md) is authoritative
 for command ownership and evidence limits. In particular:
 
