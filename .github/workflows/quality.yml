@@ -38,7 +38,7 @@ jobs:
       - run: git diff --check
       - name: Upload supply-chain evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: supply-chain-${{ github.run_id }}
           path: |
@@ -48,7 +48,7 @@ jobs:
           retention-days: 30
       - name: Upload D1 validation evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: d1-validation-${{ github.run_id }}
           path: performance-results/local-d1-*.json
@@ -77,7 +77,7 @@ jobs:
       - run: npm run check:performance
       - name: Upload performance evidence
         if: ${{ always() && hashFiles('performance-results/**') != '' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: performance-${{ github.run_id }}
           path: performance-results/
@@ -85,7 +85,7 @@ jobs:
           retention-days: 30
       - name: Upload browser failure evidence
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playwright-failure-${{ github.run_id }}
           path: |
