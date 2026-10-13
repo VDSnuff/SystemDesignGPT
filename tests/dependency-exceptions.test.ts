@@ -1,12 +1,11 @@
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import { classifyVulnerabilities } from "../scripts/dependency-exceptions.mjs";
 
 const policy = JSON.parse(fs.readFileSync("docs/validation/dependency-policy.json", "utf8"));
-const lockContent = fs.readFileSync("package-lock.json", "utf8");
-const lockfile = JSON.parse(lockContent);
-const exception = policy.temporaryToolchainAdvisories[0];
+const exception = JSON.parse(fs.readFileSync("tests/fixtures/retired-toolchain-exception.json", "utf8"));
+const lockfile = { packages: Object.fromEntries(exception.affectedPackages.map((name: string) =>
+  [`node_modules/${name}`, { dev: true, version: name === exception.package ? exception.version : "fixture" }])) };
 const cleanAudit = { vulnerabilities: {}, metadata: { vulnerabilities: { total: 0 } } };
 
 function fixture() {
@@ -15,8 +14,8 @@ function fixture() {
     via: name === exception.package ? [{ source: exception.source }] : [exception.package],
     nodes: Object.keys(lockfile.packages).filter((node) => node.split("node_modules/").at(-1) === name),
   }]));
-  return structuredClone({ productionAudit: cleanAudit, fullAudit: { vulnerabilities }, policy, lockfile,
-    lockfileSha256: createHash("sha256").update(lockContent).digest("hex"),
+  return structuredClone({ productionAudit: cleanAudit, fullAudit: { vulnerabilities }, policy: { ...policy, temporaryToolchainAdvisories: [exception] }, lockfile,
+    lockfileSha256: exception.lockfileSha256,
     now: new Date("2026-10-06T12:00:00+02:00") });
 }
 
@@ -24,7 +23,7 @@ function expectRejected(input: ReturnType<typeof fixture>) {
   expect(classifyVulnerabilities(input).unaccepted.length).toBeGreaterThan(0);
 }
 
-describe("temporary development-toolchain exception", () => {
+describe("retired development-toolchain exception boundary", () => {
   it("accepts only the eight pinned development paths and records their expiry", () => {
     const result = classifyVulnerabilities(fixture());
     expect(result.unaccepted).toEqual([]);
@@ -95,5 +94,15 @@ describe("temporary development-toolchain exception", () => {
     expect(classifyVulnerabilities(input).unaccepted).toEqual([]);
     input.fullAudit.vulnerabilities.esbuild.via = [{ source: 1 }];
     expectRejected(input);
+  });
+});
+
+describe("active dependency policy", () => {
+  it("has no temporary acceptance and rejects the retired high advisory even before its old expiry", () => {
+    expect(policy.temporaryToolchainAdvisories).toEqual([]);
+    const input = fixture();
+    input.policy = policy;
+    expectRejected(input);
+    expect(classifyVulnerabilities(input).acceptedHigh).toEqual([]);
   });
 });
