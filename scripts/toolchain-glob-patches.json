@@ -1,0 +1,23 @@
+[
+  {
+    "package": "@next/eslint-plugin-next",
+    "version": "16.3.4",
+    "file": "dist/utils/get-root-dirs.js",
+    "sha256": "886677432990a735e5ebdfb345ff1cbd40e264f9947a8432eeeb254b3a926bde",
+    "import": "require(\"fast-glob\")"
+  },
+  {
+    "package": "vite-plugin-dynamic-import",
+    "version": "1.6.0",
+    "file": "dist/index.js",
+    "sha256": "b1e802a8aaeb2bb7d14ccf39529c42740101ab3977d7a7e70638d19ef0c3301a",
+    "import": "require(\"fast-glob\")"
+  },
+  {
+    "package": "vite-plugin-dynamic-import",
+    "version": "1.6.0",
+    "file": "dist/index.mjs",
+    "sha256": "fb73e06eaba3e63e7dd5bf8ca1c41d7263dcada411924b3d383a16ebf2c140e8",
+    "import": "import fastGlob from \"fast-glob\";"
+  }
+]

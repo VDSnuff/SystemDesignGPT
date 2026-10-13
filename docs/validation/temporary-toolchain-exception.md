@@ -1,4 +1,11 @@
-# Temporary Braces toolchain exception
+# Retired Braces toolchain exception
+
+Retired 13 October 2026. The lockfile removes Braces and micromatch entirely by replacing both fast-glob paths with pinned tinyglobby. The active dependency policy contains no temporary toolchain advisory. The original expiry was not extended; its acceptance record is retained below for history and regression fixtures.
+
+See `braces-remediation.md` for the replacement, installation integrity checks and consumer contracts.
+
+## Historical acceptance record
+
 
 Owner: @VDSnuff. Approved 6 October 2026. Expires 13 October 2026 at 23:59:59 Europe/Warsaw (21:59:59 UTC). No automatic renewal.
 
