@@ -38,7 +38,7 @@
     "postinstall": "node scripts/patch-toolchain-glob.mjs"
   },
   "dependencies": {
-    "drizzle-orm": "0.45.2",
+    "drizzle-orm": "0.45.4",
     "mermaid": "11.17.2",
     "next": "16.3.8",
     "react": "19.2.8",
