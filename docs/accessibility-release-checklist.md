@@ -6,6 +6,8 @@
 
 **Checked:** 2026-08-25 on macOS, Chromium, and Safari with VoiceOver
 
+A newer [partial VoiceOver/Safari review of Sites version 62](validation/voiceover-safari-2026-10-15-v62.md) records direct human observations from 15–16 October 2026. Its untested states remain UNVERIFIED; the historical checks below are not a current full accessibility verdict.
+
 ## Automated evidence
 
 - `npm test` covers tab semantics, live-region isolation, Mermaid text alternatives, form recovery, quiz feedback, and persistence states.
