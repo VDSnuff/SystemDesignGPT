@@ -20,6 +20,7 @@ const budgets = JSON.parse(readFileSync("docs/validation/performance-budgets.jso
 const outputPath = process.env.PERFORMANCE_ARTIFACT_PATH ?? "performance-results/browser-performance.json";
 const runCount = Number(process.env.PERFORMANCE_RUNS ?? 1);
 const hostedTarget = Boolean(process.env.PERFORMANCE_BASE_URL);
+const coldDiagramRuns = 5;
 
 function initialResults() {
   if (Number(process.env.TEST_WORKER_INDEX ?? 0) === 0) return [];
@@ -45,7 +46,7 @@ function assertRoute(measurement: Awaited<ReturnType<typeof measureRoute>>, rout
   expect(measurement.ttfbMs).toBeLessThanOrEqual(profile.ttfbMs);
   expect(measurement.rawJsBytes).toBeLessThanOrEqual(route.rawJsBytes);
   expect(measurement.gzipJsBytes).toBeLessThanOrEqual(route.gzipJsBytes);
-  expect(measurement.mermaidParserFetched).toBe(Boolean(route.mermaid));
+  expect(measurement.mermaidParserFetched).toBe(false);
 }
 
 function apiRoutes(): ApiRoute[] {
@@ -74,6 +75,17 @@ for (const [profileName, profile] of Object.entries(budgets.profiles)) {
     }
   });
 }
+
+test("cold mobile diagrams stay within the existing route budgets", async ({ browser }) => {
+  const route = budgets.routes.find((item) => item.mermaid);
+  if (!route) throw new Error("A Mermaid route is required for cold-load coverage");
+  for (let run = 1; run <= coldDiagramRuns; run += 1) {
+    const measurement = await measureRoute(browser, route, budgets.profiles.mobile);
+    results.push({ kind: "cold-diagram", profile: "mobile", route: route.id, run, ...measurement });
+    persistResults();
+    assertRoute(measurement, route, "mobile", budgets.profiles.mobile);
+  }
+});
 
 test("interaction latency budgets", async ({ browser }) => {
   const measurement = await measureInteractions(browser);

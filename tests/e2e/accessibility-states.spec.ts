@@ -219,14 +219,15 @@ test("owner comments loading, populated, and failed states stay accessible", asy
   await expectClean(page, "comments failed");
 });
 
-test("Mermaid fallback state stays accessible when the renderer fails to load", async ({ page }) => {
+test("pre-rendered Mermaid stays accessible without the client renderer", async ({ page }) => {
   await mockBrowserBoundaries(page);
   await page.route(/node_modules\/(?:\.vite\/deps\/)?mermaid/, (route) => route.abort("failed"));
   await page.goto(mermaidRoute);
   await page.getByText("Ready for your first save.").waitFor();
   await page.locator(".book-prose").getByText(/^Figure 1\./).scrollIntoViewIfNeeded();
-  await expect(page.locator(".mermaid-fallback").first()).toBeVisible({ timeout: 20_000 });
-  await expectClean(page, "mermaid fallback");
+  await expect(page.getByRole("img", { name: "Architecture diagram" })).toBeVisible();
+  await expect(page.locator(".mermaid-fallback")).toHaveCount(0);
+  await expectClean(page, "pre-rendered mermaid");
 });
 
 test("workshop signed-out state stays accessible", async ({ page }) => {

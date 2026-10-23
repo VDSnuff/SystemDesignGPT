@@ -107,7 +107,7 @@ async function throttle(page: Page, profile: Profile) {
 
 async function settleRoute(page: Page, route: RouteBudget) {
   if (route.mermaid) {
-    await page.locator(".mermaid-loading").scrollIntoViewIfNeeded();
+    await page.locator(".mermaid-loading, .mermaid-diagram").scrollIntoViewIfNeeded();
     await page.getByRole("img", { name: "Architecture diagram" }).waitFor({ timeout: 20_000 });
   }
   await page.waitForTimeout(1_500);
@@ -157,7 +157,7 @@ export async function measureRoute(browser: Browser, route: RouteBudget, profile
   const measurement = {
     ...await pageMetrics(page), ...sizes,
     scriptExecutionMs: Math.round(scriptDuration * 1_000), status: response?.status(),
-    mermaidParserFetched: sizes.rawJsBytes >= 1_000_000,
+    mermaidParserFetched: [...bodies.keys()].some((url) => /mermaid\.core|\/mermaid[./]/.test(url)),
   };
   await context.close();
   return measurement;

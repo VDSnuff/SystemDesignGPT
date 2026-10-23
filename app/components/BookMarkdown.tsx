@@ -3,6 +3,7 @@ import remarkGfm from "remark-gfm";
 import type { BookChecklistItem, BookHeading } from "../book-learning.generated";
 import { HandbookChecklistInput } from "./HandbookChecklistInput";
 import { MermaidDiagram } from "./MermaidDiagram";
+import diagramAssets from "../mermaid-svg.generated.json";
 
 type MarkdownPart = { readonly kind: "markdown"; readonly content: string } | { readonly kind: "mermaid"; readonly content: string };
 
@@ -16,6 +17,10 @@ function splitMermaid(markdown: string): readonly MarkdownPart[] {
 
 function externalLink(href: string | undefined) {
   return href?.startsWith("https://") || href?.startsWith("http://");
+}
+
+function renderedDiagram(chart: string) {
+  return diagramAssets.diagrams.find((diagram) => diagram.chart === chart)?.svg;
 }
 
 interface BookMarkdownProps {
@@ -40,7 +45,7 @@ export function BookMarkdown({ checklistItems, headings, markdown }: BookMarkdow
   return (
     <div className="book-prose">
       {splitMermaid(markdown).map((part, index) => part.kind === "mermaid" ? (
-        <MermaidDiagram chart={part.content.trim()} key={`diagram-${index}`} />
+        <MermaidDiagram chart={part.content.trim()} key={`diagram-${index}`} renderedSvg={renderedDiagram(part.content.trim())} />
       ) : (
         <ReactMarkdown
           components={{
