@@ -25,10 +25,12 @@ describe("MermaidDiagram", () => {
     render(<MermaidDiagram chart={chart} renderedSvg={renderedSvg} />);
 
     expect(screen.getByText("Diagram loads as you approach it.")).toBeTruthy();
+    const placeholder = screen.getByRole("status");
     expect(screen.queryByRole("img")).toBeNull();
     await act(async () => reveal?.());
 
     expect(await screen.findByRole("img", { name: "Architecture diagram" })).toBeTruthy();
+    expect(screen.getByRole("img")).toBe(placeholder);
     expect(screen.getByRole("img").querySelector("title")?.textContent).toBe("Rendered");
   });
 

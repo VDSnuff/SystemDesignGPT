@@ -14,11 +14,11 @@ export function MermaidDiagram({ chart, renderedSvg }: Readonly<{ chart: string;
   const description = describeMermaid(chart);
 
   if (!renderedSvg) return <DiagramFigure chart={chart} description={description} />;
-  if (!svg) return <div className="mermaid-loading" ref={containerRef} role="status">{isNearViewport ? "Rendering diagram…" : "Diagram loads as you approach it."}</div>;
+  const content = svg ? { dangerouslySetInnerHTML: { __html: svg } } : { children: isNearViewport ? "Rendering diagram…" : "Diagram loads as you approach it." };
   return (
     <figure>
-      <div aria-describedby={descriptionId} aria-labelledby={titleId} className="mermaid-diagram" dangerouslySetInnerHTML={{ __html: svg }} role="img" tabIndex={0} />
-      <figcaption>
+      <div aria-describedby={svg ? descriptionId : undefined} aria-labelledby={svg ? titleId : undefined} className={svg ? "mermaid-diagram" : "mermaid-loading"} ref={containerRef} role={svg ? "img" : "status"} tabIndex={svg ? 0 : undefined} {...content} />
+      <figcaption hidden={!svg}>
         <span className="sr-only" id={titleId}>Architecture diagram</span>
         <DiagramAlternative description={description} id={descriptionId} />
       </figcaption>
