@@ -4,12 +4,7 @@ import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MermaidDiagram } from "../app/components/MermaidDiagram";
 
-const mermaid = vi.hoisted(() => ({
-  initialize: vi.fn(),
-  render: vi.fn(),
-}));
-
-vi.mock("mermaid", () => ({ default: mermaid }));
+const renderedSvg = "<svg><title>Rendered</title></svg>";
 
 afterEach(() => {
   cleanup();
@@ -17,7 +12,7 @@ afterEach(() => {
 });
 
 describe("MermaidDiagram", () => {
-  it("loads Mermaid only when the diagram approaches the viewport", async () => {
+  it("reveals the pre-rendered SVG only when the diagram approaches the viewport", async () => {
     const chart = "flowchart LR\nA-->B";
     let reveal: (() => void) | undefined;
     vi.stubGlobal("IntersectionObserver", class {
@@ -27,19 +22,17 @@ describe("MermaidDiagram", () => {
       disconnect() {}
       observe() {}
     });
-    mermaid.render.mockResolvedValue({ svg: "<svg><title>Rendered</title></svg>" });
-    render(<MermaidDiagram chart={chart} />);
+    render(<MermaidDiagram chart={chart} renderedSvg={renderedSvg} />);
 
     expect(screen.getByText("Diagram loads as you approach it.")).toBeTruthy();
-    expect(mermaid.render).not.toHaveBeenCalled();
+    expect(screen.queryByRole("img")).toBeNull();
     await act(async () => reveal?.());
 
     expect(await screen.findByRole("img", { name: "Architecture diagram" })).toBeTruthy();
-    expect(mermaid.render).toHaveBeenCalledWith(expect.any(String), chart);
+    expect(screen.getByRole("img").querySelector("title")?.textContent).toBe("Rendered");
   });
 
-  it("keeps invalid source readable when rendering fails", async () => {
-    mermaid.render.mockRejectedValue(new Error("Invalid diagram"));
+  it("keeps source readable when a generated diagram is unavailable", async () => {
     render(<MermaidDiagram chart="not valid mermaid" />);
 
     expect((await screen.findByText("not valid mermaid")).className).toContain("mermaid-fallback");
@@ -49,9 +42,7 @@ describe("MermaidDiagram", () => {
     const script = document.createElement("script");
     script.nonce = "page-nonce";
     document.head.appendChild(script);
-    mermaid.render.mockResolvedValue({ svg: "<svg><style>.node { fill: white; }</style></svg>" });
-
-    render(<MermaidDiagram chart="flowchart LR\nA-->B" />);
+    render(<MermaidDiagram chart="flowchart LR\nA-->B" renderedSvg="<svg><style>.node { fill: white; }</style></svg>" />);
 
     const diagram = await screen.findByRole("img", { name: "Architecture diagram" });
     expect(diagram.querySelector("style")?.nonce).toBe("page-nonce");

@@ -72,8 +72,7 @@ test("every source-authored Mermaid diagram passes CSP", async ({ page }) => {
   for (const route of mermaidRoutes) {
     cspErrors.length = 0;
     await observeRoute(route, () => page.goto(route));
-    const loadingState = page.locator(".mermaid-loading");
-    await expect(loadingState).toHaveCount(1);
+    await expect(page.locator(".mermaid-loading, .mermaid-diagram")).toHaveCount(1);
     await page.evaluate(() => {
       document.querySelector<HTMLElement>(".mermaid-loading, .mermaid-diagram")
         ?.scrollIntoView({ block: "center" });
