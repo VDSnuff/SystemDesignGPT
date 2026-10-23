@@ -71,8 +71,8 @@
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "vinext": "1.0.0-beta.8",
-    "vite": "8.2.2",
-    "vitest": "5.0.1",
+    "vite": "8.2.4",
+    "vitest": "5.0.5",
     "wrangler": "4.147.0",
     "tinyglobby": "0.2.17"
   },
