@@ -84,9 +84,7 @@
       "katex": "0.18.2"
     },
     "fast-glob": "npm:tinyglobby@0.2.17",
-    "miniflare": {
-      "undici": "7.30.1"
-    }
+    "undici@7.29.1": "7.30.1"
   },
   "type": "module"
 }
