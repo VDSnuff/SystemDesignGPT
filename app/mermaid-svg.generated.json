@@ -11,7 +11,7 @@
       "flowchart LR\nU[User or calling system] --> G[Gateway, identity, policy]\nG --> O[Orchestrator / durable run state]\nO --> C[Context builder]\nC --> M[Model]\nM --> V[Structured-output validation]\nV --> D{Decision}\nD -- Respond --> R[Response + evidence]\nD -- Tool request --> P[Permission, risk, approval gate]\nP --> T[Tool adapter / sandbox]\nT --> X[External system or data source]\nX --> T\nT --> E[Normalized observation]\nE --> O\nO --> Q[Trace, metrics, audit, cost]\nP -- Denied or approval needed --> H[Human review / safe stop]",
       "flowchart LR\nB[Business intent] --> R[FRs, NFRs, constraints]\nR --> A[Agent behavior & autonomy spec]\nA --> C[Context, data & tool contracts]\nC --> D[Architecture + ADRs]\nD --> E[Evaluation specification & dataset]\nE --> T[Implementation plan & tasks]\nT --> I[Code, prompts, policies, schemas]\nI --> V[Offline evaluation + security testing]\nV --> L[Canary / gated release]\nL --> P[Production outcome evidence]\nP --> R"
     ],
-    "lockfileSha256": "a61c6218fb320b1cb37672bb75ecc6425445cd4b6810106f2f07050dc6c010ee",
+    "lockfileSha256": "abee6e3984261fcaade41bd34fb2df38df2c03599de296427e0ff334fb1f87a5",
     "stylesheetSha256": "846377ef71ccf1f2c88e5e0d314eec48daeb9d3e5d12cc3d67970c971d5b0803",
     "config": {
       "startOnLoad": false,
