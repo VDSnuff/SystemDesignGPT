@@ -171,6 +171,10 @@ approved D1 backup/restore procedure; never improvise destructive SQL.
 
 ## Failure handling
 
+Use the [production incident runbooks](incident-runbooks.md) for provider,
+D1, deployment, migration, identity-header and client failures, including
+diagnostic limits, ownership, containment and communication.
+
 | Failure | Action |
 | --- | --- |
 | SHA/version mismatch | Stop. Rebuild and save from the verified candidate. |
