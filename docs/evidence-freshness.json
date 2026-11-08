@@ -18,7 +18,7 @@
       "id": "S46", "url": "https://www.iso.org/standard/72089.html", "chapters": [14],
       "owner": "handbook-editor", "reasons": ["paid-standard-abstract", "bot-protected", "revision-underway"],
       "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "ISO revision stage, replacement edition, or public abstract changes",
-      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "automated": {"checkedAt": "2026-11-08", "result": "UNVERIFIED", "detail": "Host check passed; Ubuntu 24 local CI returned HTTP 403. The public abstract and lifecycle were independently verified in the browser."},
       "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
       "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "Public abstract and lifecycle still mark ISO/IEC/IEEE 29148:2018 current, confirmed in 2024, with DIS 29148 under development. The requirements-process and information-item guidance in chapters 14–16 remains supported; paid full text was not reviewed."}
     },
@@ -100,7 +100,7 @@
       "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "OWASP changes the legacy entry point, current release, or risk taxonomy",
       "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
       "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The initiative links to the current OWASP GenAI LLM Top 10 2026 resource dated 3 August 2026. Its expanded security-risk and mitigation scope remains consistent with the handbook injection, disclosure, supply-chain, output-handling, agency and resource-exhaustion checks; no fixed ranking is asserted."}
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The initiative links to the OWASP GenAI LLM Top 10 2026 resource dated 3 August 2026. Its linked PDF labels the edition 2026 but retains publication-date placeholders. The reviewed injection, disclosure, agency, supply-chain, resource-exhaustion and output-handling categories remain consistent with the handbook; no fixed ranking or PDF publication date is asserted."}
     },
     {
       "id": "S83", "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/", "chapters": [17],
