@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "reviewedChapters": [
-    { "chapter": 15, "owner": "handbook-editor", "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agent SDK, protocol, security guidance, or cited model behavior changes", "semanticStatus": "CURRENT" },
-    { "chapter": 16, "owner": "handbook-editor", "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agent Skills, AGENTS.md, Spec Kit, or specification workflow changes", "semanticStatus": "CURRENT" },
-    { "chapter": 17, "owner": "handbook-editor", "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agent security, approval, tracing, or evaluation guidance changes", "semanticStatus": "CURRENT" }
+    { "chapter": 15, "owner": "handbook-editor", "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agent SDK, protocol, security guidance, or cited model behavior changes", "semanticStatus": "CURRENT" },
+    { "chapter": 16, "owner": "handbook-editor", "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agent Skills, AGENTS.md, Spec Kit, or specification workflow changes", "semanticStatus": "CURRENT" },
+    { "chapter": 17, "owner": "handbook-editor", "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agent security, approval, tracing, or evaluation guidance changes", "semanticStatus": "CURRENT" }
   ],
   "sources": [
     {
@@ -17,122 +17,122 @@
     {
       "id": "S46", "url": "https://www.iso.org/standard/72089.html", "chapters": [14],
       "owner": "handbook-editor", "reasons": ["paid-standard-abstract", "bot-protected", "revision-underway"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "ISO revision stage, replacement edition, or public abstract changes",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "ISO/IEC/IEEE 29148:2018 remains current, confirmed in 2024, with DIS 29148 under development; its public abstract still supports requirements-process and information-item guidance."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "ISO revision stage, replacement edition, or public abstract changes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "Public abstract and lifecycle still mark ISO/IEC/IEEE 29148:2018 current, confirmed in 2024, with DIS 29148 under development. The requirements-process and information-item guidance in chapters 14–16 remains supported; paid full text was not reviewed."}
     },
     {
       "id": "S63", "url": "https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/", "chapters": [15, 17],
       "owner": "handbook-editor", "reasons": ["agent-guidance", "bot-protected"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agent architecture, orchestration, or guardrail guidance changes",
-      "automated": {"checkedAt": "2026-10-04", "result": "UNVERIFIED", "detail": "HTTP 403 in automated check; exact page independently verified in browser"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The practical guide still distinguishes agents from fixed workflows and supports model/tool/instruction foundations, incremental orchestration, layered guardrails, and high-risk human intervention."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agent architecture, orchestration, or guardrail guidance changes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The canonical guide still separates model-controlled agents from fixed workflows, defines model/tool/instruction foundations, favors incremental single-agent orchestration, and combines guardrails with authorization and high-risk human intervention. Chapters 15 and 17 remain consistent."}
     },
     {
       "id": "S64", "url": "https://openai.github.io/openai-agents-python/", "chapters": [15, 17],
       "owner": "handbook-editor", "reasons": ["sdk-docs"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agents SDK primitives, sessions, guardrails, handoffs, or tracing change",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The current SDK retains agents, tools, handoffs, guardrails, sessions, and tracing; its added sandbox agents do not invalidate the handbook runtime and orchestration guidance."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agents SDK primitives, sessions, guardrails, handoffs, or tracing change",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The SDK introduction retains bounded agent loops, tools, handoffs, guardrails, sessions and tracing, alongside sandbox and realtime agents. It distinguishes the managed SDK runtime from directly owning the Responses API loop; the handbook makes no unsupported framework-version promise."}
     },
     {
       "id": "S71", "url": "https://blog.modelcontextprotocol.io/posts/mcp-roadmap/", "chapters": [15],
       "owner": "handbook-editor", "reasons": ["roadmap"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Roadmap item ships, is withdrawn, or moves into a released MCP specification",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The August 2026 roadmap distinguishes the shipped July stateless core from future messaging, identity, transport, and progressive-discovery work; the handbook preserves that distinction."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Roadmap item ships, is withdrawn, or moves into a released MCP specification",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The August 2026 roadmap still identifies the July 28 stateless core and discovery changes as shipped, while messaging composition, identity/delegation, transport and progressive discovery remain roadmap priorities. The handbook preserves the release-versus-proposal boundary."}
     },
     {
       "id": "S72", "url": "https://a2a-protocol.org/latest/", "chapters": [15],
       "owner": "handbook-editor", "reasons": ["latest-specification"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "A2A latest-version target or task and artifact semantics change",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The linked specification reports latest released version 1.0.0 and retains discovery, tasks, messages, artifacts, and separate authentication/authorization for independent agents."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "A2A latest-version target or task and artifact semantics change",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The latest entry point links to the specification identifying released version 1.0.0. Discovery via Agent Cards, tasks/messages/artifacts, separate authentication and authorization, and complementary MCP integration still support the handbook interoperability guidance."}
     },
     {
       "id": "S73", "url": "https://spec.openapis.org/oas/latest.html", "chapters": [15, 16],
       "owner": "handbook-editor", "reasons": ["latest-specification"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "The OpenAPI latest alias changes edition or contract semantics",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The latest specification is now OpenAPI 3.2.1, published 10 September 2026. The canonical register was corrected and generated book files refreshed; its HTTP contract guidance remains supported.", "contentIssue": "https://github.com/VDSnuff/SystemDesignGPT/issues/162"}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "The OpenAPI latest alias changes edition or contract semantics",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The latest alias still serves OpenAPI 3.2.1 dated 10 September 2026. Its HTTP interface-description scope supports chapters 15–16; the canonical register already names this edition, so no handbook or generated-content correction is needed.", "contentIssue": "https://github.com/VDSnuff/SystemDesignGPT/issues/162"}
     },
     {
       "id": "S77", "url": "https://github.com/open-telemetry/semantic-conventions-genai", "chapters": [15, 17],
       "owner": "handbook-editor", "reasons": ["in-development"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Generative AI semantic conventions stabilize, relocate, or change span attributes",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The GenAI documentation explicitly retains Development status for events, metrics, model spans, and agent spans, supporting the handbook mapping-layer caveat."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Generative AI semantic conventions stabilize, relocate, or change span attributes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The project now holds standalone GenAI conventions; its linked docs/gen-ai/README.md explicitly retains Development status for inference, agent, tool, retrieval and related signals. The handbook mapping-layer and version-pinning cautions remain applicable."}
     },
     {
       "id": "S78", "url": "https://agents.md/", "chapters": [16],
       "owner": "handbook-editor", "reasons": ["living-convention"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "AGENTS.md ownership, format, scope, or precedence guidance changes",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The format remains ordinary Markdown with nested repository scope and closest-file precedence, stewarded by the Agentic AI Foundation; handbook repository-guidance claims remain supported."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "AGENTS.md ownership, format, scope, or precedence guidance changes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The open format still uses ordinary Markdown, build/test guidance, nested scope and closest-file precedence, with explicit user prompts taking precedence. Agentic AI Foundation stewardship remains stated. This supports chapter 16 without making repository instructions an authorization boundary."}
     },
     {
       "id": "S79", "url": "https://github.com/agentskills/agentskills/blob/main/docs/specification.mdx", "chapters": [16],
       "owner": "handbook-editor", "reasons": ["living-specification"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agent Skills frontmatter, discovery, or loading requirements change on main",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The specification still requires SKILL.md frontmatter and describes optional scripts, references, assets, and progressive metadata/instruction/resource loading."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agent Skills frontmatter, discovery, or loading requirements change on main",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The canonical specification still requires SKILL.md with name/description frontmatter, permits scripts/references/assets, and describes progressive metadata, instruction and resource loading. Experimental allowed-tools support varies by implementation; the handbook correctly retains external authorization and sandbox controls."}
     },
     {
       "id": "S80", "url": "https://github.github.com/spec-kit/", "chapters": [16],
       "owner": "handbook-editor", "reasons": ["active-project"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Spec Kit workflow, commands, phases, or supported agents change",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The September 2026 documentation retains Specify, Plan, Tasks, Implement, and Converge with Markdown artifacts and analysis; expanded opt-in processes do not invalidate the cited SDD workflow."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Spec Kit workflow, commands, phases, or supported agents change",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The documentation updated 4 November 2026 retains the core Specify → Plan → Tasks → Implement → Converge flow, Markdown artifacts and cross-artifact analysis. Optional bug-fixing/assessment processes and expanded integrations do not change the handbook traceability and change-control guidance."}
     },
     {
       "id": "S82", "url": "https://genai.owasp.org/initiatives/top-10-for-llm-and-genai/", "chapters": [17],
       "owner": "handbook-editor", "reasons": ["release-pointer"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "OWASP changes the legacy entry point, current release, or risk taxonomy",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The initiative page now presents the 2026 release directly and lists prompt injection, disclosure, supply chain, output handling, excessive agency, and unbounded consumption; the old legacy-page description was removed."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "OWASP changes the legacy entry point, current release, or risk taxonomy",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The initiative links to the current OWASP GenAI LLM Top 10 2026 resource dated 3 August 2026. Its expanded security-risk and mitigation scope remains consistent with the handbook injection, disclosure, supply-chain, output-handling, agency and resource-exhaustion checks; no fixed ranking is asserted."}
     },
     {
       "id": "S83", "url": "https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/", "chapters": [17],
       "owner": "handbook-editor", "reasons": ["active-security-guidance"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "OWASP agentic threat taxonomy or control guidance changes",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The canonical resource still identifies its February 2025 guide as a threat-model-based reference for agentic threats and mitigations; this review verifies that scope and publication, not a new taxonomy edition."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "OWASP agentic threat taxonomy or control guidance changes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The resource landing date remains 17 February 2025, but its linked PDF identifies version 1.1, December 2025. The reviewed threat model, memory/tool/identity risks and mitigation playbooks still support the handbook defense-in-depth and human-control guidance; the landing date is not treated as the PDF edition."}
     },
     {
       "id": "S84", "url": "https://learn.microsoft.com/en-us/agents/architecture/threat-models", "chapters": [17],
       "owner": "handbook-editor", "reasons": ["active-security-guidance"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Agent threat boundaries, data flows, or mitigation guidance changes",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "The May 2026 guidance still maps orchestrator, model, tool, data, and client flows to trust boundaries and security control points, supporting the handbook full-system threat model."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Agent threat boundaries, data flows, or mitigation guidance changes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The article remains dated 20 May 2026 and maps prompts, orchestrators, clients, models, tools and data sources to security boundaries and control points. Chapters 15–17 continue to require the same whole-system threat model and enforced controls."}
     },
     {
       "id": "S89", "url": "https://openai.github.io/openai-agents-python/human_in_the_loop/", "chapters": [17],
       "owner": "handbook-editor", "reasons": ["sdk-docs"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Approval, pause, rejection, or resumable-run semantics change",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "Approval rules still fail closed on unsafe arguments and support pause, approve, reject, and resume; trusted server-owned snapshots, reviewer authorization, and replay prevention reinforce the handbook external control-plane guidance."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Approval, pause, rejection, or resumable-run semantics change",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "The current guide supports fail-closed argument review, pause/approve/reject/resume and trusted server-owned pending state. Approvals for local shell/file tools are opt-in; persistent decisions can span agents and executors. The handbook per-action, argument-specific approval policy must be enforced explicitly rather than assumed from SDK defaults."}
     },
     {
       "id": "S90", "url": "https://openai.github.io/openai-agents-python/tracing/", "chapters": [17],
       "owner": "handbook-editor", "reasons": ["sdk-docs"],
-      "lastChecked": "2026-10-04", "reviewAfter": "2026-11-03", "nextReviewTrigger": "Tracing defaults, span types, privacy controls, or export behavior changes",
-      "automated": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "browser": {"checkedAt": "2026-10-04", "result": "PASS"},
-      "semantic": {"checkedAt": "2026-10-04", "result": "CURRENT", "summary": "Tracing still covers model/tool/handoff/guardrail events and captures sensitive data by default. The documented replacement-exporter redaction path supports the handbook requirement to redact before export and protect audit access."}
+      "lastChecked": "2026-11-08", "reviewAfter": "2026-12-08", "nextReviewTrigger": "Tracing defaults, span types, privacy controls, or export behavior changes",
+      "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "Tracing still covers model, tool, handoff and guardrail events and includes sensitive data by default. The guide requires replacing default processors with an application-owned fail-closed redacting exporter when export depends on redaction; adding a processor leaves the default exporter active. This supports the handbook pre-export redaction rule."}
     }
   ]
 }
