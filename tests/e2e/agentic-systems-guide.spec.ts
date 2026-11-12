@@ -13,5 +13,9 @@ test("the Agentic systems guide article renders at desktop and mobile widths", a
     await expect(coverage.getByRole("link", { name: "Canonical handbook chapter 16: Spec-Driven Development for Agentic Systems" })).toHaveAttribute("href", "/book/16-spec-driven-development-for-agentic-systems");
     await expect(coverage.getByRole("link", { name: "Canonical handbook chapter 17: Agent-System Design Review Checklist" })).toHaveAttribute("href", "/book/17-agent-system-design-review-checklist");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.getByRole("link", { name: "Make long-running execution durable" }).click();
+    await expect(page).toHaveURL(/#15-17-make-long-running-agent-execution-durable$/);
+    await expect(page.getByRole("heading", { name: "15.17 Make long-running agent execution durable" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 });

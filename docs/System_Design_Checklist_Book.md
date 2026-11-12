@@ -1686,6 +1686,70 @@ Measure cost per successful outcome rather than cost per model call. A cheap mod
 
 *Evidence: S24, S25, S68, S81, S83, S84*
 
+## 15.16 Choose an orchestration pattern with a baseline
+
+Consider an internal policy assistant for a support team. It must answer from the published policy for the customer's region and product, cite the exact policy revision, and escalate conflicting or missing evidence. Support staff may approve an internal follow-up ticket. The assistant has no customer messaging or policy-editing capability.
+
+Start with fixed retrieval-augmented generation (RAG). Code selects the tenant-scoped policy index, retrieves passages, and asks the model for a cited answer. Keep exact policy identifiers, revision dates, and access checks in ordinary code. Keep this baseline when most cases resolve with one search.
+
+| Pattern | Where it fits in this system | Failure to test |
+|---|---|---|
+| Prompt chain | Extract product and region, retrieve, then draft and validate. | A wrong region in the first step contaminates the remaining steps. |
+| Router | Use policy lookup for general questions and a scoped order lookup for account-specific ones. | Ambiguous requests take a route that cannot answer them. |
+| Parallel fan-out | Read product and regional policies concurrently when the two lookups are independent. | A slow or failed lookup leaves evidence missing at the join. |
+| Bounded tool loop | Search again when the first result points to a superseding policy or leaves a required fact unresolved. | Repeated queries consume the budget without improving evidence. |
+| Orchestrator and workers | Delegate independently searchable policy collections to specialists and combine their cited findings. | Workers duplicate effort or report incompatible revisions. |
+| Evaluator and optimizer | Revise a draft once when a check finds an unsupported claim or missing citation. | A permissive grader approves confident language without evidence. |
+
+In a tool loop, the runtime validates each model-proposed action, executes the permitted tool, records the observation, and decides whether another turn fits the remaining deadline and call budget. A plan-and-execute design can persist milestones for longer tasks. Recheck dependencies before acting on a saved plan. A user-facing handoff transfers ownership of the conversation. A specialist called as a tool returns evidence to the original coordinator, which still owns the answer.
+
+Try fixed parallel retrieval before giving workers their own model loops. Require workers to return a claim, source ID, source revision, and unresolved questions. Give them separate context and read permissions and let one coordinator resolve conflicts. In a controlled benchmark study, the relative performance of single- and multi-agent designs depended on task structure. Use the study to motivate a comparison on your workload with comparable budgets.
+
+An ordinary function call or HTTP API can connect components under one owner. Use MCP where multiple agent hosts need a common tool or context interface. Use A2A where an independently operated agent owns a delegated task and returns status and artifacts. For example, an A2A policy-research agent could use MCP to search an approved document catalog. In either case the calling service owns the delegation deadline, validates the returned evidence, and enforces the caller's data permissions.
+
+*Evidence: S64, S65, S69, S70, S72, S94, S95*
+
+## 15.17 Make long-running agent execution durable
+
+The **harness** runs the model loop. It assembles context, checks budgets, dispatches tools, and advances the run. A durable session log records completed steps and their results so a replacement worker can resume. Execution environments run tools and can be replaced or isolated independently. Managed agent platforms implement versions of this split. Your application still owns resource permissions, the approval record, and the final business outcome.
+
+| Store | What the policy assistant keeps there | Lifetime and owner |
+|---|---|---|
+| Run state | Run ID, identity, budget, tool receipts, approval state, pinned versions | Job lifetime plus recovery window, owned by the orchestrator |
+| Model context | Relevant passages, recent observations, compact summary | Rebuilt per turn from scoped records |
+| Knowledge index | Searchable policy chunks linked to source revisions | Rebuilt from published policies, owned by the knowledge team |
+| User memory | An explicitly saved preference such as response language | Editable and deletable by the user under the retention policy |
+| Audit record | Actor, action, approval and external effect receipt | Access-controlled and retained according to policy |
+
+For this example, a request starts an asynchronous run with a status endpoint. The same run ID correlates UI progress and server events. If the client disconnects, it can reload state from the endpoint. A database-backed state machine and queue can handle a short state graph. For repeated waits, recovery timers, and child runs, compare that design with a durable workflow engine. In a replay-based engine, record nondeterministic model and API activity results so replay can rebuild the workflow from history.
+
+To create a follow-up ticket, persist the exact proposal and a stable operation key before calling the ticket service. An authorized reviewer approves a specific tenant, queue, and payload revision. A new revision requires a new approval. On resume, recheck current permissions and expiry. If the ticket service commits and the worker dies before saving the receipt, look up the original operation key or repeat the same key when the destination guarantees deduplication. When the destination offers neither mechanism, put the run into reconciliation for a human.
+
+Authorize every retrieval and write at execution time. Use narrow tool schemas and keep credentials out of model context. For tools that need code execution, give the worker only the filesystem, network, time, and resource access the task needs. Before resuming or delivering a draft, recheck access and policy revisions. Rebuild context and regenerate the draft when a source becomes unavailable or stale, including material derived from it in cached summaries. Persist approval and receipt records outside summaries so compaction cannot erase them.
+
+*Evidence: S66, S67, S89, S96, S97, S98, S99*
+
+## 15.18 Evaluate, size, and release an agent system
+
+Compare the fixed-RAG policy assistant with the bounded tool loop on the same cases, models, permissions, and source revisions. Use multiple trials on the same case, then report results by case type. Examples include routine lookups, multi-source questions, outdated policies, access changes, and upstream timeouts. Measure helpful escalation separately so an agent cannot improve apparent safety by escalating every request.
+
+| Evaluation case | What to assert |
+|---|---|
+| Clear answer in a current policy | The answer matches the policy and its citation resolves to the right revision. |
+| Conflicting sources | The run identifies the conflict and escalates without publishing an unsupported conclusion. |
+| Another tenant's record, revoked source access, or untrusted instructions in a document | The access audit contains no unauthorized reads or writes, and the user-visible answer reveals no restricted content. |
+| Expired approval or changed ticket payload | The ticket service receives no write and the run returns to review or stops. |
+| Worker crash after an accepted write | Recovery returns the existing ticket receipt and the destination contains one ticket. |
+| Retrieval quota or deadline reached | The run stops within its budget and reports what evidence is missing. |
+
+Use deterministic checks for permissions, receipts, duplicates, and budgets. Human reviewers can judge whether a cited passage supports an answer. If you use a model grader for that judgment, calibrate it against human labels and retain examples where it disagrees. Keep final task state, trajectory, and user-visible output available as distinct evaluation inputs. Run destructive or permission-failure fixtures against isolated synthetic records.
+
+Capacity starts with the whole run. At an illustrative 20 new runs per second and three model calls per run on average, the system makes 60 model calls per second before retries. Estimate input and output token rates separately and include tool fan-out, approval backlog, and provider throttling. Bound queue depth and concurrency by tenant. Track p95 time to completion, time awaiting review, escalation rate, and cost per verified resolution, including failed attempts and reviewer time. For example, if a cohort costs $60 across 100 runs and verifies 80 resolutions, cost per verified resolution is $0.75.
+
+Version the model, prompt, retrieval index, tool contracts, policy, and grader. Compare the candidate in a shadow run with writes disabled, then canary it with a small cohort. Block release on unauthorized access, disclosure of restricted data, or duplicate writes. Correlate run, model, retrieval, tool, approval, and receipt events. Export identifiers, timings, counts, and outcomes by default. Apply redaction before export for any separately approved content capture. Define who disables writes or rolls back the configuration when the canary breaches a gate.
+
+*Evidence: S68, S77, S81, S86, S99, S100*
+
 # 16. Spec-Driven Development for Agentic Systems
 
 Spec-driven development makes intent and constraints explicit before implementation, then keeps them traceable through executable tasks, evaluations, release evidence, and production feedback. For agentic software, the specification must cover probabilistic behavior and authority—not only API shapes and code structure.
@@ -2205,6 +2269,13 @@ This is a dated edition snapshot, not a claim that semantic support is permanent
 | S91 | [Anthropic: Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) | Official long-running-agent engineering guidance | PASS / PASS |
 | S92 | [Anthropic: Building and evaluating trustworthy agents](https://www.anthropic.com/research/trustworthy-agents) | Official research on control, transparency, privacy, and security | PASS / PASS |
 | S93 | [C4 model: diagrams and notation](https://c4model.com/diagrams) | Official documentation from the model's creator; hierarchical views, supporting diagrams, and notation guidance | PASS / PASS |
+| S94 | [Kim et al.: Towards a Science of Scaling Agent Systems, v3](https://arxiv.org/abs/2512.08296v3) | Controlled research across agent architectures and task types | Reviewed 12 November 2026 |
+| S95 | [Microsoft: Develop an agentic RAG solution](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/rag/rag-agentic) | Official guidance on fixed and model-directed retrieval | Reviewed 12 November 2026 |
+| S96 | [Anthropic: Scaling Managed Agents](https://www.anthropic.com/research/managed-agents) | Engineering case study of separable harness, session, and execution | Reviewed 12 November 2026 |
+| S97 | [Temporal: Workflow execution](https://docs.temporal.io/workflows) | Official documentation on event history and deterministic replay | Reviewed 12 November 2026 |
+| S98 | [AWS: Durable execution idempotency and retries](https://docs.aws.amazon.com/durable-execution/patterns/best-practices/idempotency/) | Official guidance on retrying operations with external effects | Reviewed 12 November 2026 |
+| S99 | [OWASP: Securing Agentic Applications V2](https://genai.owasp.org/resource/securing-agentic-applications-v2/) | November 2026 guidance on agent architecture, identity, and assurance | Reviewed 12 November 2026 |
+| S100 | [OpenAI: Evaluate agent workflows](https://developers.openai.com/api/docs/guides/agent-evals) | Official guidance on datasets and workflow trace grading | Reviewed 12 November 2026 |
 
 ## Practitioner cross-check sources
 
@@ -2223,7 +2294,7 @@ These sources influenced organization and teaching emphasis. They do not replace
 - **S46:** ISO/IEC/IEEE 29148:2018 remains the current published edition, but ISO marks it for revision and shows a replacement draft under development. The handbook therefore avoids depending on edition-specific wording that is not visible in the public ISO abstract.
 - **ISO full text:** the public ISO pages expose metadata and abstracts, not the entire paid standards. Detailed requirement-writing and verification guidance in this book is additionally grounded in the publicly accessible NASA Systems Engineering Handbook (S53) and Microsoft architecture guidance.
 - **HelloInterview:** P1-P4 are deliberately secondary. They are used for teaching structure and heuristics only.
-- **Fast-moving agent ecosystem:** Chapters 15-17 are a source-verified snapshot as of 24 August 2026. Model names, prices, context limits, SDK behavior, service quotas, and provider policies must be rechecked for a concrete implementation.
+- **Fast-moving agent ecosystem:** Chapters 15-17 originated as a source-verified snapshot on 24 August 2026. The worked design in sections 15.16–15.18 adds sources reviewed on 12 November 2026. Recheck model capabilities, prices, SDK behavior, service quotas, and provider policies for a concrete implementation.
 - **MCP:** S70 describes the released 28 July 2026 stateless core. Older MCP material may assume a stateful initialization/session lifecycle. S71 is a roadmap and is not evidence that proposed agent-messaging or other future capabilities are implemented.
 - **A2A and Agent Skills:** interoperability does not establish trust. Version support, identity, authorization, data handling, and remote behavior still require explicit contracts and testing.
 - **OpenTelemetry GenAI:** S77 marks its semantic conventions as development status. Use an internal mapping layer and expect names or attributes to change.
