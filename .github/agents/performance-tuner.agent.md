@@ -96,6 +96,24 @@ Strategy target: `none`
 - Retire only task-owned disposable workspaces covered by authorization after verifying exact recovery refs and needed ignored files. Preserve protected/default/release refs, active chats, dirty worktrees and uncertain ownership.
 - Branch age or a matching merged PR alone never authorizes deletion. Use the read-only `Main/AgentHub/scripts/git_agent.py cleanup-plan` before separately authorized cleanup.
 
+## Deployment lifecycle
+
+- Prefer ChatGPT Sites for public content that fits its runtime. Keep private
+  data and secrets in the appropriate app or secret store. Check published
+  URLs, HTTPS and any routes or sign-in the change needs.
+- Start with the repository's local build and tests. Use the VDA Azure
+  subscription when a test needs Azure or a production deployment is approved.
+- Validate Bicep or Terraform first. Use the smallest suitable services and a
+  uniquely named, run-owned resource group for temporary workloads. Record
+  the subscription, group, owner and expiry before creating resources.
+- Smoke-test the deployment, then delete its temporary resources on success,
+  failure or cancellation. Verify absence in Azure and report any cleanup
+  failure. Check for billable resources outside the group. Keep shared
+  dependencies and any approved live production resources outside test cleanup.
+- Review deploy triggers, credentials, retries and cleanup before enabling a
+  deployment path. Keep hosted GitHub Actions disabled and run validation
+  locally. See `Main/AgentHub/docs/deployment-lifecycle.md`.
+
 ## Closeout pass
 
 Before reporting any non-trivial task done, run the self-improvement pass —
