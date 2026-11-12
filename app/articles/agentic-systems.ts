@@ -11,6 +11,16 @@ Keep deterministic control over identity, authorization, budgets, approvals, dur
 
 *Evidence: [S63 — OpenAI practical guide to building agents](https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/), [S65 — Anthropic building effective agents](https://www.anthropic.com/engineering/building-effective-agents), [S68 — Anthropic agent evaluation guidance](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents).*
 
+## Follow a worked agent design from prototype to production
+
+The handbook follows one policy-support assistant from a fixed retrieval baseline to a bounded agent that can gather more evidence and propose an internal follow-up ticket for review. Use these three sections to turn an agent idea into an architecture and a release decision.
+
+1. [Choose an orchestration pattern](/book/15-llm-and-agentic-systems#15-16-choose-an-orchestration-pattern-with-a-baseline). Compare fixed retrieval, routing, parallel fan-out, and model-driven tool loops. Delegate to specialist agents when tasks can be done independently and measured against the simpler baseline.
+2. [Make long-running execution durable](/book/15-llm-and-agentic-systems#15-17-make-long-running-agent-execution-durable). Separate the harness that runs the model loop, the session log, and the environments that execute tools. See how the assistant resumes after a crash without creating a second ticket.
+3. [Evaluate, size, and release the system](/book/15-llm-and-agentic-systems#15-18-evaluate-size-and-release-an-agent-system). Use repeat trials, checks against final business state, a capacity estimate, and a rollout plan that accounts for human review.
+
+*Evidence: [S94 — Agent system scaling study](https://arxiv.org/abs/2512.08296v3), [S96 — Anthropic managed agent architecture](https://www.anthropic.com/research/managed-agents), [S100 — OpenAI workflow evaluation](https://developers.openai.com/api/docs/guides/agent-evals).*
+
 ## Choose the least autonomy that satisfies the requirement
 
 Move up this ladder deliberately. Each step expands the possible sequences of model decisions, tool calls, latency, cost, and failure.
@@ -83,7 +93,7 @@ The **Model Context Protocol (MCP)** connects an agent host to tools, resources,
 
 Pin the protocol and SDK versions, supported features, authentication, audience, data classification, timeouts, limits, and error semantics. Treat remote tools and agents like external services: validate their claims, bound returned data, preserve correlation, and verify final effects locally. Do not infer released behavior from a roadmap.
 
-This article follows the canonical handbook snapshot verified on **24 August 2026**. In particular, its MCP discussion refers to the **28 July 2026** stateless-core release, while A2A refers to the linked latest specification at that verification date. Protocol releases, model capabilities, SDK behavior, prices, quotas, and provider policies move quickly; recheck official sources and concrete deployed versions before implementation.
+These protocol notes follow the canonical handbook snapshot verified on **24 August 2026**. The MCP discussion refers to the **28 July 2026** stateless-core release, and the A2A discussion follows the specification available at that verification date. Recheck official sources and deployed versions before implementation, including SDK behavior, quotas, and provider policies.
 
 *Evidence: [S70 — MCP 28 July 2026 release](https://blog.modelcontextprotocol.io/posts/2026-07-28/), [S71 — MCP August 2026 roadmap](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/), [S72 — A2A latest specification](https://a2a-protocol.org/latest/), [S75 — OAuth protected resource metadata](https://www.rfc-editor.org/rfc/rfc9728.html), [S76 — OAuth resource indicators](https://www.rfc-editor.org/rfc/rfc8707.html).*
 

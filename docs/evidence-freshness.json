@@ -133,6 +133,22 @@
       "automated": {"checkedAt": "2026-11-08", "result": "PASS"},
       "browser": {"checkedAt": "2026-11-08", "result": "PASS"},
       "semantic": {"checkedAt": "2026-11-08", "result": "CURRENT", "summary": "Tracing still covers model, tool, handoff and guardrail events and includes sensitive data by default. The guide requires replacing default processors with an application-owned fail-closed redacting exporter when export depends on redaction; adding a processor leaves the default exporter active. This supports the handbook pre-export redaction rule."}
+    },
+    {
+      "id": "S95", "url": "https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/rag/rag-agentic", "chapters": [15],
+      "owner": "handbook-editor", "reasons": ["agent-guidance"],
+      "lastChecked": "2026-11-12", "reviewAfter": "2026-12-12", "nextReviewTrigger": "The guide changes its fixed versus agent-directed retrieval comparison",
+      "automated": {"checkedAt": "2026-11-12", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-12", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-12", "result": "CURRENT", "summary": "The guide distinguishes fixed retrieval and generation from letting a model choose when and where to retrieve and iterate. The handbook uses this distinction and makes no Azure service capability claim."}
+    },
+    {
+      "id": "S100", "url": "https://developers.openai.com/api/docs/guides/agent-evals", "chapters": [15],
+      "owner": "handbook-editor", "reasons": ["agent-guidance"],
+      "lastChecked": "2026-11-12", "reviewAfter": "2026-12-12", "nextReviewTrigger": "The workflow evaluation guide changes its dataset or trace grading guidance",
+      "automated": {"checkedAt": "2026-11-12", "result": "PASS"},
+      "browser": {"checkedAt": "2026-11-12", "result": "PASS"},
+      "semantic": {"checkedAt": "2026-11-12", "result": "CURRENT", "summary": "The guide recommends reproducible agent evaluations with datasets and grading workflow traces. The handbook combines trace review with separate business-state checks and makes no SDK availability claim."}
     }
   ]
 }
