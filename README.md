@@ -179,6 +179,9 @@ npm run test:e2e:visual
 
 ## Deploy and recover
 
+The [production incident runbooks](docs/operations/incident-runbooks.md) cover
+provider, D1, deployment, migration, identity-header and client failures.
+
 Deployment is an exact-revision operation, not an inference from a successful
 build. Follow the [Sites release runbook](docs/operations/sites-release-runbook.md)
 to establish the remote-main SHA, tested SHA, saved-version source SHA, and
