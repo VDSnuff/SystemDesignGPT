@@ -118,9 +118,11 @@ for command ownership and evidence limits. In particular:
   not prove hosted bindings, identity, or cross-user isolation.
 - `check:performance:d1` and `check:recovery:d1` prove only isolated local
   migrations, data-integrity behavior, cleanup, and backup shape.
-- `test:e2e` uses Chromium and mocked authenticated/provider boundaries against
-  the local app. It does not prove another engine, a physical device, a real
-  account, hosted D1, or a real provider.
+- `test:e2e` uses Chromium and mocks authenticated and provider boundaries.
+  Run `npm run build` before `CI=1 npm run test:e2e` to test the built Worker,
+  as the Quality job does. Local runs use the development server by default.
+  Set `PLAYWRIGHT_PORT` if port 4174 is in use. This suite covers one engine
+  with local fixtures.
 - `check:links` uses the network. HTTP 401, 403, 429, 5xx, and network failures
   remain `UNVERIFIED` and require browser review; other terminal 4xx responses
   fail the gate.

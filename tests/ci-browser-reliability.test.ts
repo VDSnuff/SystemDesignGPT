@@ -13,6 +13,12 @@ describe("browser CI reliability", () => {
     expect(config).toContain("reportSlowTests: process.env.CI");
   });
 
+  it("builds the Worker before starting the browser contracts in CI", () => {
+    const browserJob = workflow.split("\n  browser:\n")[1];
+    expect(browserJob).toMatch(/run: npm run build[\s\S]*run: \/usr\/bin\/time --verbose npm run test:e2e/);
+    expect(config).toMatch(/command: process.env.CI\s*\? "npm run start:built-worker"/);
+  });
+
   it("records resource use without requiring a missing performance artifact", () => {
     expect(workflow).toContain("/usr/bin/time --verbose npm run test:e2e");
     expect(workflow).toContain("always() && hashFiles('performance-results/**') != ''");
