@@ -2194,7 +2194,7 @@ This is a dated edition snapshot, not a claim that semantic support is permanent
 | S16 | [Microsoft: Saga distributed transactions pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/saga) | Official guidance | PASS / PASS |
 | S17 | [Microsoft: Transient Fault Handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults) | Official guidance | PASS / PASS |
 | S18 | [Microsoft: Retry Storm Antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/) | Official guidance | PASS / PASS |
-| S19 | [AWS: Control and limit retry calls](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html) | Official guidance | PASS / PASS |
+| S19 | [AWS: Control and limit retry calls](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel05-bp03.html) | Official guidance | Reviewed 22 November 2026 |
 | S20 | [Microsoft: Cache-Aside Pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside) | Official guidance | PASS / PASS |
 | S21 | [Microsoft: Caching Guidance](https://learn.microsoft.com/en-us/azure/architecture/best-practices/caching) | Official guidance | PASS / PASS |
 | S22 | [OpenTelemetry: Signals — traces, metrics, logs](https://opentelemetry.io/docs/concepts/signals/) | Official project documentation | PASS / PASS |

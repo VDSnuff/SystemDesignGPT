@@ -9,7 +9,7 @@ Begin with the user promise: the critical outcome, end-to-end deadline, acceptab
 
 Treat timeout, retry, circuit breaking, overload rejection, resource-pool isolation, fallback, and recovery as one control system. A retry may survive a short fault but consumes deadline and capacity. A circuit breaker protects a struggling dependency by rejecting work. A fallback is useful only when its data and semantics remain honest.
 
-*Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html).*
+*Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel05-bp03.html).*
 
 ## Classify failure before choosing a response
 
@@ -36,7 +36,7 @@ Per-request limits are insufficient: many callers can each obey them and still o
 
 Use exponential backoff and **jitter**, a small random variation, to prevent lockstep retries. Honor valid server retry guidance. After exhaustion, expose a terminal outcome; endless retries turn stale work into continuing load.
 
-*Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html).*
+*Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel05-bp03.html).*
 
 ## Compare the resilience controls
 
@@ -66,7 +66,7 @@ The product hides recommendations and defers loyalty accrual, but never claims c
 
 Tests inject latency, overload, dropped replies around acceptance, and recovery after circuit opening. They prove the deadline, no duplicate reservation, bounded attempts, useful degradation, isolation, and recovery without a retry spike.
 
-*Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_limit_retries.html).*
+*Evidence: [S17 — Microsoft transient fault handling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/transient-faults), [S18 — Microsoft retry storm antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/retry-storm/), [S19 — AWS guidance for controlling retries](https://docs.aws.amazon.com/wellarchitected/latest/framework/rel05-bp03.html).*
 
 ## Degrade deliberately and recover completely
 
